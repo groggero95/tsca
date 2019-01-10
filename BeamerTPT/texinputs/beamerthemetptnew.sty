@@ -1,0 +1,279 @@
+\NeedsTeXFormat{LaTeX2e}[1995/12/01]
+\ProvidesPackage{beamerthemetptnew}[2011/11/15]
+
+\RequirePackage{xcolor}
+\RequirePackage{helvet}
+
+\mode<presentation>
+
+\newif\iftpt@infolines\tpt@infolinesfalse
+\DeclareOption{infolines}{\tpt@infolinestrue}
+\newif\iftpt@navsymbols\tpt@navsymbolstrue
+\DeclareOption{nonavsymbols}{\tpt@navsymbolsfalse}
+\newif\iftpt@logosaclay\tpt@logosaclayfalse
+\DeclareOption{logosaclay}{\tpt@logosaclaytrue}
+\ProcessOptions
+
+%
+% Extra metadata commands: \email, \dept.
+%
+\newcommand\email[1]{\gdef\insertemail{#1}}
+\email{}
+\newcommand\dept[1]{\gdef\insertdept{#1}}
+\dept{}
+
+% le logo de la page de titre
+\pgfdeclareimage[width=2cm]{LogoFirst}{logo-gray.pdf}
+\pgfdeclareimage[width=2cm]{LogoFirstSaclay}{logo-upsay-violet.pdf}
+% pour positionner ce logo par rapport au coin sup. gauche
+\newcommand\logoskipv{.12\paperheight}
+\newcommand\logoskiph{.10\paperwidth}
+% Pour ajouter quelque chose sous le logo de la page de titre
+\newcommand\extralogo[1]{\gdef\insertextralogo{#1}}
+\extralogo{}
+
+\newlength{\logoheight}
+\newlength{\brownblockwidth}
+\iftpt@logosaclay
+% Quand le logo de Saclay est utilisé, il faut réduire la taille à 5% de la largeur de la slide
+   \setlength{\logoheight}{.05118\paperwidth}
+   \setlength{\brownblockwidth}{.42\paperwidth}
+   \newcommand\insertFirstLogoSaclay{\hspace{\logoskiph}\pgfuseimage{LogoFirstSaclay}\vspace{.18\paperheight}}
+   \newcommand\insertLogoSaclay{\hspace{1em}\raisebox{-1.5ex}{\pgfuseimage{logoUPSay}}\hspace{1em}}
+\else
+% le logo fait 1cm de haut soit 7.8% des 12.8cm de large d'un beamer 4/3 standard
+   \setlength{\logoheight}{.07812\paperwidth}
+   \setlength{\brownblockwidth}{.44\paperwidth}
+   \newcommand\insertFirstLogoSaclay{}
+   \newcommand\insertLogoSaclay{}
+\fi
+\pgfdeclareimage[width=\logoheight]{logoTPT}{tpt}
+\logo{\pgfuseimage{logoTPT}}
+% pour l'upsay
+\pgfdeclareimage[height=\logoheight]{logoUPSay}{logo-upsay-e}
+
+% .3 cm pour un beamer standard de 9.6cm de haut
+\newcommand\footlineheight{0.03125\paperheight}
+
+% 1mm pour un beamer standard de 12.8cm de large
+\newcommand\footlinespacing{0.0078125\paperwidth}
+
+%
+% Fonts and colors.
+%
+
+\definecolor{tptred}{RGB}{191,18,56} 
+\definecolor{tptbrown}{RGB}{109,80,71}
+
+\setbeamercolor{frametitle}{fg=tptred,bg=white}
+\setbeamercolor{structure}{fg=tptred}
+\setbeamercolor{title}{bg=white,fg=black}
+\setbeamercolor{subtitle}{bg=white,fg=black!40}
+\setbeamercolor{author in title frame}{bg=white,fg=black!40}
+\setbeamercolor{mail in title frame}{bg=white,fg=black!40}
+\setbeamercolor{date in title frame}{bg=white,fg=black!40}
+\setbeamercolor{date in head/foot}{fg=white,bg=tptbrown}
+\setbeamercolor{page in head/foot}{fg=white,bg=tptred}
+\setbeamercolor{dept in head/foot}{fg=white,bg=black}
+\setbeamercolor{author in head/foot}{fg=white,bg=tptbrown}
+\setbeamercolor{section in head/foot}{bg=white,fg=tptred}
+\setbeamercolor{subsection in head/foot}{bg=white,fg=tptbrown}
+\setbeamercolor{title in head/foot}{fg=white,bg=tptbrown}
+\setbeamercolor{block title}{parent=structure,bg=normal text.bg!75!tptbrown}
+\setbeamercolor{block body}{bg=normal text.bg!98!tptbrown}
+\setbeamercolor{block title alerted}{use={normal text,alerted text},fg=alerted text.fg!75!normal text.fg,bg=normal text.bg!75!tptred}
+\setbeamercolor{block body alerted}{bg=normal text.bg!95!tptred}
+
+
+\setbeamerfont{title}{size*={14}{16},series=\bfseries}
+\setbeamerfont{subtitle}{size*={10}{14},series=\bfseries}
+\setbeamerfont{author in title frame}{size*={10}{12}, family=\sffamily}
+\setbeamerfont{email in title frame}{size*={8}{10},family=\ttfamily}
+\setbeamerfont{date in title frame}{size*={8}{10}, family=\sffamily}
+\setbeamerfont{date in head/foot}{size*={6}{7},series=\sffamily}
+\setbeamerfont{page in head/foot}{size*={5}{6},series=\sffamily}
+\setbeamerfont{dept in head/foot}{size*={6}{7},series=\sffamily}
+\setbeamerfont{author in head/foot}{size*={6}{7},series=\sffamily}
+\setbeamerfont{frametitle}{size*={14}{18},series=\bfseries}
+
+
+%
+% Title page.
+%
+\defbeamertemplate*{title page}{tpt default}%
+{%
+   \begin{columns}
+   \begin{column}{.4\paperwidth}
+      \begin{minipage}[t][\paperheight][t]{\textwidth}%
+         \vspace{\logoskipv}\par%
+         \hspace{\logoskiph}\pgfuseimage{LogoFirst}\par%
+         \vspace{4mm}%
+         \hspace{\logoskiph}\usebeamercolor[fg]{title}\usebeamerfont{title}{%
+            \insertextralogo
+         }\par%
+         \vfill{}\vfill{}%
+         \insertFirstLogoSaclay
+      \end{minipage}
+   \end{column}
+   \begin{column}{.6\paperwidth}
+      \hspace{.03\textwidth}%
+      \begin{minipage}[t][.55\paperheight][t]{.9\textwidth}
+         \vspace{3.5cm}%
+         \usebeamercolor[fg]{title}\usebeamerfont{title}\raggedright{\inserttitle}\par%
+         \ifx\insertsubtitle\@empty%
+         \else%
+         {%
+            \vspace{1ex}%
+            \usebeamercolor[fg]{subtitle}\usebeamerfont{subtitle}\raggedright{\insertsubtitle}\par
+            \vfill
+         }%
+         \fi%
+      \end{minipage}%
+      \vspace{.1\paperheight}\par%
+      \hspace{.03\textwidth}%
+      \begin{minipage}[b][.1\paperheight][b]{.9\textwidth}
+         \usebeamercolor[fg]{author in title frame}\usebeamerfont{author in title frame}\insertauthor\par%
+         \usebeamercolor[fg]{email in title frame}\usebeamerfont{email in title frame}\insertemail\par%
+         \usebeamercolor[fg]{date in title frame}\usebeamerfont{date in title frame}\insertdate\par%
+      \end{minipage}%
+      \vspace{.03\paperheight}\par%
+      \begin{beamercolorbox}[sep=0cm,wd=.6\paperwidth]{title}
+         \begin{beamercolorbox}[sep=0pt,wd=.2\paperwidth,ht=.4cm]{page in head/foot}\hfill{}\end{beamercolorbox}%
+         \begin{beamercolorbox}[sep=0pt,wd=.2\paperwidth,ht=.4cm]{dept in head/foot}\hfill{}\end{beamercolorbox}%
+         \begin{beamercolorbox}[sep=0pt,wd=.2\paperwidth,ht=.4cm]{author in head/foot}\hfill{}\end{beamercolorbox}%
+      \end{beamercolorbox}%
+      \vspace{.20\paperheight}%
+   \end{column}
+   \end{columns}
+}%
+
+\def\maketitle{%
+ {
+  \ifbeamer@inframe
+    \titlepage
+  \else
+    \begin{frame}[plain]
+      \titlepage
+    \end{frame}
+  \fi
+ }
+}
+
+
+\defbeamertemplate*{sidebar right}{tpt default} {}
+
+
+
+%%% Bas de page
+\defbeamertemplate*{footline}{tpt default}
+{%
+   \leavevmode%
+   \iftpt@navsymbols\vskip 2pt%
+   \begin{beamercolorbox}[left, wd=.9\paperwidth, ht=\footlineheight]{}
+      \usebeamertemplate***{navigation symbols}%
+   \end{beamercolorbox}
+   \vskip -14pt%
+   \else\fi
+   \hbox{%
+      \begin{beamercolorbox}[left,wd=.15\paperwidth,ht=\footlineheight,dp=1.5ex]{page in head/foot}%
+         \hspace*{3ex}%
+         \usebeamerfont{author in head/foot}\insertframenumber{}/\inserttotalframenumber%
+         \hfill{}%
+      \end{beamercolorbox}%
+      \hspace*{\footlinespacing}%
+      \hfill{}%
+      \begin{beamercolorbox}[wd=.27\paperwidth,ht=\footlineheight,dp=1.5ex,leftskip=1em,rightskip=1em]{dept in head/foot}%
+         \hfill{}%
+         \usebeamerfont{dept in head/foot}\insertinstitute%
+         \hfill{}\hfill{}%
+      \end{beamercolorbox}%
+      \hspace*{\footlinespacing}%
+      \hfill{}%
+      \begin{beamercolorbox}[wd=\brownblockwidth,ht=\footlineheight,dp=1.5ex,leftskip=.3cm,rightskip=1ex]{title in head/foot}%
+         \usebeamerfont{author in head/foot}\insertshortauthor%
+         \hfill{}%
+         \usebeamerfont{date in head/foot}\insertshortdate%
+      \end{beamercolorbox}
+      \hspace*{\footlinespacing}%
+      \hfill{}%
+      \raisebox{-1.5ex}{\insertlogo}% le logo
+      \insertLogoSaclay%
+   }%
+   \vskip3pt%
+}
+
+
+%%%% En tête
+
+% Frame title
+
+\defbeamertemplate*{frametitle}{tpt default}[1][left]
+{
+  \ifbeamercolorempty[bg]{frametitle}{}{\nointerlineskip}%
+  \@tempdima=\paperwidth%
+  \advance\@tempdima by -1.95cm% les 3 blocs de couleur
+  \advance\@tempdima by -3ex%
+  \begin{beamercolorbox}[sep=0cm,#1,wd=\paperwidth]{frametitle}
+     \usebeamerfont{frametitle}%
+     \if@tempswa\else\csname beamer@fte#1\endcsname\fi%
+     \begin{minipage}[b]{1.95cm}
+        \iftpt@infolines\vspace*{.15cm}\else\vspace*{.5cm}\fi
+        \mbox{%
+        \begin{beamercolorbox}[wd=0.65cm,ht=.5cm]{page in head/foot}\hfill{}\end{beamercolorbox}%
+        \begin{beamercolorbox}[wd=0.65cm,ht=.5cm]{dept in head/foot}\hfill{}\end{beamercolorbox}%
+        \begin{beamercolorbox}[wd=0.65cm,ht=.5cm]{author in head/foot}\hfill{}\end{beamercolorbox}%
+        }\par%
+     \end{minipage}
+     \hspace*{1ex}
+     \begin{minipage}[c]{\@tempdima}
+        \ifx\insertframesubtitle\@empty%
+           \strut\insertframetitle\strut\par%
+        \else%
+        \strut\insertframetitle\strut\par%
+         \usebeamerfont{framesubtitle}\usebeamercolor[fg]{framesubtitle}\insertframesubtitle\strut\par
+        \fi
+     \end{minipage}
+     \vskip-1ex%
+    \if@tempswa\else\vskip-.3cm\fi% set inside beamercolorbox... evil here...
+  \end{beamercolorbox}%
+}
+
+
+\defbeamertemplate*{headline}{tpt default}
+{
+\iftpt@infolines
+  \leavevmode%
+  \begin{beamercolorbox}[wd=.5\paperwidth,ht=2.5ex,dp=1.125ex]{section in head/foot}%
+    \insertsectionnavigationhorizontal{.5\paperwidth}{\hskip0pt plus1filll}{}%
+  \end{beamercolorbox}%
+  \begin{beamercolorbox}[wd=.5\paperwidth,ht=2.5ex,dp=1.125ex]{subsection in head/foot}%
+    \insertsubsectionnavigationhorizontal{.5\paperwidth}{}{\hskip0pt plus1filll}%
+  \end{beamercolorbox}%
+  %\par\begin{beamercolorbox}[wd=\paperwidth,ht=1pt]{page in head/foot}\hfill{}\end{beamercolorbox}%
+  %\par\begin{beamercolorbox}[wd=\paperwidth,ht=1pt]{dept in head/foot}\hfill{}\end{beamercolorbox}%
+  %\par\begin{beamercolorbox}[wd=\paperwidth,ht=1pt]{author in head/foot}\hfill{}\end{beamercolorbox}%
+\fi%
+}
+
+%
+% Itemize labels.
+%
+\defbeamertemplate*{itemize item}{tpt}{%
+  \raise0.2ex\hbox{\vrule width 1ex height 1ex}%
+}
+\defbeamertemplate*{itemize subitem}{tpt}{\textbullet}
+\defbeamertemplate*{itemize subsubitem}{tpt}{--}
+
+
+
+% .. from tptthemtheme?
+% Contents frame (FIXME part frame option).
+%
+\providecommand*{\contentsframe}[1][]{%
+  \begin{frame}
+    \frametitle{Plan}% FIXME languages.
+    \tableofcontents[#1]
+  \end{frame}
+}
+
+\mode<all>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   version="1.1"
+   width="396.6875"
+   height="396.71875"
+   id="svg2">
+  <defs
+     id="defs4">
+    <filter
+       x="-0.12120201"
+       y="-0.10211594"
+       width="1.242404"
+       height="1.2042319"
+       color-interpolation-filters="sRGB"
+       id="filter3783">
+      <feGaussianBlur
+         id="feGaussianBlur3785"
+         stdDeviation="14.921081" />
+    </filter>
+  </defs>
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     transform="translate(-116.65625,-223.28125)"
+     id="layer1">
+    <rect
+       width="395.71429"
+       height="395.71429"
+       x="117.14286"
+       y="223.79076"
+       id="rect2985"
+       style="fill:#00ff00;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+    <path
+       d="m 315.71429,433.79076 c -292.857151,134.28571 -108.57143,-305.71429 10,-30 -34.28572,-315.714292 240,-75.71429 18.57143,28.57142 C 597.14286,403.79076 332.85714,798.07643 340,450.93361 287.14286,795.21933 97.142859,422.36218 315.71429,433.79076 z"
+       id="path3773"
+       style="opacity:0.95102042;fill:#ffffff;stroke:#808080;stroke-width:16.10000038;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;filter:url(#filter3783)" />
+    <path
+       d="m 315.71429,433.79076 c -292.857151,134.28571 -108.57143,-305.71429 10,-30 -34.28572,-315.714292 240,-75.71429 18.57143,28.57142 C 597.14286,403.79076 332.85714,798.07643 340,450.93361 287.14286,795.21933 97.142859,422.36218 315.71429,433.79076 z"
+       id="path2987"
+       style="opacity:0.66122448;fill:#ffffff;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+    <text
+       x="-308.68051"
+       y="534.46301"
+       transform="matrix(0.58217865,-0.8130609,0.8130609,0.58217865,0,0)"
+       id="text2987"
+       xml:space="preserve"
+       style="font-size:80.55227661px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;opacity:0.64897958;fill:#0000ff;fill-opacity:1;stroke:none;font-family:Sans"><tspan
+         x="-308.68051"
+         y="534.46301"
+         id="tspan2989"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#0000ff;font-family:TeX Gyre Heros;-inkscape-font-specification:TeX Gyre Heros">Foo Bar</tspan></text>
+  </g>
+</svg>
