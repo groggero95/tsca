@@ -1,7 +1,7 @@
 CC 			= gcc
 CFLAGS 		= -O0 -g -std=gnu99 -W -Wall -Wno-comment
 INCLUDES 	= -I./include/
-LDFLAGS 	= -L./libraries -lrt -lm -lgmp
+LDFLAGS 	= -L./libraries -lrt -lm -l:libgmp.a
 BUILD_DIR 	= ./build
 SOURCE_DIR 	= ./source
 BIN			= ./main
