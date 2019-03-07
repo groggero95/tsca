@@ -1,0 +1,144 @@
+\documentclass[
+   version=last,
+   NF, % NF Z 11-001
+   visualize,
+   firsthead=true,
+   fromemail, fromphone,
+   refline=dateleft,
+   backaddress=false,
+   foldmarks=false,
+   parskip=full-
+]{scrlttr2}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[default,osfigures,scale=0.90]{opensans}
+% default language is the last one in the list
+\usepackage[english,french]{babel}
+\usepackage{graphics}
+
+% dummy text
+\usepackage{blindtext}% dummy text
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% You should not need to change this part
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% watermark (e logo in the right corner) using the background package
+\usepackage{background}
+\backgroundsetup{%
+   contents={\includegraphics[width=1cm]{tpt}\hspace{.5cm}\includegraphics[width=1.5cm]{logo-upsay-e}},
+   placement=bottom,
+   position=current page.south east,
+   hshift=-2cm,
+   scale=1,
+   angle=0,
+   opacity=.2
+}
+
+% view different blocks positions
+%\showfields{head,foot,address,location,refline}
+
+% format
+\setkomafont{lettertitle}{\bfseries\large}
+\setkomafont{lettersubject}{\bfseries\normalsize}
+\setkomafont{toaddress}{\bfseries\normalsize}
+\setkomafont{toname}{\bfseries\normalsize}
+\setkomafont{refname}{\bfseries\normalsize}
+\setkomafont{fromname}{\bfseries\normalsize}
+\setkomafont{pagenumber}{\bfseries\small}
+
+% used for cc and encl commands
+\setkomavar*{enclseparator}{\bfseries Pièce jointes}
+\setkomavar*{ccseparator}{\bfseries Copie à}
+
+% The fist page heading logo
+\def\combinelogo{%
+   \begin{minipage}[t][4cm][c]{2.5cm}%
+         \includegraphics[width=2.5cm]{logo-gray}\\[2.5mm]
+         \includegraphics[width=2.5cm]{logo-upsay-red}
+   \end{minipage}%
+}
+
+% footers/headers
+% without this, default footers are used
+\pagestyle{headings}
+\addtokomafont{pagefoot}{\normalfont}
+
+% the first page header
+\setkomavar{firsthead}{%
+   \parbox{\linewidth}{\raggedright
+      \combinelogo\\[1.5cm]
+      {\usekomafont{fromname}{\ignorespaces\usekomavar{fromname}}}\\
+      \ignorespaces\usekomavar{fromaddress}\\[4pt]
+      {\small%
+      \ignorespaces\usekomavar*{fromemail}\usekomavar{fromemail}\\
+      \ignorespaces\usekomavar*{fromphone}\usekomavar{fromphone}\\
+      }
+   }%
+}
+
+% First page
+\setkomavar{firstfoot}{\scriptsize{}%
+   www.telecom-paristech.fr\hfill{}%
+   \usekomavar{fromemail}
+}
+% Other pages
+\setkomavar{nextfoot}{\usekomafont{pagefoot}\scriptsize{}
+   www.telecom-paristech.fr\hfill{}%
+   \pagemark\hfill{}%
+   \usekomavar{fromemail}
+}
+
+\setkomavar{nexthead}{}
+
+% change spaces
+\makeatletter
+% move down the beginning of the letter as the header is larger
+\@addtoplength{refvpos}{.5cm}
+% skip after date
+%\@addtoplength{refaftervskip}{1em}
+\makeatother
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Start changing here
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Your personal infos
+\setkomavar{fromname}{J.L. Dudu}
+\setkomavar{fromemail}[e-mail:~]{jl.dudu@telecom-paristech.fr}
+\setkomavar{fromaddress}{46 Rue Barrault\\F~75634 Paris Cedex 13}
+\setkomavar{fromphone}[Tel:~]{+33 (0)1 45 81 00 00}
+\setkomavar{signature}{Pr. Jean Lune Dudu}
+
+% The letter 
+\setkomavar{date}{Paris, \today}
+\setkomavar{title}{Mise en demeure}
+\setkomavar{subject}{Super lettre qui dit des trucs}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+%% The letter starts here
+% The first arg deals with the recipient, the first line is its name 'toname' variable
+\begin{letter} {%
+      Monsieur DuTruc\\
+      Télécom ParisTech, COMELEC,\\
+      46 Rue Barrault\\75013, Paris
+   }
+
+   \opening{Cher \usekomavar{toname},}
+
+   % Dummy text
+   \setcounter{blindtext}{3}
+   \Blindtext[4][1]
+
+   % Closing is followed by the signature
+   \closing{Sincèrement,}
+
+   % Optional
+   \encl{La lettre très importante que vous devez avoir}
+   \cc{D'autre destinataires}
+
+\end{letter}
+\end{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

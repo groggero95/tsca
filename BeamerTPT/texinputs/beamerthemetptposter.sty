@@ -1,0 +1,116 @@
+\NeedsTeXFormat{LaTeX2e}[1995/12/01]
+\ProvidesPackage{beamerthemetptposter}[2011/11/15]
+
+\RequirePackage{xcolor}
+\RequirePackage{helvet}
+\RequirePackage[orientation=portrait, size=a0, scale=1.4]{beamerposter}
+
+\mode<presentation>
+
+% Options
+% Do we display "Paris Saclay University" logo
+\newif\iftpt@logosaclay\tpt@logosaclayfalse
+\DeclareOption{logosaclay}{\tpt@logosaclaytrue}
+
+\ProcessOptions
+
+% TPT colors
+\definecolor{tptred}{RGB}{191,18,56} 
+\definecolor{tptbrown}{RGB}{109,80,71}
+
+% some usefull beamer colors
+\setbeamercolor{structure}{fg=tptred}
+\setbeamercolor{block title}{parent=structure,bg=normal text.bg!75!tptbrown}
+\setbeamercolor{block body}{bg=normal text.bg!98!tptbrown}
+\setbeamercolor{block title alerted}{use={normal text,alerted text},fg=alerted text.fg!75!normal text.fg,bg=normal text.bg!75!tptred}
+\setbeamercolor{block body alerted}{bg=normal text.bg!95!tptred}
+\setbeamercolor{poster title}{fg=white,bg=tptred}
+\setbeamercolor{poster logo title}{fg=black,bg=white}
+
+\setbeamercolor{date in head/foot}{fg=white,bg=tptbrown}
+\setbeamercolor{page in head/foot}{fg=white,bg=tptred}
+\setbeamercolor{dept in head/foot}{fg=white,bg=black}
+
+
+\newlength{\logowidth}
+\setlength{\logowidth}{.07812\paperwidth}
+\newlength{\logoheight}
+\setlength{\logoheight}{0.099994\paperwidth} % logo real size is 100x128
+\pgfdeclareimage[width=\logowidth]{logoTPT}{logo-white}
+\setbeamertemplate{navigation symbols}{}
+\pgfdeclareimage[width=\logowidth]{logoSaclay}{logo-upsay-white}
+
+\newcommand\email[1]{\gdef\insertemail{#1}}
+\newcommand\myurl[1]{\gdef\insertmyurl{#1}}
+\newcommand\mylogo[1]{\gdef\insertmylogo{#1}}
+\email{}
+\myurl{}
+\mylogo{}
+
+%% list items
+\defbeamertemplate*{itemize item}{tpt}{%
+   $\blacktriangleright$~% tiangle
+  %\raise0.2ex\hbox{\vrule width 1ex height 1ex}~% carré
+}
+\defbeamertemplate*{itemize subitem}{tpt}{\textbullet~}
+\defbeamertemplate*{itemize subsubitem}{tpt}{--~}
+
+
+\defbeamertemplate*{footline}{tpt default}
+{%
+   \leavevmode%
+   \begin{beamercolorbox}[left, sep=0pt, rightskip=.03\paperwidth,leftskip=0pt, wd=\paperwidth, ht=.03\paperheight, dp=.02\paperheight]{poster title}
+      \hspace{.07\paperwidth}%
+      \begin{beamercolorbox}[rightskip=0pt,leftskip=0pt,sep=0pt,center,wd=.07\paperwidth, ht=.03\paperheight, dp=.03\paperheight]{dept in head/foot}\end{beamercolorbox}%
+      \begin{beamercolorbox}[rightskip=0pt,leftskip=0pt,sep=0pt,center,wd=.07\paperwidth, ht=.03\paperheight, dp=.03\paperheight]{date in head/foot}\end{beamercolorbox}%
+      \hfill{}%
+      \normalsize{{\bfseries contact~:}~\insertemail}%
+      \hfill{}%
+      \normalsize{\insertmyurl}
+      \hfill{}%
+   \end{beamercolorbox}%
+}
+
+\defbeamertemplate*{headline}{tpt default}
+{\leavevmode%
+\begin{beamercolorbox}[left, rightskip=0pt, wd=\paperwidth, ht=.075\paperheight, dp=.03\paperheight]{poster title}
+   \hspace{.025\paperwidth}%
+   \raisebox{-.03\paperheight}{% -dp
+      \begin{minipage}[b][.075\paperheight][c]{\logowidth}
+         \iftpt@logosaclay%
+         \pgfuseimage{logoTPT}%
+         \par%
+         \raisebox{.9\height}{\pgfuseimage{logoSaclay}}%
+         \else%
+         \raisebox{.5\height}{\pgfuseimage{logoTPT}}%
+         \fi%
+   \end{minipage}
+   }
+    \hfill{}%
+    \begin{beamercolorbox}[center,wd=.7\paperwidth, ht=.075\paperheight]{}
+       \raisebox{-.01\paperheight}{%
+       \begin{minipage}[b][.070\paperheight][c]{.7\paperwidth}
+          \begin{center}
+          \vfill{}
+          \huge\bfseries\inserttitle\par%
+          \vfill{}
+          \large\insertauthor\par
+          \vfill{}
+          \small\insertdate
+          \end{center}
+       \end{minipage}
+    }
+    \end{beamercolorbox}
+   \hfill{}%
+   \begin{beamercolorbox}[center,wd=.125\paperwidth, ht=.075\paperheight, dp=.031\paperheight]{poster logo title}
+       \raisebox{-.01\paperheight}{%
+      \begin{minipage}[b][.070\paperheight][c]{.125\paperwidth}%
+      \hfill\insertmylogo\hfill\hfill%
+      \end{minipage}
+      }
+   \end{beamercolorbox}
+\end{beamercolorbox}
+\vspace{.03\paperheight}
+}
+
+\mode<all>

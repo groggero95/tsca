@@ -13,4 +13,5 @@ By statistically analyzing the time required by the HW to perform the needed ope
 For any information, you can simply drop an email:
 * [Alberto Anselmo](mailto:anselmo@eurecom.fr)
 * [Simone Alessandro Chiaberto](mailto:chiabert@eurecom.fr)
+* [Fausto Chiatante](mailto:chiatant@eurecom.fr)
 * [Giulio Roggero](mailto:roggero@eurecom.fr)
