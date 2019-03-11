@@ -1,10 +1,10 @@
 #!/usr/bin/python
 
 # This is right, even if we are doing modulus
-# operation the output res is not strictly less than 
+# operation the output res is not strictly less than
 # the modulo n, thus we can have outcomes like 40
 # when doing modulo 29 operations. We dont care right 
-# now, the important part to remember is that the 
+# now, the important part to remember is that the
 # output res is bound to be : res < 2n
 # other conditions:
 # a,b < 2n
@@ -36,8 +36,8 @@ def mm(a,b,n,nb):
 # nb: bit number
 def me(e,m,n,nb):
 # At some point we will settle up to a fixed number of bits
-# so the factor (2**(2nb) mod n) can actually be precomputed 
-# once the public and the private key are decided  we still 
+# so the factor (2**(2nb) mod n) can actually be precomputed
+# once the public and the private key are decided  we still
 # need to find a way of compuing that
 #	c = mm(1, (2**(2nb) mod n),n,nb)
 #	s = mm(m, (2**(2nb) mod n),n,nb)
@@ -51,5 +51,4 @@ def me(e,m,n,nb):
 		mask = mask << 1
 		print x, c, s
 	c = mm(c,1,n,nb)
-	return c	
-
+	return c
