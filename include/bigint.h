@@ -16,5 +16,13 @@ typedef struct bign{
 } bign_t;
 
 
+int eq(bign_t first, bign_t second);
+int df(bign_t first, bign_t second);
+int gt(bign_t first, bign_t second);
+int ge(bign_t first, bign_t second);
+int lt(bign_t first, bign_t second);
+int le(bign_t first, bign_t second);
+int lsr(bign_t *a, int pl);
+int lsl(bign_t *a, int pl);
 
 #endif

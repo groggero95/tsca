@@ -85,4 +85,42 @@ int le(bign_t first, bign_t second){
 };
 
 
+// Logically shift right a, by pl places (max 31 places)
+int lsr(bign_t *a, int pl){
+	uint32_t tmp;
 
+    if (pl > 31){
+        printf("ERROR: pl bigger than 31\n");
+        return 0;
+    }
+
+	for (int i=0; i<NUMB_SIZE-1; i++){
+		a->numb[i] >>= pl;
+		tmp = a->numb[i+1];
+		tmp <<= (32-pl);
+		a->numb[i] = a->numb[i] | tmp;
+	}
+
+	a->numb[NUMB_SIZE-1] >>= pl;
+    return 1;
+}
+
+// Logically shift left a, by pl places (max 31 places)
+int lsl(bign_t *a, int pl){
+	uint32_t tmp;
+
+    if (pl > 31){
+        printf("ERROR: pl bigger than 31\n");
+        return 0;
+    }
+
+	for (int i=NUMB_SIZE-1; i>0; i--){
+    a->numb[i] <<= pl;
+    tmp = a->numb[i-1];
+    tmp >>= (32-pl);
+    a->numb[i] = a->numb[i] | tmp;
+	}
+
+    a->numb[0] <<= pl;
+    return 1;
+}
