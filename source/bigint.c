@@ -1,4 +1,5 @@
 #include "../include/bigint.h"
+#include <stdio.h>
 
 
 // Return 0 if different, else 1; -1 if not aligned
@@ -83,26 +84,42 @@ int le(bigint_t first, bigint_t second){
 };
 
 
-bigint_t sll(bigint_t number, int value){
-    int full_shift = (int)value / VAR_SIZE;
-        int rem_shift = (int) value % VAR_SIZE;
-        bigint_t shifted;
-        if(full_shift > 0){
-            for(int i=0; i<NUMB_SIZE; i++){
-                if(i>full_shift)
-                    shifted.numb[i] = number.numb[i-full_shift];
-                else
-                    shifted.numb[i] = 0;
-        }
-        }
+// Logically shift right a, by pl places (max 31 places)
+int lsr(bigint_t *a, int pl){
+	uint32_t tmp;
 
-    int bit_temp;
-    for(int j=0; j<NUMB_SIZE; j++){
-
+    if (pl > 31){
+        printf("ERROR: pl bigger than 31\n");
+        return 0;
     }
 
+	for (int i=0; i<NUMB_SIZE-1; i++){
+		a->numb[i] >>= pl;
+		tmp = a->numb[i+1];
+		tmp <<= (32-pl);
+		a->numb[i] = a->numb[i] | tmp;
+	}
 
-    //Update the position field
-    shifted.pos = number.pos + value;
-    return shifted;
+	a->numb[NUMB_SIZE-1] >>= pl;
+    return 1;
+}
+
+// Logically shift left a, by pl places (max 31 places)
+int lsl(bigint_t *a, int pl){
+	uint32_t tmp;
+
+    if (pl > 31){
+        printf("ERROR: pl bigger than 31\n");
+        return 0;
+    }
+
+	for (int i=NUMB_SIZE-1; i>0; i--){
+    a->numb[i] <<= pl;
+    tmp = a->numb[i-1];
+    tmp >>= (32-pl);
+    a->numb[i] = a->numb[i] | tmp;
+	}
+
+    a->numb[0] <<= pl;
+    return 1;
 }
