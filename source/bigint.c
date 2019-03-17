@@ -84,13 +84,19 @@ int le(bigint_t first, bigint_t second){
 };
 
 
-// Logically shift right a, by pl places (max 31 places)
+// Logically shift right a, by pl places
 int lsr(bigint_t *a, int pl){
 	uint32_t tmp;
-
-    if (pl > 31){
-        printf("ERROR: pl bigger than 31\n");
-        return 0;
+    int full_shift=pl/VAR_SIZE;
+    pl = pl % VAR_SIZE;
+    if (full_shift){
+        //Full shift of VAR_SIZE*full_shift bits done
+        for(int k=full_shift; k<NUMB_SIZE; k++){
+            a->numb[k-full_shift]=a->numb[k];
+            if (k>NUMB_SIZE-1-full_shift){
+                a->numb[k]=0;
+            }
+        }
     }
 
 	for (int i=0; i<NUMB_SIZE-1; i++){
@@ -104,13 +110,19 @@ int lsr(bigint_t *a, int pl){
     return 1;
 }
 
-// Logically shift left a, by pl places (max 31 places)
+// Logically shift left a, by pl places
 int lsl(bigint_t *a, int pl){
 	uint32_t tmp;
-
-    if (pl > 31){
-        printf("ERROR: pl bigger than 31\n");
-        return 0;
+    int full_shift=pl/VAR_SIZE;
+    pl = pl % VAR_SIZE;
+    if (full_shift){
+        //Full shift of VAR_SIZE*full_shift bits done
+        for(int k=NUMB_SIZE-1; k>=full_shift; k--){
+            a->numb[k]=a->numb[k-full_shift];
+            if (k-full_shift < full_shift){
+                a->numb[k-full_shift]=0;
+            }
+        }
     }
 
 	for (int i=NUMB_SIZE-1; i>0; i--){
