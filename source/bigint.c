@@ -86,7 +86,7 @@ int le(bigint_t first, bigint_t second){
 
 // Logically shift right a, by pl places
 int lsr(bigint_t *a, int pl){
-	uint32_t tmp;
+	var_t tmp;
     int full_shift=pl/VAR_SIZE;
     pl = pl % VAR_SIZE;
     if (full_shift){
@@ -112,7 +112,7 @@ int lsr(bigint_t *a, int pl){
 
 // Logically shift left a, by pl places
 int lsl(bigint_t *a, int pl){
-	uint32_t tmp;
+	var_t tmp;
     int full_shift=pl/VAR_SIZE;
     pl = pl % VAR_SIZE;
     if (full_shift){
@@ -137,12 +137,12 @@ int lsl(bigint_t *a, int pl){
 }
 
 // Sum, gets data on NUMB_SIZE -1  and returns data on NUMB_SIZE
-bint_t sum(bint_t a, bint_t b){
+bigint_t sum(bigint_t a, bigint_t b){
 
-  bint_t data_res;
+  bigint_t data_res;
 
-  uint32_t carry = 0;
-  uint32_t i;
+  var_t carry = 0;
+  var_t i;
 
   for (i = 0; i < NUMB_SIZE-1 ; i++) {
     data_res.numb[i] = a.numb[i] + b.numb[i] + carry;
@@ -161,12 +161,12 @@ bint_t sum(bint_t a, bint_t b){
 }
 
 // SUB, gets data on NUMB_SIZE -1  and returns data on NUMB_SIZE
-bint_t sub(bint_t a, bint_t b){
+bigint_t sub(bigint_t a, bigint_t b){
 
-  bint_t data_res;
+  bigint_t data_res;
 
-  uint32_t carry = 1;
-  uint32_t i, k, j;
+  var_t carry = 1;
+  var_t i, k, j;
 
   for (i = 0; i < NUMB_SIZE-1 ; i++) {
     b.numb[i] = b.numb[i]^UMAX;

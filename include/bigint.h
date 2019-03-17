@@ -7,40 +7,28 @@
 #define VAR_SIZE 32
 #define NUMB_SIZE INT_SIZE/VAR_SIZE + 1
 
-// Structure to be used for the operations
 #if VAR_SIZE == 64
-typedef struct bint{
     #define UMAX 0xFFFFFFFFFFFFFFFF
-    //Field to store the actual value
-    uint64_t numb[NUMB_SIZE];
-    //Field to store the alignment of the value
-    uint64_t pos;
-} bint_t;
+    typedef uint64_t var_t;
 #elif VAR_SIZE == 32
-typedef struct bint{
     #define UMAX 0xFFFFFFFF
+    typedef uint32_t var_t;
+#elif VAR_SIZE == 16
+    #define UMAX 0xFFFF
+    typedef uint16_t var_t;
+#elif VAR_SIZE == 8
+    #define UMAX 0xFF
+    typedef unit8_t var_t;
+#endif
+
+
+// Structure to be used for the operations
+typedef struct bigint{
     //Field to store the actual value
-    uint32_t numb[NUMB_SIZE];
-    //Field to store the alignment of the value
-    uint32_t pos;
-} bint_t;
-#elif VAR_SIZE = 16
-typedef struct bint{
-    #define UMAX = 0xFFFF
-    //Field to store the actual value
-    uint16_t numb[NUMB_SIZE];
+    var_t numb[NUMB_SIZE];
     //Field to store the alignment of the value
     uint16_t pos;
-} bint_t;
-#elif VAR_SIZE == 8
-typedef struct bint{
-    #define UMAX = 0xFF
-    //Field to store the actual value
-    uint8_t numb[NUMB_SIZE];
-    //Field to store the alignment of the value
-    uint8_t pos;
-} bint_t;
-#endif
+} bigint_t;
 
 
 int eq(bigint_t first, bigint_t second);
@@ -52,7 +40,7 @@ int le(bigint_t first, bigint_t second);
 int lsr(bigint_t *a, int pl);
 int lsl(bigint_t *a, int pl);
 
-bint_t sum(bint_t a, bint_t b);
-bint_t sub(bint_t a, bint_t b);
+bigint_t sum(bigint_t a, bigint_t b);
+bigint_t sub(bigint_t a, bigint_t b);
 
 #endif
