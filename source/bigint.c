@@ -102,7 +102,7 @@ int lsr(bigint_t *a, int pl){
 	for (int i=0; i<NUMB_SIZE-1; i++){
 		a->numb[i] >>= pl;
 		tmp = a->numb[i+1];
-		tmp <<= (32-pl);
+		tmp <<= (VAR_SIZE-pl);
 		a->numb[i] = a->numb[i] | tmp;
 	}
 
@@ -128,7 +128,7 @@ int lsl(bigint_t *a, int pl){
 	for (int i=NUMB_SIZE-1; i>0; i--){
     a->numb[i] <<= pl;
     tmp = a->numb[i-1];
-    tmp >>= (32-pl);
+    tmp >>= (VAR_SIZE-pl);
     a->numb[i] = a->numb[i] | tmp;
 	}
 
