@@ -31,7 +31,7 @@ int gt(bigint_t first, bigint_t second){
     if (first.pos != second.pos){
         return -1;
     }
-    for(int i=NUMB_SIZE; i>0; i--){
+    for(int i=NUMB_SIZE-1; i>=0; i--){
         if(first.numb[i] < second.numb[i])
            return 0;
         else if(first.numb[i] > second.numb[i])
@@ -45,7 +45,7 @@ int ge(bigint_t first, bigint_t second){
     if (first.pos != second.pos){
         return -1;
     }
-    for(int i=NUMB_SIZE; i>0; i--){
+    for(int i=NUMB_SIZE-1; i>=0; i--){
         if(first.numb[i]<second.numb[i])
            return 0;
         else if(first.numb[i] > second.numb[i])
@@ -60,7 +60,7 @@ int lt(bigint_t first, bigint_t second){
     if (first.pos != second.pos){
         return -1;
     }
-    for(int i=NUMB_SIZE; i>0; i--){
+    for(int i=NUMB_SIZE-1; i>=0; i--){
         if(first.numb[i] > second.numb[i])
            return 0;
         else if(first.numb[i] < second.numb[i])
@@ -74,7 +74,7 @@ int le(bigint_t first, bigint_t second){
     if (first.pos != second.pos){
             return -1;
     }
-    for(int i=NUMB_SIZE; i>0; i--){
+    for(int i=NUMB_SIZE-1; i>=0; i--){
         if(first.numb[i] > second.numb[i])
             return 0;
         else if(first.numb[i] < second.numb[i])
