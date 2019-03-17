@@ -8,12 +8,12 @@
 #define NUMB_SIZE INT_SIZE/VAR_SIZE + 1
 
 // Structure to be used for the operations
-typedef struct bign{
+typedef struct bigint{
     //Field to store the actual value
     uint32_t numb[NUMB_SIZE];
     //Field to store the alignment of the value
     uint32_t pos;
-} bign_t;
+} bigint_t;
 
 
 
