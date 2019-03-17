@@ -32,9 +32,9 @@ typedef struct bint{
     //Field to store the alignment of the value
     uint16_t pos;
 } bint_t;
-#elif VAR_SIZE == 0xFF
+#elif VAR_SIZE == 8
 typedef struct bint{
-    #define UMAX 255
+    #define UMAX = 0xFF
     //Field to store the actual value
     uint8_t numb[NUMB_SIZE];
     //Field to store the alignment of the value
