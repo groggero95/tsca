@@ -42,6 +42,5 @@ int lsl(bigint_t *a, int pl);
 
 bigint_t sum(bigint_t a, bigint_t b);
 bigint_t sub(bigint_t a, bigint_t b);
-bigint_t mul(bigint_t a, bigint_t b);
 
 #endif

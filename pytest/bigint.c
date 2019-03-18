@@ -141,17 +141,18 @@ bigint_t sum(bigint_t a, bigint_t b){
 
   bigint_t data_res;
 
-  var_t carry = 0, new_carry = 0;
-  int i;
+  var_t carry = 0;
+  var_t i;
 
-  for (i = 0; i < NUMB_SIZE-1 ; i++){
-    data_res.numb[i] = a.numb[i] + b.numb[i];
-    new_carry = a.numb[i] > data_res.numb[i];
-    data_res.numb[i] = data_res.numb[i] + carry;
-    carry = new_carry | a.numb[i] > data_res.numb[i];
+  for (i = 0; i < NUMB_SIZE-1 ; i++) {
+    data_res.numb[i] = a.numb[i] + b.numb[i] + carry;
     printf("stage %d sum = %x\n", i, data_res.numb[i]);
-  } 
-  
+    if (data_res.numb[i] < a.numb[i]){
+      carry = 1;
+    } else {
+      carry = 0;
+    }
+  }
 
   data_res.pos = INT_SIZE + carry*VAR_SIZE;
   data_res.numb[i] = carry;
@@ -164,24 +165,23 @@ bigint_t sub(bigint_t a, bigint_t b){
 
   bigint_t data_res;
 
-  var_t borrow = 0, new_borrow=0;
-  int i, k, j;
+  var_t carry = 1;
+  var_t i, k, j;
 
   for (i = 0; i < NUMB_SIZE-1 ; i++) {
-    data_res.numb[i] = a.numb[i] - b.numb[i];
-    new_borrow = data_res.numb[i] > a.numb[i];
-    data_res.numb[i] = a.numb[i] - borrow;
-    borrow = new_borrow | data_res.numb[i] > a.numb[i];
-    printf("stage %d sub = %x\n", i, data_res.numb[i]);
+    b.numb[i] = b.numb[i]^UMAX;
+    data_res.numb[i] = a.numb[i] + b.numb[i] + carry;
+    printf("stage %d sub = %x", i, data_res.numb[i]);
+    if (data_res.numb[i] <= a.numb[i]){
+      carry = 1;
+    } else {
+      carry = 0;
+    }
+    printf(" with next carry %x\n",carry);
   }
 
-  data_res.pos = INT_SIZE + borrow*VAR_SIZE;
-  data_res.numb[i] = 0-borrow;
+  data_res.pos = INT_SIZE + !carry*VAR_SIZE;
+  data_res.numb[i] = 0-!carry;
   printf("and additional digits pos = %d, last = %x\n",data_res.pos,data_res.numb[i]);
   return data_res;
-}
-
-// Sum, gets data on NUMB_SIZE -1  and returns data on NUMB_SIZE
-bigint_t mul(bigint_t a, bigint_t b){
-
 }
