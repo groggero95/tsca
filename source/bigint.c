@@ -148,7 +148,7 @@ bigint_t sum(bigint_t a, bigint_t b){
     data_res.numb[i] = a.numb[i] + b.numb[i];
     new_carry = a.numb[i] > data_res.numb[i];
     data_res.numb[i] = data_res.numb[i] + carry;
-    carry = new_carry | a.numb[i] > data_res.numb[i];
+    carry = new_carry | (a.numb[i] > data_res.numb[i]);
     printf("stage %d sum = %x\n", i, data_res.numb[i]);
   } 
   
@@ -171,7 +171,7 @@ bigint_t sub(bigint_t a, bigint_t b){
     data_res.numb[i] = a.numb[i] - b.numb[i];
     new_borrow = data_res.numb[i] > a.numb[i];
     data_res.numb[i] = a.numb[i] - borrow;
-    borrow = new_borrow | data_res.numb[i] > a.numb[i];
+    borrow = new_borrow | (data_res.numb[i] > a.numb[i]);
     printf("stage %d sub = %x\n", i, data_res.numb[i]);
   }
 

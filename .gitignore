@@ -1,6 +1,7 @@
 *.o
 build/*.*
 build/*
+.pyc
 
 ## Core latex/pdflatex auxiliary files:
 *.aux
