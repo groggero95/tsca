@@ -9,15 +9,23 @@
 
 #if VAR_SIZE == 64
     #define UMAX 0xFFFFFFFFFFFFFFFF
+    #define HIMASK 0xFFFFFFFF00000000
+    #define LOMASK 0x00000000FFFFFFFF
     typedef uint64_t var_t;
 #elif VAR_SIZE == 32
     #define UMAX 0xFFFFFFFF
+    #define HIMASK 0xFFFF0000
+    #define LOMASK 0x0000FFFF
     typedef uint32_t var_t;
 #elif VAR_SIZE == 16
     #define UMAX 0xFFFF
+    #define HIMASK 0xFF00
+    #define LOMASK 0x00FF
     typedef uint16_t var_t;
 #elif VAR_SIZE == 8
     #define UMAX 0xFF
+    #define HIMASK 0xF0
+    #define LOMASK 0x0F
     typedef unit8_t var_t;
 #endif
 
@@ -43,5 +51,7 @@ int lsl(bigint_t *a, int pl);
 bigint_t sum(bigint_t a, bigint_t b);
 bigint_t sub(bigint_t a, bigint_t b);
 bigint_t mul(bigint_t a, bigint_t b);
+
+var_t sum_4_mul(var_t *a, var_t b, var_t *carry, int act);
 
 #endif

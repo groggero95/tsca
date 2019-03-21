@@ -179,40 +179,77 @@ bigint_t sub(bigint_t a, bigint_t b){
   printf("and additional digits pos = %d, last = %x\n",data_res.pos,data_res.numb[i]);
   return data_res;
 }
+
+var_t sum_4_mul(var_t *a, var_t b, var_t *carry, int act){
+
+  var_t data_res;
+  var_t new_carry = 0;
+
+  data_res = (*a) + b;
+  new_carry = (*a) > data_res;
+  if (act == 1) {
+    data_res = data_res + (*carry);
+    new_carry = new_carry | ((*a) > data_res);
+  } else {
+    (*carry) = 0;
+  }
+
+  (*a) = data_res;
+
+  return new_carry;
+}
+
 // Sum, gets data on NUMB_SIZE -1  and returns data on NUMB_SIZE
 bigint_t mul(bigint_t a, bigint_t b){
 
   int i, j;
-  var_t par_res[4];
-  var_t sum[2*(NUMB_SIZE-1)];
+  var_t par_res[4];           // stores the 4 partial mult of a NxN multiplication
+  var_t sum[2*(NUMB_SIZE-1)]; // stores the multiplication result, which at max needs double the max size of the operands
+  var_t carry[2*(NUMB_SIZE-1)+1]; // stores the carry
+
   bigint_t data_res;
 
+  // initialize sum and carry vector
   for (i = 0; i < 2*(NUMB_SIZE-1) ; i++) {
     sum[i] = 0;
+    carry[i] = 0;
+  }
+  carry[i] = 0;
+
+  // computes the multiplication
+  for (i = 0; i < NUMB_SIZE-1 ; i++) {
+    for (j = 0; j < NUMB_SIZE-1; j++) {
+      // perform 4 mult on half of the max VAR_SIZE bits, to avoid overflow
+      par_res[0] = (b.numb[i]&LOMASK) * (a.numb[j]&LOMASK);
+      par_res[1] = (b.numb[i]&LOMASK) * ((a.numb[j]&HIMASK) >> (VAR_SIZE/2));
+      par_res[2] = ((b.numb[i]&HIMASK) >> (VAR_SIZE/2)) * (a.numb[j]&LOMASK);
+      par_res[3] = ((b.numb[i]&HIMASK) >> (VAR_SIZE/2)) * ((a.numb[j]&HIMASK) >> (VAR_SIZE/2));
+
+      // compine the 4 factors just computed, check for sum overflows
+      //sum[j] = par_res[0] + par_res[1] << 16 + par_res[2] << 16 + par_res[3] << 32;
+      //sum[i+j] = sum[i+j] + par_res[0] + (par_res[1] << (VAR_SIZE/2)) + (par_res[2] << (VAR_SIZE/2));
+
+      carry[i+j+1] += sum_4_mul(&sum[i+j],par_res[0],&carry[i+j],1);
+      carry[i+j+1] += sum_4_mul(&sum[i+j],(par_res[1] << (VAR_SIZE/2)),&carry[i+j],0);
+      carry[i+j+1] += sum_4_mul(&sum[i+j],(par_res[2] << (VAR_SIZE/2)),&carry[i+j],0);
+
+      //sum[j+1] = par_res[0] >> 32 + par_res[1] >> 16 + par_res[2] >> 16 + par_res[3];
+      if ((i+j) != 2*(NUMB_SIZE-1-1)) {
+        //sum[i+j+1] = sum[i+j+1] + (par_res[1] >> (VAR_SIZE/2)) + (par_res[2] >> (VAR_SIZE/2)) + par_res[3];
+        carry[i+j+2] += sum_4_mul(&sum[i+j+1],(par_res[1] >> (VAR_SIZE/2)),&carry[i+j+1],1);
+        carry[i+j+2] += sum_4_mul(&sum[i+j+1],(par_res[2] >> (VAR_SIZE/2)),&carry[i+j+1],0);
+        carry[i+j+2] += sum_4_mul(&sum[i+j+1],par_res[3],&carry[i+j+1],0);
+      }
+    }
   }
 
   for (i = 0; i < NUMB_SIZE-1 ; i++) {
-    for (j = 0; j < NUMB_SIZE-1; j++) {
-      par_res[0] = (b.numb[i]&LOMASK) * (a.numb[j]&LOMASK);
-      par_res[1] = (b.numb[i]&LOMASK) * (a.numb[j]&HIMASK)>>(VAR_SIZE/2);
-      par_res[2] = (b.numb[i]&HIMASK)>>(VAR_SIZE/2) * (a.numb[j]&LOMASK);
-      par_res[3] = (b.numb[i]&HIMASK)>>(VAR_SIZE/2) * (a.numb[j]&HIMASK)>>(VAR_SIZE/2);
-
-      //sum[j] = par_res[0] + par_res[1] << 16 + par_res[2] << 16 + par_res[3] << 32;
-      sum[i+j] = sum[i+j] + par_res[0] + (par_res[1] << (VAR_SIZE/2)) + (par_res[2] << (VAR_SIZE/2));
-      //sum[j+1] = par_res[0] >> 32 + par_res[1] >> 16 + par_res[2] >> 16 + par_res[3];
-      if ((i+j) != 2*(NUMB_SIZE-1)) {
-        sum[i+j+1] = sum[i+j+1] + (par_res[1] >> (VAR_SIZE/2)) + (par_res[2] >> (VAR_SIZE/2)) + par_res[3];
-      }
-    }
-
-  }
-
-  for (i = 0; i < NUMB_SIZE ; i++) {
     data_res.numb[i] = sum[i];
     printf("stage %d mul = %x\n", i, data_res.numb[i]);
   }
+  data_res.numb[i] = sum[i];
 
-  data_res.pos = INT_SIZE + VAR_SIZE;
+  data_res.pos = INT_SIZE + VAR_SIZE*!(data_res.numb[NUMB_SIZE-1] == 0);
+  printf("and additional digits pos = %d, last = %x\n",data_res.pos,data_res.numb[NUMB_SIZE-1]);
   return data_res;
 }
