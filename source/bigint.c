@@ -150,8 +150,7 @@ bigint_t sum(bigint_t a, bigint_t b){
     data_res.numb[i] = data_res.numb[i] + carry;
     carry = new_carry | (a.numb[i] > data_res.numb[i]);
     printf("stage %d sum = %x\n", i, data_res.numb[i]);
-  } 
-  
+  }
 
   data_res.pos = INT_SIZE + carry*VAR_SIZE;
   data_res.numb[i] = carry;
@@ -165,12 +164,12 @@ bigint_t sub(bigint_t a, bigint_t b){
   bigint_t data_res;
 
   var_t borrow = 0, new_borrow=0;
-  int i, k, j;
+  int i;
 
   for (i = 0; i < NUMB_SIZE-1 ; i++) {
     data_res.numb[i] = a.numb[i] - b.numb[i];
     new_borrow = data_res.numb[i] > a.numb[i];
-    data_res.numb[i] = a.numb[i] - borrow;
+    data_res.numb[i] = data_res.numb[i] - borrow;
     borrow = new_borrow | (data_res.numb[i] > a.numb[i]);
     printf("stage %d sub = %x\n", i, data_res.numb[i]);
   }
@@ -180,8 +179,40 @@ bigint_t sub(bigint_t a, bigint_t b){
   printf("and additional digits pos = %d, last = %x\n",data_res.pos,data_res.numb[i]);
   return data_res;
 }
-
 // Sum, gets data on NUMB_SIZE -1  and returns data on NUMB_SIZE
 bigint_t mul(bigint_t a, bigint_t b){
 
+  int i, j;
+  var_t par_res[4];
+  var_t sum[2*(NUMB_SIZE-1)];
+  bigint_t data_res;
+
+  for (i = 0; i < 2*(NUMB_SIZE-1) ; i++) {
+    sum[i] = 0;
+  }
+
+  for (i = 0; i < NUMB_SIZE-1 ; i++) {
+    for (j = 0; j < NUMB_SIZE-1; j++) {
+      par_res[0] = (b.numb[i]&LOMASK) * (a.numb[j]&LOMASK);
+      par_res[1] = (b.numb[i]&LOMASK) * (a.numb[j]&HIMASK)>>(VAR_SIZE/2);
+      par_res[2] = (b.numb[i]&HIMASK)>>(VAR_SIZE/2) * (a.numb[j]&LOMASK);
+      par_res[3] = (b.numb[i]&HIMASK)>>(VAR_SIZE/2) * (a.numb[j]&HIMASK)>>(VAR_SIZE/2);
+
+      //sum[j] = par_res[0] + par_res[1] << 16 + par_res[2] << 16 + par_res[3] << 32;
+      sum[i+j] = sum[i+j] + par_res[0] + (par_res[1] << (VAR_SIZE/2)) + (par_res[2] << (VAR_SIZE/2));
+      //sum[j+1] = par_res[0] >> 32 + par_res[1] >> 16 + par_res[2] >> 16 + par_res[3];
+      if ((i+j) != 2*(NUMB_SIZE-1)) {
+        sum[i+j+1] = sum[i+j+1] + (par_res[1] >> (VAR_SIZE/2)) + (par_res[2] >> (VAR_SIZE/2)) + par_res[3];
+      }
+    }
+
+  }
+
+  for (i = 0; i < NUMB_SIZE ; i++) {
+    data_res.numb[i] = sum[i];
+    printf("stage %d mul = %x\n", i, data_res.numb[i]);
+  }
+
+  data_res.pos = INT_SIZE + VAR_SIZE;
+  return data_res;
 }
