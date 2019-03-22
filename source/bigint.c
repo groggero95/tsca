@@ -1,6 +1,4 @@
 #include "../include/bigint.h"
-#include <stdio.h>
-
 
 // Return 0 if different, else 1; -1 if not aligned
 int eq(bigint_t first, bigint_t second){
@@ -136,6 +134,16 @@ int lsl(bigint_t *a, int pl){
     return 1;
 }
 
+void print_to_stdout(bigint_t *a){
+  int i;
+  printf("0x");
+  for(i=NUMB_SIZE-1;i>=0; i--){
+    printf("%08x",(*a).numb[i]);
+  }
+//  printf("\n");
+  return ;
+}
+
 // Sum, gets data on NUMB_SIZE -1  and returns data on NUMB_SIZE
 bigint_t sum(bigint_t a, bigint_t b){
 
@@ -149,12 +157,15 @@ bigint_t sum(bigint_t a, bigint_t b){
     new_carry = a.numb[i] > data_res.numb[i];
     data_res.numb[i] = data_res.numb[i] + carry;
     carry = new_carry | (a.numb[i] > data_res.numb[i]);
-    printf("stage %d sum = %x\n", i, data_res.numb[i]);
+    //printf("stage %d sum = %x\n", i, data_res.numb[i]);
   }
 
   data_res.pos = INT_SIZE + carry*VAR_SIZE;
   data_res.numb[i] = carry;
-  printf("and additional digits pos = %d, last = %x\n",data_res.pos,data_res.numb[i]);
+  //printf("and additional digits pos = %d, last = %x\n",data_res.pos,data_res.numb[i]);
+
+  print_to_stdout(&data_res);
+
   return data_res;
 }
 
@@ -171,12 +182,15 @@ bigint_t sub(bigint_t a, bigint_t b){
     new_borrow = data_res.numb[i] > a.numb[i];
     data_res.numb[i] = data_res.numb[i] - borrow;
     borrow = new_borrow | (data_res.numb[i] > a.numb[i]);
-    printf("stage %d sub = %x\n", i, data_res.numb[i]);
+    //printf("stage %d sub = %x\n", i, data_res.numb[i]);
   }
 
   data_res.pos = INT_SIZE + borrow*VAR_SIZE;
   data_res.numb[i] = 0-borrow;
-  printf("and additional digits pos = %d, last = %x\n",data_res.pos,data_res.numb[i]);
+  //printf("and additional digits pos = %d, last = %x\n",data_res.pos,data_res.numb[i]);
+
+  print_to_stdout(&data_res);
+
   return data_res;
 }
 
@@ -245,40 +259,78 @@ bigint_t mul(bigint_t a, bigint_t b){
 
   for (i = 0; i < NUMB_SIZE-1 ; i++) {
     data_res.numb[i] = sum[i];
-    printf("stage %d mul = %x\n", i, data_res.numb[i]);
+    //printf("stage %d mul = %x\n", i, data_res.numb[i]);
   }
   data_res.numb[i] = sum[i];
 
   data_res.pos = INT_SIZE + VAR_SIZE*!(data_res.numb[NUMB_SIZE-1] == 0);
-  printf("and additional digits pos = %d, last = %x\n",data_res.pos,data_res.numb[NUMB_SIZE-1]);
+  //printf("and additional digits pos = %d, last = %x\n",data_res.pos,data_res.numb[NUMB_SIZE-1]);
+
+  print_to_stdout(&data_res);
+
   return data_res;
 }
+/*
+int main() {
+
+  bigint_t a, b, res;
+  int i;
+  a.numb[0] = 0x12345678;
+  b.numb[0] = UMAX;
+  for (i = 1; i < NUMB_SIZE - 2; i ++) {
+    a.numb[i] = 0x00000001;
+    b.numb[i] = 0;
+  }
+
+    a.numb[i] = 0;
+    b.numb[i] = 0;
+
+  res = sum(a,b);
+  res = sub(a,b);
+  res = mul(a,b);
+
+  return 0;
+}
+*/
 
 int main(int argc, char **argv){
 
+  int i, max_i, j;
+  bigint_t a, b, res;
+  char temp[HEX_DIGIT];
 
-  if (argc != 2){
-    printf("<command> <operation> <size> <operanda> <operandb>\n");
+  if (argc != 4){
+    printf("Error, <command> <operation> <operanda> <operandb>\n");
     return 1;
   }
 
+  // get data from line
+  max_i = NUMB_SIZE - 1;
 
-
-  switch(argv[1]){
-    case "add":
-      res = add(argv[2],argv[3]);
-      break;
-    case "sub":
-      res = sub(argv[2],argv[3]);
-      break;
-    case "mul":
-      res = mul(argv[2],argv[3]);
-      break;
-    default:
-      printf("Error\n");
-      return 1;
-    break;
+  for (i=max_i-1;i>=0;i--){
+    strncpy(temp,argv[2]+2+HEX_DIGIT*(max_i-1-i),HEX_DIGIT);
+    a.numb[i] = (var_t)strtol(temp, NULL, 16);
+    strncpy(temp,argv[3]+2+HEX_DIGIT*(max_i-1-i),HEX_DIGIT);
+    b.numb[i] = (var_t)strtol(temp, NULL, 16);
   }
+
+/*
+  for (i=0;i<max_i;i++){
+    printf("a %d = %x\n",i,a.numb[i]);
+    printf("b %d = %x\n",i,b.numb[i]);
+  }
+*/
+
+  if (!strcmp(argv[1],"sum")){
+    res = sum(a,b);
+  } else if (!strcmp(argv[1],"sub")) {
+    res = sub(a,b);
+  } else if (!strcmp(argv[1],"mul")) {
+    res = mul(a,b);
+  } else {
+    printf("No operation available");
+  }
+
 
   return 0;
 }
