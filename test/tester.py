@@ -31,6 +31,11 @@ for i in range(testnum):
 		res_t = (a*b)&((1<<nbit+32)-1)
 
 	res_m = c.stdout.decode('utf-8')
+
+	# print("\n")
+	# print(res_m)
+	# print(padhex(res_t,nbit+32))
+
 	if res_t != int(res_m,16):
 		print("\n")
 		print(padhex(a,nbit))
