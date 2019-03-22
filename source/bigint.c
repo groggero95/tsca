@@ -10,7 +10,7 @@ int eq(bigint_t first, bigint_t second){
            return 0;
     }
     return 1;
-};
+}
 
 // Return 0 if equal, else 1; -1 if not aligned
 int df(bigint_t first, bigint_t second){
@@ -22,7 +22,7 @@ int df(bigint_t first, bigint_t second){
            return 1;
     }
     return 0;
-};
+}
 
 // Return 1 if strictly gt, else 0; -1 if not aligned
 int gt(bigint_t first, bigint_t second){
@@ -34,9 +34,9 @@ int gt(bigint_t first, bigint_t second){
            return 0;
         else if(first.numb[i] > second.numb[i])
            return 1;
-    };
+    }
     return 0;
-};
+}
 
 // Return 1 if ge, else 0; -1 if not aligned
 int ge(bigint_t first, bigint_t second){
@@ -48,9 +48,9 @@ int ge(bigint_t first, bigint_t second){
            return 0;
         else if(first.numb[i] > second.numb[i])
            return 1;
-    };
+    }
     return 1;
-};
+}
 
 
 // Return 1 if strictly lt, else 0; -1 if not aligned
@@ -63,9 +63,9 @@ int lt(bigint_t first, bigint_t second){
            return 0;
         else if(first.numb[i] < second.numb[i])
            return 1;
-    };
+    }
     return 0;
-};
+}
 
 // Return 1 if le, else 0; -1 if not aligned
 int le(bigint_t first, bigint_t second){
@@ -79,7 +79,7 @@ int le(bigint_t first, bigint_t second){
             return 1;
         }
     return 1;
-};
+}
 
 
 // Logically shift right a, by pl places
