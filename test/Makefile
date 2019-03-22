@@ -1,43 +1,13 @@
-# Makefile for compiling an ev3 project with the following folder structure:
-#
-#	this_folder/
-# 		Makefile (this file)
-#		ev3dev-c/
-#		libraries/
-#			libbluetooth.a
-#			libev3dev-c.a
-#		include/
-# 			bt_client.h
-#			messages.h
-#			movement.h
-#			sensors.h
-#	 	source/
-#			bt_client.c
-#			messages.c
-#			movement.c
-#			sensors.c
-#			main.c
-#
-# The main executable will be located in the same directory as you ran
-# "Make" from. To add new .c files, simply add them to the OBJS variable.
-
-
 CC 		= gcc
-CFLAGS 		= -O0 -g -std=gnu99 -W -Wall -Wno-comment
+CFLAGS 		= -O3 -g -std=gnu99 -W -Wall -Wno-comment
 INCLUDES 	= -I./include/
 LDFLAGS 	= -L./libraries -lrt -lm
 BUILD_DIR 	= ./build
-SOURCE_DIR 	= ./source
-INCLUDE_DIR	= ./include
+SOURCE_DIR 	= ./../source
+INCLUDE_DIR	= ./../include
 BIN		= ./main
 
-OBJS = \
-	$(BUILD_DIR)/big_int.o
-
-#	$(BUILD_DIR)/movement.o \
-#	$(BUILD_DIR)/sensors.o \
-#	$(BUILD_DIR)/bt_client.o \
-#	$(BUILD_DIR)/messages.o \
+OBJS = $(BUILD_DIR)/bigint.o
 
 all: main
 
@@ -52,6 +22,6 @@ $(BUILD_DIR):
 $(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.c
 	$(CC) -c $(SOURCE_DIR)/$*.c $(INCLUDES) -o $(BUILD_DIR)/$*.o
 
-#clean:
-#	rm -f $(BUILD_DIR)/*.o
-#	rm ./main
+clean:
+	rm -f $(BUILD_DIR)/*.o
+	rm ./main

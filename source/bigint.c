@@ -140,7 +140,7 @@ void print_to_stdout(bigint_t *a){
   for(i=NUMB_SIZE-1;i>=0; i--){
     printf("%08x",(*a).numb[i]);
   }
-  printf("\n");
+//  printf("\n");
   return ;
 }
 
