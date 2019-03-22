@@ -2,6 +2,11 @@
 #define BIGINT_H
 
 #include <stdint.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <string.h>
+
 //Following number has to be a multiple of 32
 #define INT_SIZE 1024
 #define VAR_SIZE 32
@@ -53,5 +58,6 @@ bigint_t sub(bigint_t a, bigint_t b);
 bigint_t mul(bigint_t a, bigint_t b);
 
 var_t sum_4_mul(var_t *a, var_t b, var_t *carry, int act);
+void print_to_stdout(bigint_t *a);
 
 #endif
