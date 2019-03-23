@@ -97,16 +97,17 @@ int lsr(bigint_t *a, int pl){
               }
           }
       }
+    	if (pl != 0) {
+        for (int i=0; i<NUMB_SIZE-1; i++){
+      		a->numb[i] >>= pl;
+      		tmp = a->numb[i+1];
+      		tmp <<= (VAR_SIZE-pl);
+      		a->numb[i] = a->numb[i] | tmp;
+      	}
 
-  	for (int i=0; i<NUMB_SIZE-1; i++){
-  		a->numb[i] >>= pl;
-  		tmp = a->numb[i+1];
-  		tmp <<= (VAR_SIZE-pl);
-  		a->numb[i] = a->numb[i] | tmp;
-  	}
-
-  	a->numb[NUMB_SIZE-1] >>= pl;
-  }
+      	a->numb[NUMB_SIZE-1] >>= pl;
+      }
+    }
 
     return 1;
 }
@@ -119,23 +120,25 @@ int lsl(bigint_t *a, int pl){
       pl = pl % VAR_SIZE;
       if (full_shift){
           //Full shift of VAR_SIZE*full_shift bits done
-          for(int k=NUMB_SIZE-1; k>=full_shift; k--){
+          for(int k=NUMB_SIZE-1; k>=full_shift-1; k--){
               a->numb[k]=a->numb[k-full_shift];
               if (k-full_shift < full_shift){
                   a->numb[k-full_shift]=0;
               }
           }
       }
+      if (pl != 0) {
+        for (int i=NUMB_SIZE-1; i>0; i--){
+          a->numb[i] <<= pl;
+          tmp = a->numb[i-1];
+          tmp >>= (VAR_SIZE-pl);
+          a->numb[i] = a->numb[i] | tmp;
+      	}
 
-  	for (int i=NUMB_SIZE-1; i>0; i--){
-      a->numb[i] <<= pl;
-      tmp = a->numb[i-1];
-      tmp >>= (VAR_SIZE-pl);
-      a->numb[i] = a->numb[i] | tmp;
-  	}
+          a->numb[0] <<= pl;
+      }
+      }
 
-      a->numb[0] <<= pl;
-  }
     return 1;
 }
 

@@ -13,7 +13,7 @@ def padhex(m,nb=32):
 def shift_test(sel):
 	testnum = 10000
 	nbit = 128 + 32
-	nbit_shift = 3
+	nbit_shift = 8
 	path = './main'
 	operation = ['lsl', 'lsr']
 
@@ -22,6 +22,7 @@ def shift_test(sel):
 	for i in range(testnum):
 		a = random.getrandbits(nbit)
 		b = random.getrandbits(nbit_shift)
+		#b = 35
 		c = subprocess.run([path, operation[sel],padhex(a,nbit),str(b)], stdout=subprocess.PIPE)
 
 		if sel == 0:
