@@ -5,7 +5,7 @@ int eq(bigint_t first, bigint_t second){
     if (first.pos != second.pos){
         return -1;
     }
-    for(int i=0; i<NUMB_SIZE; i++){
+    for(int i=0; i<NUMB_SIZE-1; i++){
         if(first.numb[i]!=second.numb[i])
            return 0;
     }
@@ -17,7 +17,7 @@ int df(bigint_t first, bigint_t second){
     if (first.pos != second.pos){
         return -1;
     }
-    for(int i=0; i<NUMB_SIZE; i++){
+    for(int i=0; i<NUMB_SIZE-1; i++){
         if(first.numb[i]!=second.numb[i])
            return 1;
     }
@@ -298,6 +298,7 @@ int main(int argc, char **argv){
   int i, max_i, j;
   bigint_t a, b, res;
   char temp[HEX_DIGIT];
+  int res_logic;
 
   if (argc != 4){
     printf("Error, <command> <operation> <operanda> <operandb>\n");
@@ -307,10 +308,10 @@ int main(int argc, char **argv){
   // get data from line
   max_i = NUMB_SIZE - 1;
 
-  for (i=max_i-1;i>=0;i--){
-    strncpy(temp,argv[2]+2+HEX_DIGIT*(max_i-1-i),HEX_DIGIT);
+  for (i=max_i;i>=0;i--){
+    strncpy(temp,argv[2]+2+HEX_DIGIT*(max_i-i),HEX_DIGIT);
     a.numb[i] = (var_t)strtol(temp, NULL, 16);
-    strncpy(temp,argv[3]+2+HEX_DIGIT*(max_i-1-i),HEX_DIGIT);
+    strncpy(temp,argv[3]+2+HEX_DIGIT*(max_i-i),HEX_DIGIT);
     b.numb[i] = (var_t)strtol(temp, NULL, 16);
   }
 
@@ -327,6 +328,24 @@ int main(int argc, char **argv){
     res = sub(a,b);
   } else if (!strcmp(argv[1],"mul")) {
     res = mul(a,b);
+  } else if (!strcmp(argv[1],"eq")) {
+    res_logic = eq(a,b);
+    printf("%d\n", res_logic);
+  } else if (!strcmp(argv[1],"df")) {
+    res_logic = df(a,b);
+    printf("%d\n", res_logic);
+  } else if (!strcmp(argv[1],"ge")) {
+    res_logic = ge(a,b);
+    printf("%d\n", res_logic);
+  } else if (!strcmp(argv[1],"gt")) {
+    res_logic = gt(a,b);
+    printf("%d\n", res_logic);
+  } else if (!strcmp(argv[1],"le")) {
+    res_logic = le(a,b);
+    printf("%d\n", res_logic);
+  } else if (!strcmp(argv[1],"lt")) {
+    res_logic = lt(a,b);
+    printf("%d\n", res_logic);
   } else {
     printf("No operation available");
   }
