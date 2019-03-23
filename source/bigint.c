@@ -84,61 +84,69 @@ int le(bigint_t first, bigint_t second){
 
 // Logically shift right a, by pl places
 int lsr(bigint_t *a, int pl){
-  if (pl != 0) {
+  if (pl < INT_SIZE+VAR_SIZE) {
     var_t tmp;
-      int full_shift=pl/VAR_SIZE;
-      pl = pl % VAR_SIZE;
-      if (full_shift){
-          //Full shift of VAR_SIZE*full_shift bits done
-          for(int k=full_shift; k<NUMB_SIZE; k++){
-              a->numb[k-full_shift]=a->numb[k];
-              if (k>NUMB_SIZE-1-full_shift){
-                  a->numb[k]=0;
-              }
-          }
-      }
-    	if (pl != 0) {
+    int full_shift=pl/VAR_SIZE;
+    pl = pl % VAR_SIZE;
+    if (full_shift){
+        //Full shift of VAR_SIZE*full_shift bits done
+        for(int k=0; k<NUMB_SIZE; k++){
+            a->numb[k-full_shift]=a->numb[k];
+            if (k < NUMB_SIZE - full_shift){
+                a->numb[k-full_shift]=a->numb[k];
+            } else {
+                a->numb[k]=0;
+            }
+        }
+    }
+    if (pl != 0) {
         for (int i=0; i<NUMB_SIZE-1; i++){
-      		a->numb[i] >>= pl;
+      	    a->numb[i] >>= pl;
       		tmp = a->numb[i+1];
       		tmp <<= (VAR_SIZE-pl);
       		a->numb[i] = a->numb[i] | tmp;
       	}
-
       	a->numb[NUMB_SIZE-1] >>= pl;
       }
-    }
+  } else {
+      for(int k=0; k<NUMB_SIZE; k++){
+          a->numb[k]=0;
+      }
+  }
 
     return 1;
 }
 
 // Logically shift left a, by pl places
 int lsl(bigint_t *a, int pl){
-  if (pl != 0) {
+  if (pl < INT_SIZE+VAR_SIZE) {
     var_t tmp;
-      int full_shift=pl/VAR_SIZE;
-      pl = pl % VAR_SIZE;
-      if (full_shift){
-          //Full shift of VAR_SIZE*full_shift bits done
-          for(int k=NUMB_SIZE-1; k>=full_shift-1; k--){
+    int full_shift=pl/VAR_SIZE;
+    pl = pl % VAR_SIZE;
+    if (full_shift){
+        //Full shift of VAR_SIZE*full_shift bits done
+        for(int k=NUMB_SIZE-1; k>=0; k--){
+            if (k >= full_shift){
               a->numb[k]=a->numb[k-full_shift];
-              if (k-full_shift < full_shift){
-                  a->numb[k-full_shift]=0;
-              }
-          }
+            } else {
+              a->numb[k]=0;
+            }
+        }
+    }
+    if (pl != 0) {
+      for (int i=NUMB_SIZE-1; i>0; i--){
+        a->numb[i] <<= pl;
+        tmp = a->numb[i-1];
+        tmp >>= (VAR_SIZE-pl);
+        a->numb[i] = a->numb[i] | tmp;
+    	}
+        a->numb[0] <<= pl;
+    }
+  } else {
+    for(int k=NUMB_SIZE-1; k>=0; k--){
+        a->numb[k]=0;
       }
-      if (pl != 0) {
-        for (int i=NUMB_SIZE-1; i>0; i--){
-          a->numb[i] <<= pl;
-          tmp = a->numb[i-1];
-          tmp >>= (VAR_SIZE-pl);
-          a->numb[i] = a->numb[i] | tmp;
-      	}
-
-          a->numb[0] <<= pl;
-      }
-      }
-
+    }
     return 1;
 }
 
