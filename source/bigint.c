@@ -84,53 +84,58 @@ int le(bigint_t first, bigint_t second){
 
 // Logically shift right a, by pl places
 int lsr(bigint_t *a, int pl){
-	var_t tmp;
-    int full_shift=pl/VAR_SIZE;
-    pl = pl % VAR_SIZE;
-    if (full_shift){
-        //Full shift of VAR_SIZE*full_shift bits done
-        for(int k=full_shift; k<NUMB_SIZE; k++){
-            a->numb[k-full_shift]=a->numb[k];
-            if (k>NUMB_SIZE-1-full_shift){
-                a->numb[k]=0;
-            }
-        }
-    }
+  if (pl != 0) {
+    var_t tmp;
+      int full_shift=pl/VAR_SIZE;
+      pl = pl % VAR_SIZE;
+      if (full_shift){
+          //Full shift of VAR_SIZE*full_shift bits done
+          for(int k=full_shift; k<NUMB_SIZE; k++){
+              a->numb[k-full_shift]=a->numb[k];
+              if (k>NUMB_SIZE-1-full_shift){
+                  a->numb[k]=0;
+              }
+          }
+      }
 
-	for (int i=0; i<NUMB_SIZE-1; i++){
-		a->numb[i] >>= pl;
-		tmp = a->numb[i+1];
-		tmp <<= (VAR_SIZE-pl);
-		a->numb[i] = a->numb[i] | tmp;
-	}
+  	for (int i=0; i<NUMB_SIZE-1; i++){
+  		a->numb[i] >>= pl;
+  		tmp = a->numb[i+1];
+  		tmp <<= (VAR_SIZE-pl);
+  		a->numb[i] = a->numb[i] | tmp;
+  	}
 
-	a->numb[NUMB_SIZE-1] >>= pl;
+  	a->numb[NUMB_SIZE-1] >>= pl;
+  }
+
     return 1;
 }
 
 // Logically shift left a, by pl places
 int lsl(bigint_t *a, int pl){
-	var_t tmp;
-    int full_shift=pl/VAR_SIZE;
-    pl = pl % VAR_SIZE;
-    if (full_shift){
-        //Full shift of VAR_SIZE*full_shift bits done
-        for(int k=NUMB_SIZE-1; k>=full_shift; k--){
-            a->numb[k]=a->numb[k-full_shift];
-            if (k-full_shift < full_shift){
-                a->numb[k-full_shift]=0;
-            }
-        }
-    }
+  if (pl != 0) {
+    var_t tmp;
+      int full_shift=pl/VAR_SIZE;
+      pl = pl % VAR_SIZE;
+      if (full_shift){
+          //Full shift of VAR_SIZE*full_shift bits done
+          for(int k=NUMB_SIZE-1; k>=full_shift; k--){
+              a->numb[k]=a->numb[k-full_shift];
+              if (k-full_shift < full_shift){
+                  a->numb[k-full_shift]=0;
+              }
+          }
+      }
 
-	for (int i=NUMB_SIZE-1; i>0; i--){
-    a->numb[i] <<= pl;
-    tmp = a->numb[i-1];
-    tmp >>= (VAR_SIZE-pl);
-    a->numb[i] = a->numb[i] | tmp;
-	}
+  	for (int i=NUMB_SIZE-1; i>0; i--){
+      a->numb[i] <<= pl;
+      tmp = a->numb[i-1];
+      tmp >>= (VAR_SIZE-pl);
+      a->numb[i] = a->numb[i] | tmp;
+  	}
 
-    a->numb[0] <<= pl;
+      a->numb[0] <<= pl;
+  }
     return 1;
 }
 
@@ -164,8 +169,6 @@ bigint_t sum(bigint_t a, bigint_t b){
   data_res.numb[i] = carry;
   //printf("and additional digits pos = %d, last = %x\n",data_res.pos,data_res.numb[i]);
 
-  print_to_stdout(&data_res);
-
   return data_res;
 }
 
@@ -188,8 +191,6 @@ bigint_t sub(bigint_t a, bigint_t b){
   data_res.pos = INT_SIZE + borrow*VAR_SIZE;
   data_res.numb[i] = 0-borrow;
   //printf("and additional digits pos = %d, last = %x\n",data_res.pos,data_res.numb[i]);
-
-  print_to_stdout(&data_res);
 
   return data_res;
 }
@@ -266,7 +267,6 @@ bigint_t mul(bigint_t a, bigint_t b){
   data_res.pos = INT_SIZE + VAR_SIZE*!(data_res.numb[NUMB_SIZE-1] == 0);
   //printf("and additional digits pos = %d, last = %x\n",data_res.pos,data_res.numb[NUMB_SIZE-1]);
 
-  print_to_stdout(&data_res);
 
   return data_res;
 }
@@ -298,7 +298,9 @@ int main(int argc, char **argv){
   int i, max_i, j;
   bigint_t a, b, res;
   char temp[HEX_DIGIT];
-  int res_logic;
+  int res_logic, shift;
+  int res_shift;
+
 
   if (argc != 4){
     printf("Error, <command> <operation> <operanda> <operandb>\n");
@@ -308,12 +310,28 @@ int main(int argc, char **argv){
   // get data from line
   max_i = NUMB_SIZE - 1;
 
-  for (i=max_i;i>=0;i--){
-    strncpy(temp,argv[2]+2+HEX_DIGIT*(max_i-i),HEX_DIGIT);
-    a.numb[i] = (var_t)strtol(temp, NULL, 16);
-    strncpy(temp,argv[3]+2+HEX_DIGIT*(max_i-i),HEX_DIGIT);
-    b.numb[i] = (var_t)strtol(temp, NULL, 16);
+  if ((!strcmp(argv[1],"sum")) || !strcmp(argv[1],"sub") || !strcmp(argv[1],"mul")) {
+    for (i=max_i-1;i>=0;i--){
+      strncpy(temp,argv[2]+2+HEX_DIGIT*(max_i-1-i),HEX_DIGIT);
+      a.numb[i] = (var_t)strtol(temp, NULL, 16);
+      strncpy(temp,argv[3]+2+HEX_DIGIT*(max_i-1-i),HEX_DIGIT);
+      b.numb[i] = (var_t)strtol(temp, NULL, 16);
+    }
+  } else if ((!strcmp(argv[1],"lsl")) || (!strcmp(argv[1],"lsr"))) {
+    for (i=max_i;i>=0;i--){
+      strncpy(temp,argv[2]+2+HEX_DIGIT*(max_i-i),HEX_DIGIT);
+      a.numb[i] = (var_t)strtol(temp, NULL, 16);
+    }
+    shift=atoi(argv[3]);
+  } else {
+    for (i=max_i;i>=0;i--){
+      strncpy(temp,argv[2]+2+HEX_DIGIT*(max_i-i),HEX_DIGIT);
+      a.numb[i] = (var_t)strtol(temp, NULL, 16);
+      strncpy(temp,argv[3]+2+HEX_DIGIT*(max_i-i),HEX_DIGIT);
+      b.numb[i] = (var_t)strtol(temp, NULL, 16);
+    }
   }
+
 
 /*
   for (i=0;i<max_i;i++){
@@ -324,10 +342,19 @@ int main(int argc, char **argv){
 
   if (!strcmp(argv[1],"sum")){
     res = sum(a,b);
+    print_to_stdout(&res);
   } else if (!strcmp(argv[1],"sub")) {
     res = sub(a,b);
+    print_to_stdout(&res);
   } else if (!strcmp(argv[1],"mul")) {
     res = mul(a,b);
+    print_to_stdout(&res);
+  } else if (!strcmp(argv[1],"lsl")) {
+    res_shift = lsl(&a,shift);
+    print_to_stdout(&a);
+  } else if (!strcmp(argv[1],"lsr")) {
+    res_shift = lsr(&a,shift);
+    print_to_stdout(&a);
   } else if (!strcmp(argv[1],"eq")) {
     res_logic = eq(a,b);
     printf("%d\n", res_logic);
