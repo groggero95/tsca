@@ -11,8 +11,9 @@ def padhex(m,nb=32):
 
 
 def logic_test(sel):
-	testnum = 1000
-	nbit = 160
+	testnum = 10000
+	# +32 is needed to consider the additional field
+	nbit = 128+32
 	path = './main'
 	operation = ['eq', 'df', 'ge', 'gt', 'le', 'lt' ]
 
@@ -21,6 +22,8 @@ def logic_test(sel):
 	for i in range(testnum):
 		a = random.getrandbits(nbit)
 		b = random.getrandbits(nbit)
+		if i < 1000:
+			a = b
 		c = subprocess.run([path, operation[sel],padhex(a,nbit),padhex(b,nbit)], stdout=subprocess.PIPE)
 
 		if sel == 0:

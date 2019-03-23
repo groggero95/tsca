@@ -1,11 +1,12 @@
-CC 					= gcc
+CC 				= gcc
+#CC				= arm-linux-gnueabi-gcc
 CFLAGS 			= -O3 -g -std=gnu99 -W -Wall -Wno-comment
 INCLUDES 		= -I./include/
 LDFLAGS 		= -L./libraries -lrt -lm
-BUILD_DIR 	= ./build
-SOURCE_DIR 	= ./../source
-INCLUDE_DIR	= ./../include
-BIN					= ./main
+BUILD_DIR 		= ./build
+SOURCE_DIR 		= ./../source
+INCLUDE_DIR		= ./../include
+BIN				= ./main
 
 OBJS = $(BUILD_DIR)/bigint.o
 
