@@ -10,7 +10,7 @@ def padhex(m,nb=32):
 	return '0x' + hex(m)[2:].zfill(int(math.ceil(nb/32)*8))
 
 
-def arith_test(arg):
+def arith_test(sel):
 	testnum = 10000
 	nbit = 128
 	path = './main'
