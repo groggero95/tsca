@@ -11,7 +11,7 @@ def padhex(m,nb=32):
 
 
 def logic_test(sel):
-	testnum = 10000
+	testnum = 1000
 	nbit = 160
 	path = './main'
 	operation = ['eq', 'df', 'ge', 'gt', 'le', 'lt' ]
