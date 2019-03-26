@@ -45,12 +45,17 @@ typedef struct bigint{
 } bigint_t;
 
 
-int eq(bigint_t first, bigint_t second);
-int df(bigint_t first, bigint_t second);
-int gt(bigint_t first, bigint_t second);
-int ge(bigint_t first, bigint_t second);
-int lt(bigint_t first, bigint_t second);
-int le(bigint_t first, bigint_t second);
+int eq(bigint_t *first, bigint_t *second);
+int df(bigint_t *first, bigint_t *second);
+int gt(bigint_t *first, bigint_t *second);
+int ge(bigint_t *first, bigint_t *second);
+int lt(bigint_t *first, bigint_t *second);
+int le(bigint_t *first, bigint_t *second);
+
+bigint_t and(bigint_t *a, bigint_t *b);
+bigint_t or(bigint_t *a, bigint_t *b);
+bigint_t not(bigint_t *a);
+bigint_t xor(bigint_t *a, bigint_t *b);
 int lsr(bigint_t *a, int pl);
 int lsl(bigint_t *a, int pl);
 
