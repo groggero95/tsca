@@ -11,8 +11,8 @@ def padhex(m,nb=32):
 
 
 def shift_test(sel):
-	testnum = 10000
-	nbit = 128 + 32
+	testnum = 10000000
+	nbit = 1024 + 32
 	nbit_shift = 5
 	path = './main'
 	operation = ['lsl', 'lsr']

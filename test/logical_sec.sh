@@ -1,6 +1,6 @@
 #!/bin/bash
-rm *.t
-for i in `seq 0 2`;
+#rm *.t
+for i in `seq 3 5`;
 do
     ./logic.py $i |& tee $i.t
 done

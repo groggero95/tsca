@@ -328,6 +328,8 @@ int main(int argc, char **argv){
       strncpy(temp,argv[3]+2+HEX_DIGIT*(max_i-1-i),HEX_DIGIT);
       b.numb[i] = (var_t)strtol(temp, NULL, 16);
     }
+    a.pos=0;
+    b.pos=0;
   } else if ((!strcmp(argv[1],"lsl")) || (!strcmp(argv[1],"lsr"))) {
     for (i=max_i;i>=0;i--){
       strncpy(temp,argv[2]+2+HEX_DIGIT*(max_i-i),HEX_DIGIT);
@@ -341,6 +343,8 @@ int main(int argc, char **argv){
       strncpy(temp,argv[3]+2+HEX_DIGIT*(max_i-i),HEX_DIGIT);
       b.numb[i] = (var_t)strtol(temp, NULL, 16);
     }
+    a.pos=0;
+    b.pos=0;
   }
 
 

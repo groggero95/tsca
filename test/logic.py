@@ -11,9 +11,9 @@ def padhex(m,nb=32):
 
 
 def logic_test(sel):
-	testnum = 10000
+	testnum = 10000000
 	# +32 is needed to consider the additional field
-	nbit = 128+32
+	nbit = 1024+32
 	path = './main'
 	operation = ['eq', 'df', 'ge', 'gt', 'le', 'lt' ]
 
@@ -52,7 +52,7 @@ def logic_test(sel):
 			print(logic)
 			print("\n")
 			toterr = toterr + 1
-		sys.stdout.write("\rTest "+ operation[sel]+ ": " + str(i+1) + "/" + str(testnum))
+		#sys.stdout.write("\rTest "+ operation[sel]+ ": " + str(i+1) + "/" + str(testnum))
 
 
 	print("\nTotal tested: " + str(testnum))
