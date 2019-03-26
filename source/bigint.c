@@ -91,7 +91,6 @@ int lsr(bigint_t *a, int pl){
     if (full_shift){
         //Full shift of VAR_SIZE*full_shift bits done
         for(int k=0; k<NUMB_SIZE; k++){
-            a->numb[k-full_shift]=a->numb[k];
             if (k < NUMB_SIZE - full_shift){
                 a->numb[k-full_shift]=a->numb[k];
             } else {
