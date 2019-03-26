@@ -1,52 +1,51 @@
 #include "../include/bigint.h"
-
 // Return 0 if different, else 1; -1 if not aligned
-int eq(bigint_t first, bigint_t second){
-    if (first.pos != second.pos){
+int eq(bigint_t *first, bigint_t *second){
+    if (first->pos != second->pos){
         return -1;
     }
     for(int i=0; i<NUMB_SIZE-1; i++){
-        if(first.numb[i]!=second.numb[i])
+        if(first->numb[i]!=second->numb[i])
            return 0;
     }
     return 1;
 }
 
 // Return 0 if equal, else 1; -1 if not aligned
-int df(bigint_t first, bigint_t second){
-    if (first.pos != second.pos){
+int df(bigint_t *first, bigint_t *second){
+    if (first->pos != second->pos){
         return -1;
     }
     for(int i=0; i<NUMB_SIZE-1; i++){
-        if(first.numb[i]!=second.numb[i])
+        if(first->numb[i]!=second->numb[i])
            return 1;
     }
     return 0;
 }
 
 // Return 1 if strictly gt, else 0; -1 if not aligned
-int gt(bigint_t first, bigint_t second){
-    if (first.pos != second.pos){
+int gt(bigint_t *first, bigint_t *second){
+    if (first->pos != second->pos){
         return -1;
     }
     for(int i=NUMB_SIZE-1; i>=0; i--){
-        if(first.numb[i] < second.numb[i])
+        if(first->numb[i] < second->numb[i])
            return 0;
-        else if(first.numb[i] > second.numb[i])
+        else if(first->numb[i] > second->numb[i])
            return 1;
     }
     return 0;
 }
 
 // Return 1 if ge, else 0; -1 if not aligned
-int ge(bigint_t first, bigint_t second){
-    if (first.pos != second.pos){
+int ge(bigint_t *first, bigint_t *second){
+    if (first->pos != second->pos){
         return -1;
     }
     for(int i=NUMB_SIZE-1; i>=0; i--){
-        if(first.numb[i]<second.numb[i])
+        if(first->numb[i]<second->numb[i])
            return 0;
-        else if(first.numb[i] > second.numb[i])
+        else if(first->numb[i] > second->numb[i])
            return 1;
     }
     return 1;
@@ -54,36 +53,78 @@ int ge(bigint_t first, bigint_t second){
 
 
 // Return 1 if strictly lt, else 0; -1 if not aligned
-int lt(bigint_t first, bigint_t second){
-    if (first.pos != second.pos){
+int lt(bigint_t *first, bigint_t *second){
+    if (first->pos != second->pos){
         return -1;
     }
     for(int i=NUMB_SIZE-1; i>=0; i--){
-        if(first.numb[i] > second.numb[i])
+        if(first->numb[i] > second->numb[i])
            return 0;
-        else if(first.numb[i] < second.numb[i])
+        else if(first->numb[i] < second->numb[i])
            return 1;
     }
     return 0;
 }
 
 // Return 1 if le, else 0; -1 if not aligned
-int le(bigint_t first, bigint_t second){
-    if (first.pos != second.pos){
+int le(bigint_t *first, bigint_t *second){
+    if (first->pos != second->pos){
             return -1;
     }
     for(int i=NUMB_SIZE-1; i>=0; i--){
-        if(first.numb[i] > second.numb[i])
+        if(first->numb[i] > second->numb[i])
             return 0;
-        else if(first.numb[i] < second.numb[i])
+        else if(first->numb[i] < second->numb[i])
             return 1;
         }
     return 1;
 }
 
 
+// Bitwise and &
+bigint_t and(bigint_t *a, bigint_t *b){
+
+    bigint_t data_res;
+    for(int i=0; i<NUMB_SIZE-1; i++){
+        data_res.numb[i] = a->numb[i] & b->numb[i];
+    }
+    return data_res;
+}
+
+
+// Bitwise or |
+bigint_t or(bigint_t *a, bigint_t *b){
+
+    bigint_t data_res;
+    for(int i=0; i<NUMB_SIZE-1; i++){
+        data_res.numb[i] = a->numb[i] | b->numb[i];
+    }
+    return data_res;
+}
+
+// Bitwise not ~
+bigint_t not(bigint_t *a){
+
+    bigint_t data_res;
+    for(int i=0; i<NUMB_SIZE-1; i++){
+      data_res.numb[i] ~= a->numb[i];
+    }
+    return data_res;
+}
+
+// Bitwise xor ^
+bigint_t xor(bigint_t *a, bigint_t *b){
+
+    bigint_t data_res;
+    for(int i=0; i<NUMB_SIZE-1; i++){
+        data_res.numb[i] = a->numb[i] ^ b->numb[i];
+    }
+    return data_res;
+}
+
 // Logically shift right a, by pl places
 int lsr(bigint_t *a, int pl){
+
   if (pl < INT_SIZE+VAR_SIZE) {
     var_t tmp;
     int full_shift=pl/VAR_SIZE;
@@ -98,15 +139,18 @@ int lsr(bigint_t *a, int pl){
             }
         }
     }
-    if (pl != 0) {
-        for (int i=0; i<NUMB_SIZE-1; i++){
-      	    a->numb[i] >>= pl;
-      		tmp = a->numb[i+1];
-      		tmp <<= (VAR_SIZE-pl);
-      		a->numb[i] = a->numb[i] | tmp;
-      	}
-      	a->numb[NUMB_SIZE-1] >>= pl;
-      }
+
+    for (int i=0; i<NUMB_SIZE-1; i++){
+        a->numb[i] >>= pl;
+        tmp = a->numb[i+1];
+        if (pl != 0)
+            tmp <<= (VAR_SIZE-pl);
+        else
+            tmp = 0;
+        a->numb[i] = a->numb[i] | tmp;
+    }
+    a->numb[NUMB_SIZE-1] >>= pl;
+
   } else {
       for(int k=0; k<NUMB_SIZE; k++){
           a->numb[k]=0;
@@ -132,15 +176,18 @@ int lsl(bigint_t *a, int pl){
             }
         }
     }
-    if (pl != 0) {
-      for (int i=NUMB_SIZE-1; i>0; i--){
+
+    for (int i=NUMB_SIZE-1; i>0; i--){
         a->numb[i] <<= pl;
         tmp = a->numb[i-1];
-        tmp >>= (VAR_SIZE-pl);
+        if (pl != 0)
+            tmp >>= (VAR_SIZE-pl);
+        else
+            tmp = 0;
         a->numb[i] = a->numb[i] | tmp;
-    	}
-        a->numb[0] <<= pl;
     }
+    a->numb[0] <<= pl;
+
   } else {
     for(int k=NUMB_SIZE-1; k>=0; k--){
         a->numb[k]=0;
@@ -160,7 +207,7 @@ void print_to_stdout(bigint_t *a){
 }
 
 // Sum, gets data on NUMB_SIZE -1  and returns data on NUMB_SIZE
-bigint_t sum(bigint_t a, bigint_t b){
+bigint_t sum(bigint_t *a, bigint_t *b){
 
   bigint_t data_res;
 
@@ -168,10 +215,10 @@ bigint_t sum(bigint_t a, bigint_t b){
   int i;
 
   for (i = 0; i < NUMB_SIZE-1 ; i++){
-    data_res.numb[i] = a.numb[i] + b.numb[i];
-    new_carry = a.numb[i] > data_res.numb[i];
+    data_res.numb[i] = a->numb[i] + b->numb[i];
+    new_carry = a->numb[i] > data_res.numb[i];
     data_res.numb[i] = data_res.numb[i] + carry;
-    carry = new_carry | (a.numb[i] > data_res.numb[i]);
+    carry = new_carry | (a->numb[i] > data_res.numb[i]);
     //printf("stage %d sum = %x\n", i, data_res.numb[i]);
   }
 
@@ -183,7 +230,7 @@ bigint_t sum(bigint_t a, bigint_t b){
 }
 
 // SUB, gets data on NUMB_SIZE -1  and returns data on NUMB_SIZE
-bigint_t sub(bigint_t a, bigint_t b){
+bigint_t sub(bigint_t *a, bigint_t *b){
 
   bigint_t data_res;
 
@@ -191,10 +238,10 @@ bigint_t sub(bigint_t a, bigint_t b){
   int i;
 
   for (i = 0; i < NUMB_SIZE-1 ; i++) {
-    data_res.numb[i] = a.numb[i] - b.numb[i];
-    new_borrow = data_res.numb[i] > a.numb[i];
+    data_res.numb[i] = a->numb[i] - b->numb[i];
+    new_borrow = data_res.numb[i] > a->numb[i];
     data_res.numb[i] = data_res.numb[i] - borrow;
-    borrow = new_borrow | (data_res.numb[i] > a.numb[i]);
+    borrow = new_borrow | (data_res.numb[i] > a->numb[i]);
     //printf("stage %d sub = %x\n", i, data_res.numb[i]);
   }
 
@@ -225,7 +272,7 @@ var_t sum_4_mul(var_t *a, var_t b, var_t *carry, int act){
 }
 
 // Sum, gets data on NUMB_SIZE -1  and returns data on NUMB_SIZE
-bigint_t mul(bigint_t a, bigint_t b){
+bigint_t mul(bigint_t *a, bigint_t *b){
 
   int i, j;
   var_t par_res[4];           // stores the 4 partial mult of a NxN multiplication
@@ -245,10 +292,10 @@ bigint_t mul(bigint_t a, bigint_t b){
   for (i = 0; i < NUMB_SIZE-1 ; i++) {
     for (j = 0; j < NUMB_SIZE-1; j++) {
       // perform 4 mult on half of the max VAR_SIZE bits, to avoid overflow
-      par_res[0] = (b.numb[i]&LOMASK) * (a.numb[j]&LOMASK);
-      par_res[1] = (b.numb[i]&LOMASK) * ((a.numb[j]&HIMASK) >> (VAR_SIZE/2));
-      par_res[2] = ((b.numb[i]&HIMASK) >> (VAR_SIZE/2)) * (a.numb[j]&LOMASK);
-      par_res[3] = ((b.numb[i]&HIMASK) >> (VAR_SIZE/2)) * ((a.numb[j]&HIMASK) >> (VAR_SIZE/2));
+      par_res[0] = (b->numb[i]&LOMASK) * (a->numb[j]&LOMASK);
+      par_res[1] = (b->numb[i]&LOMASK) * ((a->numb[j]&HIMASK) >> (VAR_SIZE/2));
+      par_res[2] = ((b->numb[i]&HIMASK) >> (VAR_SIZE/2)) * (a->numb[j]&LOMASK);
+      par_res[3] = ((b->numb[i]&HIMASK) >> (VAR_SIZE/2)) * ((a->numb[j]&HIMASK) >> (VAR_SIZE/2));
 
       // compine the 4 factors just computed, check for sum overflows
       //sum[j] = par_res[0] + par_res[1] << 16 + par_res[2] << 16 + par_res[3] << 32;
