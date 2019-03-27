@@ -285,6 +285,20 @@ bigint_t mul(bigint_t *a, bigint_t *b){
 
   return data_res;
 }
+
+bigint_t init(char *s){
+
+  char temp[HEX_DIGIT];
+  int max_i = NUMB_SIZE - 1;
+  bigint_t data_res;
+  for (int i=max_i-1;i>=0;i--){
+      strncpy(temp,s+2+HEX_DIGIT*(max_i-1-i),HEX_DIGIT);
+      data_res.numb[i] = (var_t)strtol(temp, NULL, 16);
+    }
+    data_res.numb[max_i] = 0;
+    data_res.pos=0;
+    return data_res;
+}
 /*
 int main() {
 
@@ -326,29 +340,14 @@ int main(int argc, char **argv){
   max_i = NUMB_SIZE - 1;
 
   if ((!strcmp(argv[1],"sum")) || !strcmp(argv[1],"sub") || !strcmp(argv[1],"mul")) {
-    for (i=max_i-1;i>=0;i--){
-      strncpy(temp,argv[2]+2+HEX_DIGIT*(max_i-1-i),HEX_DIGIT);
-      a.numb[i] = (var_t)strtol(temp, NULL, 16);
-      strncpy(temp,argv[3]+2+HEX_DIGIT*(max_i-1-i),HEX_DIGIT);
-      b.numb[i] = (var_t)strtol(temp, NULL, 16);
-    }
-    a.pos=0;
-    b.pos=0;
+    a = init(argv[2]);
+    b = init(argv[3]);
   } else if ((!strcmp(argv[1],"lsl")) || (!strcmp(argv[1],"lsr"))) {
-    for (i=max_i;i>=0;i--){
-      strncpy(temp,argv[2]+2+HEX_DIGIT*(max_i-i),HEX_DIGIT);
-      a.numb[i] = (var_t)strtol(temp, NULL, 16);
-    }
+    a = init(argv[2]);
     shift=atoi(argv[3]);
   } else {
-    for (i=max_i;i>=0;i--){
-      strncpy(temp,argv[2]+2+HEX_DIGIT*(max_i-i),HEX_DIGIT);
-      a.numb[i] = (var_t)strtol(temp, NULL, 16);
-      strncpy(temp,argv[3]+2+HEX_DIGIT*(max_i-i),HEX_DIGIT);
-      b.numb[i] = (var_t)strtol(temp, NULL, 16);
-    }
-    a.pos=0;
-    b.pos=0;
+    a = init(argv[2]);
+    b = init(argv[3]);
   }
 
 

@@ -13,7 +13,7 @@ def padhex(m,nb=32):
 def logic_test(sel):
 	testnum = 10000
 	# +32 is needed to consider the additional field
-	nbit = 128+32
+	nbit = 128
 	path = './main'
 	operation = ['eq', 'df', 'ge', 'gt', 'le', 'lt' ]
 
