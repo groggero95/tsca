@@ -11,9 +11,9 @@ def padhex(m,nb=32):
 
 
 def shift_test(sel):
-	testnum = 10000000
-	nbit = 1024 + 32
-	nbit_shift = 5
+	testnum = 10000
+	nbit = 128 + 32
+	nbit_shift = 1
 	path = './main'
 	operation = ['lsl', 'lsr']
 
@@ -45,7 +45,7 @@ def shift_test(sel):
 			print(padhex(res_t,nbit))
 			print("\n")
 			toterr = toterr + 1
-		sys.stdout.write("\rTest "+ operation[sel]+ ": " + str(i+1) + "/" + str(testnum))
+		sys.stdout.write("\rTest "+ operation[sel]+ ": " + str(i+1) + "/" + str(testnum) )
 
 
 	print("\nTotal tested: " + str(testnum))

@@ -107,7 +107,7 @@ bigint_t not(bigint_t *a){
 
     bigint_t data_res;
     for(int i=0; i<NUMB_SIZE-1; i++){
-      data_res.numb[i] ~= a->numb[i];
+      data_res.numb[i] = ~(a->numb[i]);
     }
     return data_res;
 }
@@ -123,78 +123,42 @@ bigint_t xor(bigint_t *a, bigint_t *b){
 }
 
 // Logically shift right a, by pl places
-int lsr(bigint_t *a, int pl){
+bigint_t lsr(bigint_t *a, int pl){
   
-  if (pl < INT_SIZE+VAR_SIZE) {
-    var_t tmp;
-    int full_shift=pl/VAR_SIZE;
-    pl = pl % VAR_SIZE;
-    if (full_shift){
-        //Full shift of VAR_SIZE*full_shift bits done
-        for(int k=0; k<NUMB_SIZE; k++){
-            if (k < NUMB_SIZE - full_shift){
-                a->numb[k-full_shift]=a->numb[k];
-            } else {
-                a->numb[k]=0;
-            }
-        }
-    }
-    if (pl != 0) {
-        for (int i=0; i<NUMB_SIZE-1; i++){
-      	    a->numb[i] >>= pl;
-      		tmp = a->numb[i+1];
-      		tmp <<= (VAR_SIZE-pl);
-      		a->numb[i] = a->numb[i] | tmp;
-      	}
-      	a->numb[NUMB_SIZE-1] >>= pl;
-      }
-  } else {
-      for(int k=0; k<NUMB_SIZE; k++){
-          a->numb[k]=0;
+  bigint_t data_res;
+  int full_shift=pl/VAR_SIZE;
+  pl = pl % VAR_SIZE;
+  for(int k=0; k<NUMB_SIZE; k++){
+      if (k < NUMB_SIZE - full_shift){
+          data_res.numb[k]= ((pl ? (a->numb[k+full_shift+1] << (VAR_SIZE-pl)) : 0) | (a->numb[k+full_shift] >> pl));
+      } else {
+          data_res.numb[k]=0;
       }
   }
-
-    return 1;
+  return data_res;
 }
 
 // Logically shift left a, by pl places
-int lsl(bigint_t *a, int pl){
-  if (pl < INT_SIZE+VAR_SIZE) {
-    var_t tmp;
-    int full_shift=pl/VAR_SIZE;
-    pl = pl % VAR_SIZE;
-    if (full_shift){
-        //Full shift of VAR_SIZE*full_shift bits done
-        for(int k=NUMB_SIZE-1; k>=0; k--){
-            if (k >= full_shift){
-              a->numb[k]=a->numb[k-full_shift];
-            } else {
-              a->numb[k]=0;
-            }
-        }
-    }
-    if (pl != 0) {
-      for (int i=NUMB_SIZE-1; i>0; i--){
-        a->numb[i] <<= pl;
-        tmp = a->numb[i-1];
-        tmp >>= (VAR_SIZE-pl);
-        a->numb[i] = a->numb[i] | tmp;
-    	}
-        a->numb[0] <<= pl;
-    }
-  } else {
-    for(int k=NUMB_SIZE-1; k>=0; k--){
-        a->numb[k]=0;
+bigint_t lsl(bigint_t *a, int pl){
+  
+  bigint_t data_res;
+  int full_shift=pl/VAR_SIZE;
+  pl = pl % VAR_SIZE;
+  for(int k=NUMB_SIZE-1; k>=0; k--){
+      if (k >= full_shift){
+        data_res.numb[k]= ((a->numb[k-full_shift] << pl) | (pl ? (a->numb[k-full_shift-1] >> (VAR_SIZE-pl)) : 0)) ;
+      } else {
+        data_res.numb[k]=0;
       }
-    }
-    return 1;
+  }
+  return data_res;
 }
 
 void print_to_stdout(bigint_t *a){
   int i;
   printf("0x");
   for(i=NUMB_SIZE-1;i>=0; i--){
-    printf("%08x",(*a).numb[i]);
+    printf("%08x",a->numb[i]);
   }
 //  printf("\n");
   return ;
@@ -396,37 +360,37 @@ int main(int argc, char **argv){
 */
 
   if (!strcmp(argv[1],"sum")){
-    res = sum(a,b);
+    res = sum(&a,&b);
     print_to_stdout(&res);
   } else if (!strcmp(argv[1],"sub")) {
-    res = sub(a,b);
+    res = sub(&a,&b);
     print_to_stdout(&res);
   } else if (!strcmp(argv[1],"mul")) {
-    res = mul(a,b);
+    res = mul(&a,&b);
     print_to_stdout(&res);
   } else if (!strcmp(argv[1],"lsl")) {
-    res_shift = lsl(&a,shift);
-    print_to_stdout(&a);
+    res = lsl(&a,shift);
+    print_to_stdout(&res);
   } else if (!strcmp(argv[1],"lsr")) {
-    res_shift = lsr(&a,shift);
-    print_to_stdout(&a);
+    res = lsr(&a,shift);
+    print_to_stdout(&res);
   } else if (!strcmp(argv[1],"eq")) {
-    res_logic = eq(a,b);
+    res_logic = eq(&a,&b);
     printf("%d\n", res_logic);
   } else if (!strcmp(argv[1],"df")) {
-    res_logic = df(a,b);
+    res_logic = df(&a,&b);
     printf("%d\n", res_logic);
   } else if (!strcmp(argv[1],"ge")) {
-    res_logic = ge(a,b);
+    res_logic = ge(&a,&b);
     printf("%d\n", res_logic);
   } else if (!strcmp(argv[1],"gt")) {
-    res_logic = gt(a,b);
+    res_logic = gt(&a,&b);
     printf("%d\n", res_logic);
   } else if (!strcmp(argv[1],"le")) {
-    res_logic = le(a,b);
+    res_logic = le(&a,&b);
     printf("%d\n", res_logic);
   } else if (!strcmp(argv[1],"lt")) {
-    res_logic = lt(a,b);
+    res_logic = lt(&a,&b);
     printf("%d\n", res_logic);
   } else {
     printf("No operation available");
