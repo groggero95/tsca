@@ -1,7 +1,7 @@
 CC 			= gcc
-CFLAGS 		= -O0 -g -std=gnu99 -W -Wall -Wno-comment
+CFLAGS 		= -O3 -g -std=gnu99 -W -Wall -Wno-comment
 INCLUDES 	= -I./include/
-LDFLAGS 	= -L./libraries -lrt -lm
+LDFLAGS 	= -L./libraries
 BUILD_DIR 	= ./build
 SOURCE_DIR 	= ./source
 INCLUDE_DIR	= ./include
@@ -16,10 +16,11 @@ deb:
 	@echo ${OBJS}
 	@echo ${HEAD}
 
-main: ${OBJS} ${HEAD}
+main: dir ${OBJS} ${HEAD}
 	$(CC) $(CFLAGS) $(INCLUDES) $(OBJS) $(LDFLAGS) -o $(BIN)
 
-
+dir:
+	mkdir -p $(BUILD_DIR)
 
 $(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.c ${HEAD}
 	$(CC) -c $(SOURCE_DIR)/$*.c $(INCLUDES) -o $(BUILD_DIR)/$*.o

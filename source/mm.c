@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
-#include "bigint.h"
 #include "mm.h"
 
 
@@ -21,17 +20,18 @@ int MM(int a, int b, int n, int nb){
 
 bigint_t MM_big(bigint_t *a, bigint_t *b, bigint_t *n, int nb){
 	
-	bigint_t one = init(ONE);
+	bigint_t a_masked;
 	bigint_t res = init(ZERO);
-	bigint_t mask = one;
+	bigint_t mask = init(ONE);
 	var_t ai, qi;
-	for (int i = 0; i < nb; ++i, mask = lsl(mask,1) ){
-		ai = lsr(&(and(a,&mask)),i).numb[0];
-		qi = sum(&(and(&ai,b)),&res).numb[0] & k;
+	for (int i = 0; i < nb; ++i, mask = lsl(&mask,1) ){
+		a_masked = and(a,&mask);
+		ai = lsr(&a_masked,i).numb[0];
+		qi = (res.numb[0] + (ai&b->numb[0])) & k;
 		if(ai)
-			res = sum(&res,b)
+			res = sum(&res,b);
 		if(qi)
-			res = sum(&res,n)
+			res = sum(&res,n);
 		res = lsr(&res,k);
 	}
 	return res;

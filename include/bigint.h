@@ -86,7 +86,7 @@ bigint_t sum(bigint_t *a, bigint_t *b);
 bigint_t sub(bigint_t *a, bigint_t *b);
 bigint_t mul(bigint_t *a, bigint_t *b);
 
-bigint_t init(char *s);
+bigint_t init(const char *s);
 
 var_t sum_4_mul(var_t *a, var_t b, var_t *carry, int act);
 void print_to_stdout(bigint_t *a);

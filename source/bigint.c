@@ -1,4 +1,4 @@
-#include "../include/bigint.h"
+#include "bigint.h"
 // Return 0 if different, else 1; -1 if not aligned
 int eq(bigint_t *first, bigint_t *second){
     if (first->pos != second->pos){
@@ -286,7 +286,7 @@ bigint_t mul(bigint_t *a, bigint_t *b){
   return data_res;
 }
 
-bigint_t init(char *s){
+bigint_t init(const char *s){
 
   char temp[HEX_DIGIT];
   int max_i = NUMB_SIZE - 1;
@@ -322,7 +322,7 @@ int main() {
 }
 */
 
-int main(int argc, char **argv){
+/*int main(int argc, char **argv){
 
   int i, max_i, j;
   bigint_t a, b, res;
@@ -349,14 +349,6 @@ int main(int argc, char **argv){
     a = init(argv[2]);
     b = init(argv[3]);
   }
-
-
-/*
-  for (i=0;i<max_i;i++){
-    printf("a %d = %x\n",i,a.numb[i]);
-    printf("b %d = %x\n",i,b.numb[i]);
-  }
-*/
 
   if (!strcmp(argv[1],"sum")){
     res = sum(&a,&b);
@@ -397,4 +389,4 @@ int main(int argc, char **argv){
 
 
   return 0;
-}
+}*/
