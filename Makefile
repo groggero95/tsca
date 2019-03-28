@@ -13,10 +13,10 @@ HEAD = $(wildcard $(INCLUDE_DIR)/*.h)
 all: main
 
 test:
-	cd test && $(MAKE)
+	 $(MAKE) -C ./test/ all
 
 cleant:
-	cd test && $(MAKE) clean
+	 $(MAKE) -C ./test/ clean
      
 
 deb:
