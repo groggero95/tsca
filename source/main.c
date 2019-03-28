@@ -6,20 +6,18 @@
 
 int main(int argc, char **argv){
 
-  int i, max_i, j;
-  bigint_t a, b, res;
+  int i, nb;
+  bigint_t a, b, n, res;
   char temp[HEX_DIGIT];
   int res_logic, shift;
   int res_shift;
 
 
-  if (argc != 4){
-    printf("Error, <command> <operation> <operanda> <operandb>\n");
+  if (argc > 5){
+    printf("Error, <command> <operation> <operanda> <operandb> <operandb>\n");
     return 1;
   }
 
-  // get data from line
-  max_i = NUMB_SIZE - 1;
 
   if ((!strcmp(argv[1],"sum")) || !strcmp(argv[1],"sub") || !strcmp(argv[1],"mul")) {
     a = init(argv[2]);
@@ -27,10 +25,16 @@ int main(int argc, char **argv){
   } else if ((!strcmp(argv[1],"lsl")) || (!strcmp(argv[1],"lsr"))) {
     a = init(argv[2]);
     shift=atoi(argv[3]);
+  } else if ((!strcmp(argv[1],"mm")) || (!strcmp(argv[1],"me"))) {
+    a = init(argv[2]);
+    b = init(argv[3]);
+    n = init(argv[4]);
+    nb = INT_SIZE;
   } else {
     a = init(argv[2]);
     b = init(argv[3]);
   }
+
 
   if (!strcmp(argv[1],"sum")){
     res = sum(&a,&b);
@@ -65,6 +69,9 @@ int main(int argc, char **argv){
   } else if (!strcmp(argv[1],"lt")) {
     res_logic = lt(&a,&b);
     printf("%d\n", res_logic);
+  } else if (!strcmp(argv[1],"mm")) {
+    res = MM_big(&a,&b,&n,nb);
+    print_to_stdout(&res);
   } else {
     printf("No operation available");
   }
