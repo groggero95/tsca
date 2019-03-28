@@ -13,7 +13,8 @@ def padhex(m,nb=32):
 
 def shift_test(sel):
 	testnum = 10000
-	nbit = 128
+	nbit = 64
+	pad = 128
 	nbit_mod = 8
 	path = './main'
 	operation = ['mm', 'me']
@@ -25,10 +26,10 @@ def shift_test(sel):
 		b = random.getrandbits(nbit)
 		n = random.getrandbits(nbit_mod) | 1
 
-		c = subprocess.run([path, operation[sel],padhex(a,nbit),padhex(b,nbit),padhex(n,nbit)], stdout=subprocess.PIPE)
+		c = subprocess.run([path, operation[sel],padhex(a,pad),padhex(b,pad),padhex(n,pad)], stdout=subprocess.PIPE)
 
 		if sel == 0:
-			res_t = (a*b*(int(gmpy2.invert(1<<nbit,n)))) % n
+			res_t = (a*b*(int(gmpy2.invert(1<<pad,n)))) % n
 		elif sel == 1:
 			res_t = (a >> b) & ((1<<(nbit+32))-1)
 
@@ -41,11 +42,11 @@ def shift_test(sel):
 		flag = (res_t == int(res_m,16)) or (res_t == (int(res_m,16))-n)
 		if not flag:
 			print("\n")
-			print(padhex(a,nbit))
-			print(padhex(b,nbit))
-			print(padhex(n,nbit))
+			print(padhex(a,pad))
+			print(padhex(b,pad))
+			print(padhex(n,pad))
 			print(res_m)
-			print(padhex(res_t,nbit+32))
+			print(padhex(res_t,pad+32))
 			print("\n")
 			toterr = toterr + 1
 		sys.stdout.write("\rTest "+ operation[sel]+ ": " + str(i+1) + "/" + str(testnum) )

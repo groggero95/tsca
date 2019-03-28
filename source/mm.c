@@ -24,9 +24,9 @@ bigint_t MM_big(bigint_t *a, bigint_t *b, bigint_t *n, int nb){
 	bigint_t res = init(ZERO);
 	bigint_t mask = init(ONE);
 	var_t ai, qi;
-	print_to_stdout(&res);
-	print_to_stdout(&mask);
-	print_to_stdout(n);
+//	print_to_stdout(&res);
+//	print_to_stdout(&mask);
+//	print_to_stdout(n);
 	for (int i = 0; i < nb; i++, mask = lsl(&mask,1) ){
 		a_masked = and(a,&mask);
 		ai = lsr(&a_masked,i).numb[0];
@@ -36,7 +36,7 @@ bigint_t MM_big(bigint_t *a, bigint_t *b, bigint_t *n, int nb){
 		if(qi)
 			res = sum(&res,n);
 		res = lsr(&res,k);
-		print_to_stdout(&res);
+//		print_to_stdout(&res);
 	}
 	return res;
 }
