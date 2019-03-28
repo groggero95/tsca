@@ -11,10 +11,9 @@ def padhex(m,nb=32):
 	return '0x' + hex(m)[2:].zfill(int(math.ceil(nb/32)*8))
 
 
-def shift_test(sel):
-	testnum = 10000
-	nbit = 64
-	pad = 128
+def mm_test(sel=0, nbit=128, test_num=10000, over=1):
+        """Test for Montgomery multiplication. Takes as input the sel for the two operations, number of bit for the value, number of tests, coefficient to get the size of the struct from the bits"""
+	pad = over*nbit
 	nbit_mod = 8
 	path = './main'
 	operation = ['mm', 'me']
@@ -25,7 +24,6 @@ def shift_test(sel):
 		a = random.getrandbits(nbit)
 		b = random.getrandbits(nbit)
 		n = random.getrandbits(nbit_mod) | 1
-
 		c = subprocess.run([path, operation[sel],padhex(a,pad),padhex(b,pad),padhex(n,pad)], stdout=subprocess.PIPE)
 
 		if sel == 0:
@@ -56,4 +54,13 @@ def shift_test(sel):
 	print("Total errors: " + str(toterr))
 
 if __name__ == '__main__':
-	shift_test(int(sys.argv[1],10))
+    if len(sys.argv) == 1:
+        mm_test()
+    elif len(sys.argv) == 2:
+        mm_test(int(sys.argv[1],10))
+    elif len(sys.argv) == 3:
+	mm_test(int(sys.argv[1],10), int(sys.argv[2],10))
+    elif len(sys.argv) == 4:
+	mm_test(int(sys.argv[1],10), int(sys.argv[2],10), int(sys.argv[3],10))
+    elif len(sys.argv) == 5:
+	mm_test(int(sys.argv[1],10), int(sys.argv[2],10), int(sys.argv[3],10), int(sys.argv[4],10))
