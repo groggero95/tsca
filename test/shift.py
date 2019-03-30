@@ -26,9 +26,9 @@ def shift_test(sel):
 		c = subprocess.run([path, operation[sel],padhex(a,nbit),str(b)], stdout=subprocess.PIPE)
 
 		if sel == 0:
-			res_t = (a << b) & ((1<<(nbit+32))-1)
+			res_t = (a << b) & ((1<<(nbit))-1)
 		elif sel == 1:
-			res_t = (a >> b) & ((1<<(nbit+32))-1)
+			res_t = (a >> b) & ((1<<(nbit))-1)
 
 
 		res_m = c.stdout.decode('utf-8')

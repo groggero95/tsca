@@ -19,10 +19,7 @@ int main(int argc, char **argv){
   }
 
 
-  if ((!strcmp(argv[1],"sum")) || !strcmp(argv[1],"sub") || !strcmp(argv[1],"mul")) {
-    a = init(argv[2]);
-    b = init(argv[3]);
-  } else if ((!strcmp(argv[1],"lsl")) || (!strcmp(argv[1],"lsr"))) {
+  if ((!strcmp(argv[1],"lsl")) || (!strcmp(argv[1],"lsr"))) {
     a = init(argv[2]);
     shift=atoi(argv[3]);
   } else if ((!strcmp(argv[1],"mm")) || (!strcmp(argv[1],"me"))) {
@@ -69,6 +66,18 @@ int main(int argc, char **argv){
   } else if (!strcmp(argv[1],"lt")) {
     res_logic = lt(&a,&b);
     printf("%d\n", res_logic);
+  } else if (!strcmp(argv[1],"and")) {
+    res = and(&a,&b);
+    print_to_stdout(&res);
+  } else if (!strcmp(argv[1],"or")) {
+    res = or(&a,&b);
+    print_to_stdout(&res);
+  } else if (!strcmp(argv[1],"not")) {
+    res = not(&a);
+    print_to_stdout(&res);
+  } else if (!strcmp(argv[1],"xor")) {
+    res = xor(&a,&b);
+    print_to_stdout(&res);
   } else if (!strcmp(argv[1],"mm")) {
     res = MM_big(&a,&b,&n,nb);
     print_to_stdout(&res);

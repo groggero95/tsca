@@ -1,4 +1,15 @@
 #include "bigint.h"
+
+void print_to_stdout(bigint_t *a){
+  int i;
+  printf("0x");
+  for(i=NUMB_SIZE-1;i>=0; i--){
+    printf("%08x",a->numb[i]);
+  }
+  printf("\n");
+  return ;
+}
+
 // Return 0 if different, else 1; -1 if not aligned
 int eq(bigint_t *first, bigint_t *second){
     if (first->pos != second->pos){
@@ -88,6 +99,8 @@ bigint_t and(bigint_t *a, bigint_t *b){
     for(int i=0; i<NUMB_SIZE-1; i++){
         data_res.numb[i] = a->numb[i] & b->numb[i];
     }
+    data_res.pos = 0;
+    data_res.numb[NUMB_SIZE-1] = 0;
     return data_res;
 }
 
@@ -99,6 +112,8 @@ bigint_t or(bigint_t *a, bigint_t *b){
     for(int i=0; i<NUMB_SIZE-1; i++){
         data_res.numb[i] = a->numb[i] | b->numb[i];
     }
+    data_res.pos = 0;
+    data_res.numb[NUMB_SIZE-1] = 0;
     return data_res;
 }
 
@@ -109,6 +124,8 @@ bigint_t not(bigint_t *a){
     for(int i=0; i<NUMB_SIZE-1; i++){
       data_res.numb[i] = ~(a->numb[i]);
     }
+    data_res.pos = 0;
+    data_res.numb[NUMB_SIZE-1] = 0;
     return data_res;
 }
 
@@ -119,6 +136,8 @@ bigint_t xor(bigint_t *a, bigint_t *b){
     for(int i=0; i<NUMB_SIZE-1; i++){
         data_res.numb[i] = a->numb[i] ^ b->numb[i];
     }
+    data_res.pos = 0;
+    data_res.numb[NUMB_SIZE-1] = 0;
     return data_res;
 }
 
@@ -135,6 +154,8 @@ bigint_t lsr(bigint_t *a, int pl){
           data_res.numb[k]=0;
       }
   }
+  data_res.pos = 0;
+  data_res.numb[NUMB_SIZE-1] = 0;
   return data_res;
 }
 
@@ -151,18 +172,11 @@ bigint_t lsl(bigint_t *a, int pl){
         data_res.numb[k]=0;
       }
   }
+  data_res.pos = 0;
+  data_res.numb[NUMB_SIZE-1] = 0;
   return data_res;
 }
 
-void print_to_stdout(bigint_t *a){
-  int i;
-  printf("0x");
-  for(i=NUMB_SIZE-1;i>=0; i--){
-    printf("%08x",a->numb[i]);
-  }
-  printf("\n");
-  return ;
-}
 
 // Sum, gets data on NUMB_SIZE -1  and returns data on NUMB_SIZE
 bigint_t sum(bigint_t *a, bigint_t *b){
@@ -181,12 +195,13 @@ bigint_t sum(bigint_t *a, bigint_t *b){
   }
 
   data_res.pos = INT_SIZE + carry*VAR_SIZE;
-  data_res.numb[i] = carry;
+  data_res.numb[i] = carry; //+ a->numb[i] + b->numb[i];
   //printf("and additional digits pos = %d, last = %x\n",data_res.pos,data_res.numb[i]);
 
   return data_res;
 }
 
+// TODO fix the sub, problems are here
 // SUB, gets data on NUMB_SIZE -1  and returns data on NUMB_SIZE
 bigint_t sub(bigint_t *a, bigint_t *b){
 
