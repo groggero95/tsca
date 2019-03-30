@@ -1,7 +1,7 @@
 CC 				= gcc
 #CC				= arm-linux-gnueabi-gcc
 CFLAGS 			= -O3 -g -std=gnu99 -W -Wall -Wno-comment
-INCLUDES 		= -I./include/
+INCLUDES 		= -I./../include/
 LDFLAGS 		= -L./libraries -lrt -lm
 BUILD_DIR 		= ./build
 SOURCE_DIR 		= ./../source
@@ -24,5 +24,6 @@ $(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.c
 	$(CC) -c $(SOURCE_DIR)/$*.c $(INCLUDES) -o $(BUILD_DIR)/$*.o
 
 clean:
-	rm -f $(BUILD_DIR)/*.o
-	rm ./main
+	@echo "Cleaning the test directory"
+	-rm -f $(BUILD_DIR)/*.o
+	-rm -f ./main

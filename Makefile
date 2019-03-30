@@ -12,6 +12,13 @@ HEAD = $(wildcard $(INCLUDE_DIR)/*.h)
 
 all: main
 
+test:
+	 $(MAKE) -C ./test/ all
+
+cleant:
+	 $(MAKE) -C ./test/ clean
+     
+
 deb:
 	@echo ${OBJS}
 	@echo ${HEAD}
