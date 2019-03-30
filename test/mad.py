@@ -31,6 +31,10 @@ def test(nb):
 			if a != b:
 				print(i,j,a,b)
 
+def diff_test(a,b,n,pad=128):
+	control = mm(a,b,n,pad)
+	
+
 
 if __name__ == '__main__':
 	test(int(sys.argv[1],10))
