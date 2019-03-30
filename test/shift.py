@@ -12,15 +12,16 @@ def padhex(m,nb=32):
 
 def shift_test(sel):
 	testnum = 10000
-	nbit = 128
-	nbit_shift = 8
+	nbit = 128 + 32
+	nbit_shift = 7
 	path = './main'
 	operation = ['lsl', 'lsr']
 
 	toterr = 0
 
 	for i in range(testnum):
-		a = random.getrandbits(nbit)
+		#a = random.getrandbits(nbit) | ((1<<(32))-1) << nbit
+		a = random.getrandbits(nbit) & ((1<<(nbit))-1)
 		b = random.getrandbits(nbit_shift)
 		#b = 35
 		c = subprocess.run([path, operation[sel],padhex(a,nbit),str(b)], stdout=subprocess.PIPE)
@@ -42,9 +43,15 @@ def shift_test(sel):
 			print(padhex(a,nbit))
 			print(b)
 			print(res_m)
-			print(padhex(res_t,nbit+32))
+			print(padhex(res_t,nbit))
 			print("\n")
 			toterr = toterr + 1
+		# print("\n")
+		# print(padhex(a,nbit))
+		# print(b)
+		# print(res_m)
+		# print(padhex(res_t,nbit))
+		# print("\n")
 		sys.stdout.write("\rTest "+ operation[sel]+ ": " + str(i+1) + "/" + str(testnum) )
 
 

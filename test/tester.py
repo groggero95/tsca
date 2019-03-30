@@ -12,7 +12,7 @@ def padhex(m,nb=32):
 
 def arith_test(sel):
 	testnum = 10000
-	nbit = 128
+	nbit = 128 +32
 	path = './main'
 	operation = ['sum', 'sub', 'mul']
 
@@ -24,11 +24,11 @@ def arith_test(sel):
 		c = subprocess.run([path, operation[sel],padhex(a,nbit),padhex(b,nbit)], stdout=subprocess.PIPE)
 
 		if sel == 0:
-			res_t = a + b
+			res_t = (a + b) &((1<<nbit)-1)
 		elif sel == 1:
-			res_t = (a - b)&((1<<nbit+32)-1)
+			res_t = (a - b)&((1<<nbit)-1)
 		elif sel == 2:
-			res_t = (a*b)&((1<<nbit+32)-1)
+			res_t = (a*b)&((1<<nbit)-1)
 
 
 		res_m = c.stdout.decode('utf-8')
@@ -42,7 +42,7 @@ def arith_test(sel):
 			print(padhex(a,nbit))
 			print(padhex(b,nbit))
 			print(res_m)
-			print(padhex(res_t,nbit+32))
+			print(padhex(res_t,nbit))
 			print("\n")
 			toterr = toterr + 1
 		sys.stdout.write("\rTest "+ operation[sel]+ ": " + str(i+1) + "/" + str(testnum))
