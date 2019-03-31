@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
+#include "bigint.h"
 #include "me.h"
 #include "mm.h"
 
@@ -26,21 +27,36 @@ int ME(int e, int m, int n, int c0, int s0, int nb){
 };
 
 
-bigint_t ME_big(bigint_t *e, bigint_t *m, bigint_t *n, bigint_t *c0, bigint_t *s0, int nb){
-    bigint_t c = *c0;
-    bigint_t s = *s0;
+bigint_t ME_big(bigint_t e, bigint_t m, bigint_t n, bigint_t k0, int nb){
+    bigint_t c;
+    bigint_t s;
     bigint_t mask = init(ONE);
     bigint_t zero = init(ZERO);
     bigint_t one = init(ONE);
     bigint_t bit_and;
 
+
+    c = MM_big(k0,one,n,nb);
+    s = MM_big(k0,m,n,nb);
+
+    // print_to_stdout(&c);
+    // printf("\n");
+    // print_to_stdout(&s);    
+    // printf("\n");
+
     for(int i=0; i < nb; i++){
-        bit_and = and(&mask, e);
-        if(df(&zero, &bit_and)){
-            c = MM_big(&c, &s, n, nb);
+        bit_and = and(mask, e);
+        if(df(zero, bit_and)){
+            c = MM_big(c, s, n, nb);
         }
-        s = MM_big(&s, &s, n, nb);
-        mask = lsl(&mask,1);
+        s = MM_big(s, s, n, nb);
+        mask = lsl(mask,1);
+        // printf("%d ", i);
+       	// print_to_stdout(&c);
+       	// printf(" ");
+       	// print_to_stdout(&s);
+       	// printf("\n");
     }
-    c = MM_big(&c, &one, n, nb);
+    c = MM_big(c, one, n, nb);
+    return c;
 }

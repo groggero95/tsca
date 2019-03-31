@@ -34,21 +34,26 @@ def mm(a,b,n,nb):
 # m : message
 # n : modulus
 # nb: bit number
-def me(e,m,n,nb):
+def me(e,m,n,k0,nb):
 # At some point we will settle up to a fixed number of bits
 # so the factor (2**(2nb) mod n) can actually be precomputed
 # once the public and the private key are decided  we still
 # need to find a way of compuing that
 #	c = mm(1, (2**(2nb) mod n),n,nb)
 #	s = mm(m, (2**(2nb) mod n),n,nb)
-	c = (1<<nb) % n
-	s = m*(1<<nb) % n
+#	c = mm(1,k0,n,nb)
+#	s = mm(m,k0,n,nb)
+	c = (1<<nb)%n
+	s = (m*(1<<nb)) % n
+	print(padhex(c,160))
+	print(padhex(s,160))	
 	mask = 1
 	for x in range(nb):
 		if (e & mask):
 			c = mm(c,s,n,nb)
 		s = mm(s,s,n,nb)
 		mask = mask << 1
-		print x, c, s
+		print(str(x) + ' ' + padhex(c,160) + ' ' + padhex(s,160))
 	c = mm(c,1,n,nb)
 	return c
+

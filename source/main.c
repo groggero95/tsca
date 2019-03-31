@@ -3,17 +3,18 @@
 #include <stdio.h>
 #include "bigint.h"
 #include "mm.h"
+#include "me.h"
 
 int main(int argc, char **argv){
 
   int i, nb;
-  bigint_t a, b, n, res;
+  bigint_t a, b, n, res, c0, s0, k0, one;
   char temp[HEX_DIGIT];
   int res_logic, shift;
   int res_shift;
 
 
-  if (argc > 5){
+  if (argc > 6){
     printf("Error, <command> <operation> <operanda> <operandb> <operandb>\n");
     return 1;
   }
@@ -22,11 +23,18 @@ int main(int argc, char **argv){
   if ((!strcmp(argv[1],"lsl")) || (!strcmp(argv[1],"lsr"))) {
     a = init(argv[2]);
     shift=atoi(argv[3]);
-  } else if ((!strcmp(argv[1],"mm")) || (!strcmp(argv[1],"me"))) {
+  } else if ((!strcmp(argv[1],"mm"))) {
     a = init(argv[2]);
     b = init(argv[3]);
     n = init(argv[4]);
     nb = INT_SIZE;
+  } else if ((!strcmp(argv[1],"me"))) {
+    one = init(ONE);
+    a = init(argv[2]); // exponent
+    b = init(argv[3]); // plain text
+    n = init(argv[4]); // modulus
+    k0 = init(argv[5]); // (1<<2nb) % n
+    nb = INT_SIZE+2;
   } else {
     a = init(argv[2]);
     b = init(argv[3]);
@@ -34,52 +42,55 @@ int main(int argc, char **argv){
 
 
   if (!strcmp(argv[1],"sum")){
-    res = sum(&a,&b);
+    res = sum(a,b);
     print_to_stdout(&res);
   } else if (!strcmp(argv[1],"sub")) {
-    res = sub(&a,&b);
+    res = sub(a,b);
     print_to_stdout(&res);
   } else if (!strcmp(argv[1],"mul")) {
-    res = mul(&a,&b);
+    res = mul(a,b);
     print_to_stdout(&res);
   } else if (!strcmp(argv[1],"lsl")) {
-    res = lsl(&a,shift);
+    res = lsl(a,shift);
     print_to_stdout(&res);
   } else if (!strcmp(argv[1],"lsr")) {
-    res = lsr(&a,shift);
+    res = lsr(a,shift);
     print_to_stdout(&res);
   } else if (!strcmp(argv[1],"eq")) {
-    res_logic = eq(&a,&b);
+    res_logic = eq(a,b);
     printf("%d\n", res_logic);
   } else if (!strcmp(argv[1],"df")) {
-    res_logic = df(&a,&b);
+    res_logic = df(a,b);
     printf("%d\n", res_logic);
   } else if (!strcmp(argv[1],"ge")) {
-    res_logic = ge(&a,&b);
+    res_logic = ge(a,b);
     printf("%d\n", res_logic);
   } else if (!strcmp(argv[1],"gt")) {
-    res_logic = gt(&a,&b);
+    res_logic = gt(a,b);
     printf("%d\n", res_logic);
   } else if (!strcmp(argv[1],"le")) {
-    res_logic = le(&a,&b);
+    res_logic = le(a,b);
     printf("%d\n", res_logic);
   } else if (!strcmp(argv[1],"lt")) {
-    res_logic = lt(&a,&b);
+    res_logic = lt(a,b);
     printf("%d\n", res_logic);
   } else if (!strcmp(argv[1],"and")) {
-    res = and(&a,&b);
+    res = and(a,b);
     print_to_stdout(&res);
   } else if (!strcmp(argv[1],"or")) {
-    res = or(&a,&b);
+    res = or(a,b);
     print_to_stdout(&res);
   } else if (!strcmp(argv[1],"not")) {
-    res = not(&a);
+    res = not(a);
     print_to_stdout(&res);
   } else if (!strcmp(argv[1],"xor")) {
-    res = xor(&a,&b);
+    res = xor(a,b);
     print_to_stdout(&res);
   } else if (!strcmp(argv[1],"mm")) {
-    res = MM_big(&a,&b,&n,nb);
+    res = MM_big(a,b,n,nb);
+    print_to_stdout(&res);
+  } else if (!strcmp(argv[1],"me")) {
+    res = ME_big(a,b,n,k0,nb);
     print_to_stdout(&res);
   } else {
     printf("No operation available");

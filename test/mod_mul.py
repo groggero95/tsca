@@ -22,33 +22,41 @@ def mm_test(sel=0, nbit=128, testnum=1000, over=1):
     toterr = 0
 
     for i in range(testnum):
-        a = random.getrandbits(nbit)
-        b = random.getrandbits(nbit)
-        #n = random.getrandbits(nbit_mod) | 1
-        n = (1<<nbit)-1
-        c = subprocess.run([path, operation[sel], padhex(a, pad), padhex(
-            b, pad), padhex(n, pad)], stdout=subprocess.PIPE)
+        a = random.getrandbits(nbit)  # exponent
+        b = random.getrandbits(nbit)  # message
+#        n=0
+#        while (n < b):
+        n = random.getrandbits(nbit_mod) | 1
+        #n = (1<<nbit)-1
 
-        r = int(gmpy2.invert(1 << nbit_mod, n))
-        if sel == 0:
-            res_t = (a*b*r) % n
-        elif sel == 1:
-            res_t = (a >> b) & ((1 << (nbit+32))-1)
+        k0 = pow(2,((nbit_mod+2)*2),n)
+
+        c = subprocess.run([path, operation[sel], padhex(a, pad), padhex(
+            b, pad), padhex(n, pad), padhex(k0, pad)], stdout=subprocess.PIPE)
 
         res_m = c.stdout.decode('utf-8')
 
-        if int(res_m, 16) >= 2*n:
-            print("\n")
-            print(padhex(res_t,nbit+32))
-            
-        flag = (res_t == (int(res_m, 16)%n))
+        if sel == 0:
+            r = int(gmpy2.invert(1 << nbit_mod, n))
+            res_t = (a*b*r) % n
+            flag = (res_t == (int(res_m, 16)%n))
+            if int(res_m, 16) >= 2*n:
+                print("\n")
+                print(padhex(res_t,pad))
+        elif sel == 1:
+            res_t = pow(b,a,n)
+            flag = (res_t == int(res_m, 16))
+
+
         if not flag:
             print("\n")
-            print(padhex(a, pad))
             print(padhex(b, pad))
+            print(padhex(a, pad))
             print(padhex(n, pad))
-            print(res_m)
+            print("\n")
+            print(res_m.strip('\n'))
             print(padhex(res_t, pad))
+            print(padhex(k0,pad))
             print("\n")
             toterr = toterr + 1
         sys.stdout.write("\rTest " + operation[sel] + ": " + str(i+1) + "/" + str(testnum))
