@@ -10,7 +10,12 @@ if [[ -z "$flag" ]]; then
         "ansel")
 	        PATH=/opt/Xilinx/SDK/2018.3/gnu/aarch32/lin/gcc-arm-none-eabi/bin/:$PATH
             ;;
-        "fausto"|"giul"|"chiabetor")
+        "fausto")
+            PATH=/home/fausto/xilinx/SDK/2018.3/gnu/aarch32/lin/gcc-arm-none-eabi/bin/:$PATH
+            #echo $PATH
+            ;;
+        "giul"|"chiabetor")
+
 			# TODO change and put your path here, add one entry for each user
 	        PATH=/opt/Xilinx/SDK/2018.3/gnu/aarch32/lin/gcc-arm-none-eabi/bin/:$PATH
 	        ;;
@@ -31,7 +36,10 @@ if [[ -z "$flag" ]]; then
         "ansel")
 	        PATH=/opt/Xilinx/SDK/2018.3/bin/:$PATH
             ;;
-        "fausto"|"giul"|"chiabetor")
+        "fausto")
+            PATH=/home/fausto/xilinx/SDK/2018.3/bin/:$PATH
+            ;;
+        "giul"|"chiabetor")
 			# TODO change and put your path here, add one entry for each user
 	        PATH=/opt/Xilinx/SDK/2018.3/bin/:$PATH
 	        ;;
@@ -41,4 +49,3 @@ if [[ -z "$flag" ]]; then
     esac
 	echo "Setting pre-build tool"
 fi
-
