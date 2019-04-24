@@ -11,12 +11,13 @@ if [[ -z "$flag" ]]; then
 	        PATH=/opt/Xilinx/SDK/2018.3/gnu/aarch32/lin/gcc-arm-none-eabi/bin/:$PATH
             ;;
         "fausto")
-            PATH=/home/fausto/xilinx/SDK/2018.3/gnu/aarch32/lin/gcc-arm-none-eabi/bin/:$PATH
+          PATH=/home/fausto/xilinx/SDK/2018.3/gnu/aarch32/lin/gcc-arm-none-eabi/bin/:$PATH
             #echo $PATH
             ;;
-        "giul"|"chiabetor")
-
-			# TODO change and put your path here, add one entry for each user
+        "Chiabetor")
+          PATH=/mnt/6760628c-3810-49ef-88a9-ed56dc6f2462/tools/Xilinx/SDK/2018.3/gnu/aarch32/lin/gcc-arm-none-eabi/bin/:$PATH
+            ;;
+        "giul")
 	        PATH=/opt/Xilinx/SDK/2018.3/gnu/aarch32/lin/gcc-arm-none-eabi/bin/:$PATH
 	        ;;
 	    *)
