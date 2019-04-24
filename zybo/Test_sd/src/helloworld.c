@@ -67,11 +67,13 @@
 
 #include "xparameters.h"	/* SDK generated parameters */
 #include "xsdps.h"		/* SD device driver */
+#include "xtime_l.h"
 #include "xil_printf.h"
 #include "ff.h"
 #include "xil_cache.h"
 #include "xplatform_info.h"
 #include "bigint.h"
+#include "sleep.h"
 #include <stdio.h>
 
 /************************** Constant Definitions *****************************/
@@ -97,12 +99,12 @@ static char *SD_File;
 
 #ifdef __ICCARM__
 #pragma data_alignment = 32
-u8 DestinationAddress[10*1024];
-u8 SourceAddress[10*1024];
+u8 DestinationAddress[10 * 1024];
+u8 SourceAddress[10 * 1024];
 #pragma data_alignment = 4
 #else
-u8 DestinationAddress[10*1024*1024] __attribute__ ((aligned(32)));
-u8 SourceAddress[10*1024*1024] __attribute__ ((aligned(32)));
+u8 DestinationAddress[10 * 1024 * 1024] __attribute__ ((aligned(32)));
+u8 SourceAddress[10 * 1024 * 1024] __attribute__ ((aligned(32)));
 #endif
 
 #define TEST 7
@@ -121,20 +123,66 @@ u8 SourceAddress[10*1024*1024] __attribute__ ((aligned(32)));
 ******************************************************************************/
 int main(void)
 {
-	int Status;
+	int i = 50;
 
-	bigint_t a = init(ONE);
-	print_to_stdout(&a);
 
-	xil_printf("SD Polled File System Example Test \r\n");
+	XTime tStart;
+	XTime tEnd;
 
-	Status = FfsSdPolledExample();
-	if (Status != XST_SUCCESS) {
-		xil_printf("SD Polled File System Example Test failed \r\n");
-		return XST_FAILURE;
-	}
+	bigint_t modulus = init("0xc26e8d2105e3454baf122700611e915d");
+	bigint_t public  = init("0x00000000000000000000000000010001");
+	bigint_t private = init("0x0745812bb1ffacf0b5d6200be2ced7d5");
+	bigint_t message = init("0x0000004369616f20636f6d652076613f");
+	bigint_t k0 	 = init("0x8354f24c98cfac7a6ec8719a1b11ba4f");
+	print_to_stdout(&modulus);
+	print_to_stdout(&public);
+	print_to_stdout(&private);
+	print_to_stdout(&message);
+	print_to_stdout(&k0);
 
-	xil_printf("Successfully ran SD Polled File System Example Test \r\n");
+	xil_printf("\r\n");
+
+	bigint_t enc;
+
+	enc = ME_big(public, message, modulus, k0, 130);
+
+	print_to_stdout(&enc);
+
+	enc = ME_big(private, enc, modulus, k0, 130);
+
+	print_to_stdout(&enc);
+	print_to_stdout(&message);
+
+	// while (i--) {
+
+
+	// 	XTime_GetTime(&tStart);
+
+	// 	int Status = rand();
+
+	// 	bigint_t a = rand_b();
+	// 	print_to_stdout(&a);
+
+	// 	XTime_GetTime(&tEnd);
+
+	// 	u64 el = tEnd - tStart;
+	// 	u32 h = (el >> 32U);
+	// 	u32 l = (el & ~0x0);
+
+	// 	xil_printf("Elapsed clock cycles : %d %d\r\n", h, l);
+	// 	xil_printf("Random : %d\r\n", Status);
+
+	// 	//	xil_printf("SD Polled File System Example Test \r\n");
+
+	// 	// Status = FfsSdPolledExample();
+	// 	// if (Status != XST_SUCCESS) {
+	// 	// 	xil_printf("SD Polled File System Example Test failed \r\n");
+	// 	// 	return XST_FAILURE;
+	// 	// }
+
+	// 	// xil_printf("Successfully ran SD Polled File System Example Test \r\n");
+
+	// }
 
 	return XST_SUCCESS;
 
@@ -163,9 +211,9 @@ int FfsSdPolledExample(void)
 	u32 BuffCnt;
 	BYTE work[FF_MAX_SS];
 #ifdef __ICCARM__
-	u32 FileSize = (8*1024);
+	u32 FileSize = (8 * 1024);
 #else
-	u32 FileSize = (8*1024*1024);
+	u32 FileSize = (8 * 1024 * 1024);
 #endif
 
 	/*
@@ -174,7 +222,7 @@ int FfsSdPolledExample(void)
 	 */
 	TCHAR *Path = "0:/";
 
-	for(BuffCnt = 0; BuffCnt < FileSize; BuffCnt++){
+	for (BuffCnt = 0; BuffCnt < FileSize; BuffCnt++) {
 		SourceAddress[BuffCnt] = TEST + BuffCnt;
 	}
 
@@ -186,22 +234,6 @@ int FfsSdPolledExample(void)
 	if (Res != FR_OK) {
 		return XST_FAILURE;
 	}
-
-	scan_files(Path);
-
-	// DWORD data;
-
-	// Res = f_getfree(Path,data,&fatfs);
-
-	// // Used to format the sd card
-	// /*
-	//  * Path - Path to logical driver, 0 - FDISK format.
-	//  * 0 - Cluster size is automatically determined based on Vol size.
-	//  */
-	// Res = f_mkfs(Path, FM_FAT32, 0, work, sizeof work);
-	// if (Res != FR_OK) {
-	// 	return XST_FAILURE;
-	// }
 
 	/*
 	 * Open file with required permissions.
@@ -228,16 +260,16 @@ int FfsSdPolledExample(void)
 	 * Write data to file.
 	 */
 	Res = f_write(&fil, (const void*)SourceAddress, FileSize,
-			&NumBytesWritten);
+	              &NumBytesWritten);
 	if (Res) {
 		return XST_FAILURE;
 	}
 
-	
+
 	/*
- 	* Pointer to beginning of file .
- 	*/
-	 
+	* Pointer to beginning of file .
+	*/
+
 	Res = f_lseek(&fil, 0);
 	if (Res) {
 		return XST_FAILURE;
@@ -247,7 +279,7 @@ int FfsSdPolledExample(void)
 	 * Read data from file.
 	 */
 	Res = f_read(&fil, (void*)DestinationAddress, FileSize,
-			&NumBytesRead);
+	             &NumBytesRead);
 	if (Res) {
 		return XST_FAILURE;
 	}
@@ -255,8 +287,8 @@ int FfsSdPolledExample(void)
 	/*
 	 * Data verification
 	 */
-	for(BuffCnt = 0; BuffCnt < FileSize; BuffCnt++){
-		if(SourceAddress[BuffCnt] != DestinationAddress[BuffCnt]){
+	for (BuffCnt = 0; BuffCnt < FileSize; BuffCnt++) {
+		if (SourceAddress[BuffCnt] != DestinationAddress[BuffCnt]) {
 			return XST_FAILURE;
 		}
 	}
@@ -276,30 +308,30 @@ int scan_files (
     char* path        /* Start node to be scanned (***also used as work area***) */
 )
 {
-    int res;
-    DIR dir;
-    UINT i;
-    static FILINFO fno;
+	int res;
+	DIR dir;
+	UINT i;
+	static FILINFO fno;
 
 
-    res = f_opendir(&dir, path);                       /* Open the directory */
-    if (res == FR_OK) {
-        for (;;) {
-        	xil_printf("Start loop\r\n");
-            res = f_readdir(&dir, &fno);                   /* Read a directory item */
-            if (res != FR_OK || fno.fname[0] == 0) break;  /* Break on error or end of dir */
-            if (fno.fattrib & AM_DIR) {                    /* It is a directory */
-                i = strlen(path);
-                sprintf(&path[i], "/%s", fno.fname);
-                res = scan_files(path);                    /* Enter the directory */
-                if (res != FR_OK) break;
-                path[i] = 0;
-            } else {                                       /* It is a file. */
-                xil_printf("%s/%s \r\n", path, fno.fname);
-            }
-        }
-        f_closedir(&dir);
-    }
+	res = f_opendir(&dir, path);                       /* Open the directory */
+	if (res == FR_OK) {
+		for (;;) {
+			xil_printf("Start loop\r\n");
+			res = f_readdir(&dir, &fno);                   /* Read a directory item */
+			if (res != FR_OK || fno.fname[0] == 0) break;  /* Break on error or end of dir */
+			if (fno.fattrib & AM_DIR) {                    /* It is a directory */
+				i = strlen(path);
+				sprintf(&path[i], "/%s", fno.fname);
+				res = scan_files(path);                    /* Enter the directory */
+				if (res != FR_OK) break;
+				path[i] = 0;
+			} else {                                       /* It is a file. */
+				xil_printf("%s/%s \r\n", path, fno.fname);
+			}
+		}
+		f_closedir(&dir);
+	}
 
-    return res;
+	return res;
 }

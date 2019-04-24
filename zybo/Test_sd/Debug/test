@@ -1,0 +1,74 @@
+Type [C-a] [C-h] to see available commands
+
+Terminal ready
+Elapsed clock cycles : 0 1680
+Elapsed clock cycles : 0 760
+Elapsed clock cycles : 0 731
+Elapsed clock cycles : 0 696
+Elapsed clock cycles : 0 696
+Elapsed clock cycles : 0 696
+Elapsed clock cycles : 0 696
+Elapsed clock cycles : 0 696
+Elapsed clock cycles : 0 696
+Elapsed clock cycles : 0 696
+Elapsed clock cycles : 0 696
+Elapsed clock cycles : 0 696
+Elapsed clock cycles : 0 696
+Elapsed clock cycles : 0 696
+Elapsed clock cycles : 0 696
+Elapsed clock cycles : 0 696
+Elapsed clock cycles : 0 696
+Elapsed clock cycles : 0 696
+Elapsed clock cycles : 0 696
+Elapsed clock cycles : 0 696
+Elapsed clock cycles : 0 696
+Elapsed clock cycles : 0 696
+Elapsed clock cycles : 0 696
+Elapsed clock cycles : 0 696
+Elapsed clock cycles : 0 696
+Elapsed clock cycles : 0 696
+Elapsed clock cycles : 0 696
+Elapsed clock cycles : 0 696
+Elapsed clock cycles : 0 696
+Elapsed clock cycles : 0 696
+Elapsed clock cycles : 0 696
+Elapsed clock cycles : 0 696
+Elapsed clock cycles : 0 696
+Elapsed clock cycles : 0 696
+Elapsed clock cycles : 0 696
+Elapsed clock cycles : 0 696
+Elapsed clock cycles : 0 696
+Elapsed clock cycles : 0 696
+Elapsed clock cycles : 0 696
+Elapsed clock cycles : 0 696
+Elapsed clock cycles : 0 696
+Elapsed clock cycles : 0 696
+Elapsed clock cycles : 0 696
+Elapsed clock cycles : 0 696
+Elapsed clock cycles : 0 696
+Elapsed clock cycles : 0 696
+Elapsed clock cycles : 0 696
+Elapsed clock cycles : 0 696
+Elapsed clock cycles : 0 696
+Elapsed clock cycles : 0 696
+
+FATAL: term closed
+picocom v2.2
+
+port is        : /dev/ttyUSB1
+flowcontrol    : none
+baudrate is    : 115200
+parity is      : none
+databits are   : 8
+stopbits are   : 1
+escape is      : C-a
+local echo is  : no
+noinit is      : no
+noreset is     : no
+nolock is      : no
+send_cmd is    : sz -vv
+receive_cmd is : rz -vv -E
+imap is        : 
+omap is        : 
+emap is        : crcrlf,delbs,
+

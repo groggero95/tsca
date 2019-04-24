@@ -14,7 +14,7 @@ int main(int argc, char **argv){
   int res_shift;
 
 
-  if (argc > 6){
+  if (argc > 6 | argc == 1){
     printf("Error, <command> <operation> <operanda> <operandb> <operandb>\n");
     return 1;
   }
