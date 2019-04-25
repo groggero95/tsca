@@ -6,7 +6,7 @@ void print_to_stdout(bigint_t *a) {
     for (i = NUMB_SIZE - 1; i >= 0; i--) {
         xil_printf("%08x", a->numb[i]);
     }
-    xil_printf("\r\n");
+//    xil_printf("\r\n");
     return;
 }
 
@@ -141,6 +141,7 @@ bigint_t xor(bigint_t a, bigint_t b) {
     return data_res;
 }
 
+
 // Logically shift right a, by pl places
 bigint_t lsr(bigint_t a, int pl) {
 
@@ -148,13 +149,14 @@ bigint_t lsr(bigint_t a, int pl) {
     int full_shift = pl / VAR_SIZE;
     pl = pl % VAR_SIZE;
     for (int k = 0; k < NUMB_SIZE; k++) {
-        if ((k < NUMB_SIZE - full_shift) & (k != NUMB_SIZE - 1)) {
+        if ((k < NUMB_SIZE - full_shift - 1)) {
             data_res.numb[k] = ((pl ? (a.numb[k + full_shift + 1] << (VAR_SIZE - pl)) : 0) | (a.numb[k + full_shift] >> pl));
+        } else if (k ==  NUMB_SIZE - full_shift - 1) {
+            data_res.numb[k] = (a.numb[k + full_shift] >> pl);
         } else {
             data_res.numb[k] = 0;
         }
     }
-    // data_res.pos = 0;
     if (full_shift == 0)
         data_res.numb[NUMB_SIZE - 1] = a.numb[NUMB_SIZE - 1] >> pl;
     return data_res;
@@ -167,13 +169,14 @@ bigint_t lsl(bigint_t a, int pl) {
     int full_shift = pl / VAR_SIZE;
     pl = pl % VAR_SIZE;
     for (int k = NUMB_SIZE - 1; k >= 0; k--) {
-        if ((k >= full_shift) & (k != 0)) {
+        if (k > full_shift) {
             data_res.numb[k] = ((a.numb[k - full_shift] << pl) | (pl ? (a.numb[k - full_shift - 1] >> (VAR_SIZE - pl)) : 0));
+        } else if (k == full_shift) {
+            data_res.numb[k] = (a.numb[k - full_shift] << pl);
         } else {
             data_res.numb[k] = 0;
         }
     }
-    // data_res.pos = 0;
     if (full_shift == 0)
         data_res.numb[0] = a.numb[0] << pl;
     return data_res;
@@ -338,17 +341,20 @@ bigint_t MM_big(bigint_t a, bigint_t b, bigint_t n, int nb) {
 
     for (int i = 0; i < nb; i++, mask = lsl(mask, 1) ) {
         a_masked = and (a, mask);
-        ai = lsr(a_masked, i).numb[0];
+        a_masked = lsr(a_masked, i);
+        ai = a_masked.numb[0];
         qi = (res.numb[0] + (ai & (b.numb[0]))) & 1;
 
         if (ai) {
             res = sum(res, b);
         }
+
         if (qi) {
             res = sum(res, n);
         }
 
         res = lsr(res, 1);
+
     }
     return res;
 }
@@ -361,22 +367,8 @@ bigint_t ME_big(bigint_t e, bigint_t m, bigint_t n, bigint_t k0, int nb) {
     bigint_t one = init(ONE);
     bigint_t bit_and;
 
-    // print_to_stdout(&k0);
-    // print_to_stdout(&e);
-    // print_to_stdout(&m);
-    // print_to_stdout(&n);
-    // print_to_stdout(&mask);
-    // print_to_stdout(&zero);
-    // print_to_stdout(&one);
-
-
-
     c = MM_big(k0, one, n, nb);
     s = MM_big(k0, m, n, nb);
-
-    // print_to_stdout(&c);
-    // print_to_stdout(&s);
-
 
     for (int i = 0; i < nb; i++) {
         bit_and = and (mask, e);
@@ -385,6 +377,7 @@ bigint_t ME_big(bigint_t e, bigint_t m, bigint_t n, bigint_t k0, int nb) {
         }
         s = MM_big(s, s, n, nb);
         mask = lsl(mask, 1);
+
     }
     c = MM_big(c, one, n, nb);
     return c;

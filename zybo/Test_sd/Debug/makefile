@@ -56,6 +56,7 @@ libr:
 # Other Targets
 clean:
 	-$(RM) $(EXECUTABLES)$(OBJS)$(S_UPPER_DEPS)$(C_DEPS)$(ELFSIZE) Test_sd.elf
+	$(MAKE) -C $(MAKELIBDIR) -s clean
 	-@echo ' '
 
 pre-build:

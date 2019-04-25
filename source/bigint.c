@@ -6,7 +6,7 @@ void print_to_stdout(bigint_t *a){
   for(i=NUMB_SIZE-1;i>=0; i--){
     printf("%08x",a->numb[i]);
   }
-  printf("\n");
+//  printf("\n");
   return;
 }
 
@@ -142,41 +142,43 @@ bigint_t xor(bigint_t a, bigint_t b){
 }
 
 // Logically shift right a, by pl places
-bigint_t lsr(bigint_t a, int pl){
+bigint_t lsr(bigint_t a, int pl) {
 
-  bigint_t data_res;
-  int full_shift=pl/VAR_SIZE;
-  pl = pl % VAR_SIZE;
-  for(int k=0; k<NUMB_SIZE; k++){
-      if ((k < NUMB_SIZE - full_shift) & (k != NUMB_SIZE-1)){
-          data_res.numb[k]= ((pl ? (a.numb[k+full_shift+1] << (VAR_SIZE-pl)) : 0) | (a.numb[k+full_shift] >> pl));
-      } else {
-          data_res.numb[k]=0;
-      }
-  }
-  // data_res.pos = 0;
-  if (full_shift == 0)
-    data_res.numb[NUMB_SIZE-1] = a.numb[NUMB_SIZE-1] >> pl;
-  return data_res;
+    bigint_t data_res;
+    int full_shift = pl / VAR_SIZE;
+    pl = pl % VAR_SIZE;
+    for (int k = 0; k < NUMB_SIZE; k++) {
+        if ((k < NUMB_SIZE - full_shift - 1)) {
+            data_res.numb[k] = ((pl ? (a.numb[k + full_shift + 1] << (VAR_SIZE - pl)) : 0) | (a.numb[k + full_shift] >> pl));
+        } else if (k ==  NUMB_SIZE - full_shift - 1) {
+            data_res.numb[k] = (a.numb[k + full_shift] >> pl);
+        } else {
+            data_res.numb[k] = 0;
+        }
+    }
+    if (full_shift == 0)
+        data_res.numb[NUMB_SIZE - 1] = a.numb[NUMB_SIZE - 1] >> pl;
+    return data_res;
 }
 
 // Logically shift left a, by pl places
-bigint_t lsl(bigint_t a, int pl){
+bigint_t lsl(bigint_t a, int pl) {
 
-  bigint_t data_res;
-  int full_shift=pl/VAR_SIZE;
-  pl = pl % VAR_SIZE;
-  for(int k=NUMB_SIZE-1; k>=0; k--){
-      if ((k >= full_shift) & (k!=0)){
-        data_res.numb[k]= ((a.numb[k-full_shift] << pl) | (pl ? (a.numb[k-full_shift-1] >> (VAR_SIZE-pl)) : 0));
-      } else {
-        data_res.numb[k]=0;
-      }
-  }
-  // data_res.pos = 0;
-  if (full_shift == 0)
-    data_res.numb[0] = a.numb[0] << pl;
-  return data_res;
+    bigint_t data_res;
+    int full_shift = pl / VAR_SIZE;
+    pl = pl % VAR_SIZE;
+    for (int k = NUMB_SIZE - 1; k >= 0; k--) {
+        if (k > full_shift) {
+            data_res.numb[k] = ((a.numb[k - full_shift] << pl) | (pl ? (a.numb[k - full_shift - 1] >> (VAR_SIZE - pl)) : 0));
+        } else if (k == full_shift) {
+            data_res.numb[k] = (a.numb[k - full_shift] << pl);
+        } else {
+            data_res.numb[k] = 0;
+        }
+    }
+    if (full_shift == 0)
+        data_res.numb[0] = a.numb[0] << pl;
+    return data_res;
 }
 
 

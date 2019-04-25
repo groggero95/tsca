@@ -135,9 +135,13 @@ int main(void)
 	bigint_t message = init("0x0000004369616f20636f6d652076613f");
 	bigint_t k0 	 = init("0x8354f24c98cfac7a6ec8719a1b11ba4f");
 	print_to_stdout(&modulus);
+	xil_printf("\r\n");
 	print_to_stdout(&public);
+	xil_printf("\r\n");
 	print_to_stdout(&private);
+	xil_printf("\r\n");
 	print_to_stdout(&message);
+	xil_printf("\r\n");
 	print_to_stdout(&k0);
 
 	xil_printf("\r\n");
@@ -145,12 +149,17 @@ int main(void)
 	bigint_t enc;
 
 	enc = ME_big(public, message, modulus, k0, 130);
-
+	//enc = MM_big(k0, message, modulus, 130);
 	print_to_stdout(&enc);
+
+	xil_printf("\r\n");
+	xil_printf("\r\n");
+
 
 	enc = ME_big(private, enc, modulus, k0, 130);
 
 	print_to_stdout(&enc);
+	xil_printf("\r\n");
 	print_to_stdout(&message);
 
 	// while (i--) {
