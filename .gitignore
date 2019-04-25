@@ -2,6 +2,7 @@
 *.d
 *.bin
 *.elf
+*.size
 build/*.*
 build/*
 .pyc
