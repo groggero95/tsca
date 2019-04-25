@@ -3,6 +3,7 @@
 *.bin
 *.elf
 *.size
+*.a
 build/*.*
 build/*
 .pyc
