@@ -9,16 +9,13 @@ def mm(a,b,n,nb):
 	for i in range(nb):
 		ai = (a & mask) >> i
 		qi = (res + (ai&b)) & 1
-
 		res = (res + (lt[ai]&b) + (lt[qi]&n))
 
 		res = res >> 1
 		mask = mask << 1
-
 	return res
 
 def mm_estimate(a,b,n,nb):
-#	step = []
 	lt = [0, ~0]
 	res = 0
 	mask = 1
@@ -32,10 +29,6 @@ def mm_estimate(a,b,n,nb):
 
 		res = res >> 1
 		mask = mask << 1
-#		step.append( str(i) + ' ' +  str(ai) + ' ' + str(qi) + ' ' + str(padhex(res,128+32)))
-# only used for testing pourposes
-#	if res >= n:
-#		return res - n
 
 	return estimate
 
@@ -82,25 +75,32 @@ if __name__ == '__main__':
 	k0 	    = 0x08354f24c98cfac7a6ec8719a1b11ba4f
 	nb 		= 130
 
-	#exponent to be found
+	#private exponent to be found
 	e = 0
 
 	#control
 	step = 0
+	t = 0
 
 	c = (1<<nb)%n
 	s = (m*(1<<nb)) % n
 	#print(padhex(c,160))
 	#print(padhex(s,160))
-	#mask = 1
+
 	for step in range(nb):
+		#calculate timing estimate based on guessing 1 for the current exponent bit
+		t = mm_estimate(c,s,n,nb)
+
+
+		#calculate pearson correlation coefficient
+
+
+		#analyze the goodness of the guess
+
+
+		#update known private exponent and execute next step
 		c, s = me_step(c,s,public,n,step)
 
-		# if (e & mask):
-		# 	c = mm(c,s,n,nb)
-		# s = mm(s,s,n,nb)
-		# mask = mask << 1
-		# print(str(x) + ' ' + padhex(c,160) + ' ' + padhex(s,160))
 	c = mm(c,1,n,nb)
 	print(hex(c))
 	c = me(public,m,n,nb)
