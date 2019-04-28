@@ -1,6 +1,6 @@
 image:
 {
-  [bootloader]/opt/zybo/ds/fsbl.elf
+  [bootloader]../../fsbl.elf
   ../../ZC010_wrapper_hw_platform_0/ZC010_wrapper.bit
   ./Test_sd.elf
 }
