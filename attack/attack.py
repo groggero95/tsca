@@ -47,7 +47,8 @@ def mm_estimate(a,b,n,nb):
 	return estimate
 
 def me_step(c, s, e_bit, n):
-	# mask = 1 << step
+	#mask = 1 << step
+	#if (e & mask):
 	if (e_bit):
 		c = mm(c,s,n,nb)
 	s = mm(s,s,n,nb)
@@ -110,7 +111,7 @@ if __name__ == '__main__':
 	nb 		= 130
 	# Final to revert the key, as we start from LSB
 	private_key_bit = '0000101100101001011110010111001010010101011101110011101111011100000000100011100111011001010110110110100110101010110010100000000001'[::-1]
-	public_key_bit = 
+	public_key_bit = '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000001'[::-1]
 
 	#private exponent to be found
 	e_guess = list()
@@ -125,12 +126,12 @@ if __name__ == '__main__':
 	# s = (m*(1<<nb)) % n
 	messages, T_arr = read_plain(n=n, nb=nb)
 
-	messages[0] = m
+	messages[0] = guess_test(m,0,n,nb)
 
 	#print(padhex(c,160))
 	#print(padhex(s,160))
 
-	for step, bit in zip(range(nb), key_bit):
+	for step, bit in zip(range(nb), public_key_bit):
 		#calculate timing estimate based on guessing 1 for the current exponent bit
 		t_arr = list()
 		for test in messages:
@@ -155,8 +156,8 @@ if __name__ == '__main__':
 		for test in messages:
 			test.c, test.s = me_step(test.c, test.s, int(bit), n)
 
-
-	c = mm(c,1,n,nb)
+	c = mm(messages[0].c,1,n,nb)
+	# c = mm(c,1,n,nb)
 	print(hex(c))
 	c = me(public,m,n,nb)
 	print(hex(c))
