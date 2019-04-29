@@ -126,7 +126,7 @@ if __name__ == '__main__':
 	# s = (m*(1<<nb)) % n
 	messages, T_arr = read_plain(n=n, nb=nb)
 
-	messages[0] = guess_test(m,0,n,nb)
+	#messages[0] = guess_test(m,0,n,nb)
 
 	#print(padhex(c,160))
 	#print(padhex(s,160))
@@ -159,5 +159,5 @@ if __name__ == '__main__':
 	c = mm(messages[0].c,1,n,nb)
 	# c = mm(c,1,n,nb)
 	print(hex(c))
-	c = me(public,m,n,nb)
+	c = me(public,messages[0].plaintext,n,nb)
 	print(hex(c))
