@@ -2,7 +2,6 @@
 import os, sys
 import numpy
 import scipy.stats as stat
-# def me_step(s, c )
 
 class guess_test():
 	def __init__(self,plain,T,n,nb):
@@ -13,7 +12,6 @@ class guess_test():
 		self.t = 0
 		self.c = (1<<nb)%n
 		self.s = (plain*(1<<nb)) % n
-
 
 
 def mm(a,b,n,nb):
@@ -109,16 +107,16 @@ if __name__ == '__main__':
 	m       = 0x000000000882beb97c2eb4916c19d16f3
 	k0 	    = 0x08354f24c98cfac7a6ec8719a1b11ba4f
 	nb 		= 130
-	# Final to revert the key, as we start from LSB
+
+	# Final to revert the key, as we start from LSB, just for testing with one bit at a time
 	private_key_bit = '0000101100101001011110010111001010010101011101110011101111011100000000100011100111011001010110110110100110101010110010100000000001'[::-1]
 	public_key_bit = '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000001'[::-1]
 
-	#private exponent to be found
+	# private exponent to be found
 	e_guess = list()
 
-	#control
+	# control
 	step = 0
-	nmess = 0
 	tau_corr = 0.3
 	tau_miss = 0.1
 
@@ -127,9 +125,6 @@ if __name__ == '__main__':
 	messages, T_arr = read_plain(n=n, nb=nb)
 
 	#messages[0] = guess_test(m,0,n,nb)
-
-	#print(padhex(c,160))
-	#print(padhex(s,160))
 
 	for step, bit in zip(range(nb), public_key_bit):
 		#calculate timing estimate based on guessing 1 for the current exponent bit
@@ -156,8 +151,9 @@ if __name__ == '__main__':
 		for test in messages:
 			test.c, test.s = me_step(test.c, test.s, int(bit), n)
 
+
+	# test if the step algorithm ran correctly
 	c = mm(messages[0].c,1,n,nb)
-	# c = mm(c,1,n,nb)
 	print(hex(c))
 	c = me(public,messages[0].plaintext,n,nb)
 	print(hex(c))
