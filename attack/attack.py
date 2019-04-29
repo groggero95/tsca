@@ -2,6 +2,20 @@
 import os, sys
 # def me_step(s, c )
 
+class guess_test():
+	def __init__(self,plain,T,n,nb):
+		self.plaintext = plain
+		self.n = n
+		self.nb = nb
+		self.T = T
+		self.t = 0
+		self.c = (1<<nb)%n
+		self.s = (plain*(1<<nb)) % n
+
+
+
+
+
 def mm(a,b,n,nb):
 	lt = [0, ~0]
 	res = 0
@@ -65,7 +79,26 @@ def me(e,m,n,nb):
 	c = mm(c,1,n,nb)
 	return c
 
+def read_plain(n, nb=130, file_msg='PLAIN.BIN', file_time='TIME.BIN', length_msg=16, length_time=8):
+	### The number of bytes that composes the stuff to be read
+	f_msg = open(file_msg,"rb")
+	messages = list()
+	f_time = open(file_time, "rb")
+	while True:
+		read_msg = f_msg.read(length_msg)
+		read_time = f_time.read(length_time)
+		if not ((read_msg) and (read_time)):
+			break
+		msg = guess_test(int.from_bytes(read_msg, byteorder='little',signed=False), int.from_bytes(read_time, byteorder='little',signed=False), n, nb)
+		messages.append(msg)
+	f_time.close()
+	f_msg.close()
+	return messages
+
+
+
 if __name__ == '__main__':
+
 
 	#known informations
 	n       = 0x0e9d83cb9ebf9f88a17f569dcb0945be1
@@ -80,17 +113,20 @@ if __name__ == '__main__':
 
 	#control
 	step = 0
-	t = 0
+	nmess = 0
 
-	c = (1<<nb)%n
-	s = (m*(1<<nb)) % n
+	# c = (1<<nb)%n
+	# s = (m*(1<<nb)) % n
+	messages=read_plain(n=n, nb=nb)
+
 	#print(padhex(c,160))
 	#print(padhex(s,160))
 
 	for step in range(nb):
 		#calculate timing estimate based on guessing 1 for the current exponent bit
 		t = mm_estimate(c,s,n,nb)
-
+		for nmess, test in enumerate(messages):
+			test.t = mm_estimate(test.c, test.s, n, nb)
 
 		#calculate pearson correlation coefficient
 
