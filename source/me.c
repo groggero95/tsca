@@ -63,3 +63,23 @@ bigint_t ME_big(bigint_t e, bigint_t m, bigint_t n, bigint_t k0, int nb) {
 
     return c;
 }
+
+
+void ME_big_step(bigint_t e, bigint_t m, bigint_t n, bigint_t *c, bigint_t *s, bigint_t *c_next, bigint_t *s_next,  int nb, int cycle) {
+    
+    bigint_t mask = init(ONE);
+    bigint_t zero = init(ZERO);
+    bigint_t one = init(ONE);
+    bigint_t bit_and;
+
+    mask = lsl(mask,cycle);
+    bit_and = and (mask, e);
+    if (df(zero, bit_and)) {
+        *c_next = MM_big(*c, *s, n, nb);
+    }
+    *s_next = MM_big(*s, *s, n, nb);
+
+
+    return;
+}
+

@@ -62,7 +62,7 @@ typedef unit8_t var_t;
 // Structure to be used for the operations
 typedef struct bigint {
     //Field to store the actual value
-    var_t numb[NUMB_SIZE];
+    var_t numb[NUMB_SIZE] __attribute__ ((aligned(32)));
     //Field to store the alignment of the value
     //uint16_t pos;
 } bigint_t;

@@ -88,14 +88,15 @@ int FfsSdPolledExample(void);
 int scan_files(char* path);
 
 /************************** Variable Definitions *****************************/
-static FIL fil;		/* File object */
+static FIL f_time, f_plain;		/* File object */
 static FATFS fatfs;
+TCHAR *Path = "0:/";
 /*
  * To test logical drive 0, FileName should be "0:/<File name>" or
  * "<file_name>". For logical drive 1, FileName should be "1:/<file_name>"
  */
-static char FileName[32] = "Test.bin";
-static char *SD_File;
+static char time[32] = "time.bin", plain[32] = "plain.bin";
+static char *SD_time, *SD_plain;
 
 #ifdef __ICCARM__
 #pragma data_alignment = 32
@@ -123,75 +124,101 @@ u8 SourceAddress[10 * 1024 * 1024] __attribute__ ((aligned(32)));
 ******************************************************************************/
 int main(void)
 {
-	int i = 50;
+	FRESULT Res;
+	/*
+	* Register volume work area, initialize device
+	*/
+	Res = f_mount(&fatfs, Path, 1);
+
+	if (Res != FR_OK) {
+		return XST_FAILURE;
+	}
+
+	/*
+	 * Open file with required permissions.
+	 * Here - Creating new file with read/write permissions. .
+	 * To open file with write permissions, file system should not
+	 * be in Read Only mode.
+	 */
+	SD_time = (char *)time;
+	SD_plain = (char *)plain;
+
+	Res = f_open(&f_plain, SD_plain, FA_CREATE_ALWAYS | FA_WRITE | FA_READ);
+	if (Res) {
+		return XST_FAILURE;
+	}
+
+	Res = f_open(&f_time, SD_time, FA_CREATE_ALWAYS | FA_WRITE | FA_READ);
+	if (Res) {
+		return XST_FAILURE;
+	}
 
 
-	XTime tStart;
+	int i;
+
+	XTime tStart, tTots, tTote, tot;
 	XTime tEnd;
+	XTime delta __attribute__ ((aligned(32)));
+
+	XTime_GetTime(&tTots);
 
 	bigint_t modulus = init("0xc26e8d2105e3454baf122700611e915d");
 	bigint_t public  = init("0x00000000000000000000000000010001");
 	bigint_t private = init("0x0745812bb1ffacf0b5d6200be2ced7d5");
 	bigint_t message = init("0x0000004369616f20636f6d652076613f");
 	bigint_t k0 	 = init("0x8354f24c98cfac7a6ec8719a1b11ba4f");
-	print_to_stdout(&modulus);
-	xil_printf("\r\n");
-	print_to_stdout(&public);
-	xil_printf("\r\n");
-	print_to_stdout(&private);
-	xil_printf("\r\n");
-	print_to_stdout(&message);
-	xil_printf("\r\n");
-	print_to_stdout(&k0);
 
 	xil_printf("\r\n");
 
 	bigint_t enc;
 
-	enc = ME_big(public, message, modulus, k0, 130);
-	//enc = MM_big(k0, message, modulus, 130);
-	print_to_stdout(&enc);
+	for (i = 0; i < 1000000; i++ ) {
+		message = rand_b();
+		XTime_GetTime(&tStart);
+		enc = ME_big(private, message, modulus, k0, 130);
+		XTime_GetTime(&tEnd);
+		delta = tEnd - tStart;
 
-	xil_printf("\r\n");
-	xil_printf("\r\n");
+		Res = f_write(&f_time, (const void*)&delta, sizeof(delta), NULL);
+		if (Res) {
+			xil_printf("Error failed to write time\n\r");
+			return XST_FAILURE;
+		}
+
+		Res = f_write(&f_plain, (const void*)message.numb, sizeof(message.numb)-4, NULL);
+		if (Res) {
+			xil_printf("Error failed to write plain text\n\r");
+			return XST_FAILURE;
+		}
+
+	}
 
 
-	enc = ME_big(private, enc, modulus, k0, 130);
+	/*
+	* Close file.
+	*/
+	Res = f_close(&f_plain);
+	if (Res) {
+		return XST_FAILURE;
+	}
 
-	print_to_stdout(&enc);
-	xil_printf("\r\n");
-	print_to_stdout(&message);
+	/*
+	* Close file.
+	*/
+	Res = f_close(&f_time);
+	if (Res) {
+		return XST_FAILURE;
+	}
 
-	// while (i--) {
+	xil_printf("Files written successfully\n\r");
+	XTime_GetTime(&tTote);
 
+	int h,l;
 
-	// 	XTime_GetTime(&tStart);
-
-	// 	int Status = rand();
-
-	// 	bigint_t a = rand_b();
-	// 	print_to_stdout(&a);
-
-	// 	XTime_GetTime(&tEnd);
-
-	// 	u64 el = tEnd - tStart;
-	// 	u32 h = (el >> 32U);
-	// 	u32 l = (el & ~0x0);
-
-	// 	xil_printf("Elapsed clock cycles : %d %d\r\n", h, l);
-	// 	xil_printf("Random : %d\r\n", Status);
-
-	// 	//	xil_printf("SD Polled File System Example Test \r\n");
-
-	// 	// Status = FfsSdPolledExample();
-	// 	// if (Status != XST_SUCCESS) {
-	// 	// 	xil_printf("SD Polled File System Example Test failed \r\n");
-	// 	// 	return XST_FAILURE;
-	// 	// }
-
-	// 	// xil_printf("Successfully ran SD Polled File System Example Test \r\n");
-
-	// }
+	tot = tTote - tTots;
+	h = (int) tot >> 32U;
+	l = (int) tot & ~0;
+	xil_printf("%x %x\n\r",h,l);
 
 	return XST_SUCCESS;
 
@@ -212,135 +239,135 @@ int main(void)
 * @note		None
 *
 ******************************************************************************/
-int FfsSdPolledExample(void)
-{
-	FRESULT Res;
-	UINT NumBytesRead;
-	UINT NumBytesWritten;
-	u32 BuffCnt;
-	BYTE work[FF_MAX_SS];
-#ifdef __ICCARM__
-	u32 FileSize = (8 * 1024);
-#else
-	u32 FileSize = (8 * 1024 * 1024);
-#endif
+// int FfsSdPolledExample(void)
+// {
+// 	FRESULT Res;
+// 	UINT NumBytesRead;
+// 	UINT NumBytesWritten;
+// 	u32 BuffCnt;
+// 	BYTE work[FF_MAX_SS];
+// #ifdef __ICCARM__
+// 	u32 FileSize = (8 * 1024);
+// #else
+// 	u32 FileSize = (8 * 1024 * 1024);
+// #endif
 
-	/*
-	 * To test logical drive 0, Path should be "0:/"
-	 * For logical drive 1, Path should be "1:/"
-	 */
-	TCHAR *Path = "0:/";
-
-	for (BuffCnt = 0; BuffCnt < FileSize; BuffCnt++) {
-		SourceAddress[BuffCnt] = TEST + BuffCnt;
-	}
-
-	/*
-	 * Register volume work area, initialize device
-	 */
-	Res = f_mount(&fatfs, Path, 0);
-
-	if (Res != FR_OK) {
-		return XST_FAILURE;
-	}
-
-	/*
-	 * Open file with required permissions.
-	 * Here - Creating new file with read/write permissions. .
-	 * To open file with write permissions, file system should not
-	 * be in Read Only mode.
-	 */
-	SD_File = (char *)FileName;
-
-	Res = f_open(&fil, SD_File, FA_CREATE_ALWAYS | FA_WRITE | FA_READ);
-	if (Res) {
-		return XST_FAILURE;
-	}
-
-	/*
-	 * Pointer to beginning of file .
-	 */
-	Res = f_lseek(&fil, 0);
-	if (Res) {
-		return XST_FAILURE;
-	}
-
-	/*
-	 * Write data to file.
-	 */
-	Res = f_write(&fil, (const void*)SourceAddress, FileSize,
-	              &NumBytesWritten);
-	if (Res) {
-		return XST_FAILURE;
-	}
+// 	/*
+// 	 * To test logical drive 0, Path should be "0:/"
+// 	 * For logical drive 1, Path should be "1:/"
+// 	 */
 
 
-	/*
-	* Pointer to beginning of file .
-	*/
+// 	for (BuffCnt = 0; BuffCnt < FileSize; BuffCnt++) {
+// 		SourceAddress[BuffCnt] = TEST + BuffCnt;
+// 	}
 
-	Res = f_lseek(&fil, 0);
-	if (Res) {
-		return XST_FAILURE;
-	}
+// 	/*
+// 	 * Register volume work area, initialize device
+// 	 */
+// 	Res = f_mount(&fatfs, Path, 0);
 
-	/*
-	 * Read data from file.
-	 */
-	Res = f_read(&fil, (void*)DestinationAddress, FileSize,
-	             &NumBytesRead);
-	if (Res) {
-		return XST_FAILURE;
-	}
+// 	if (Res != FR_OK) {
+// 		return XST_FAILURE;
+// 	}
 
-	/*
-	 * Data verification
-	 */
-	for (BuffCnt = 0; BuffCnt < FileSize; BuffCnt++) {
-		if (SourceAddress[BuffCnt] != DestinationAddress[BuffCnt]) {
-			return XST_FAILURE;
-		}
-	}
+// 	/*
+// 	 * Open file with required permissions.
+// 	 * Here - Creating new file with read/write permissions. .
+// 	 * To open file with write permissions, file system should not
+// 	 * be in Read Only mode.
+// 	 */
+// 	SD_File = (char *)FileName;
 
-	/*
-	 * Close file.
-	 */
-	Res = f_close(&fil);
-	if (Res) {
-		return XST_FAILURE;
-	}
+// 	Res = f_open(&fil, SD_File, FA_CREATE_ALWAYS | FA_WRITE | FA_READ);
+// 	if (Res) {
+// 		return XST_FAILURE;
+// 	}
 
-	return XST_SUCCESS;
-}
+// 	/*
+// 	 * Pointer to beginning of file .
+// 	 */
+// 	Res = f_lseek(&fil, 0);
+// 	if (Res) {
+// 		return XST_FAILURE;
+// 	}
 
-int scan_files (
-    char* path        /* Start node to be scanned (***also used as work area***) */
-)
-{
-	int res;
-	DIR dir;
-	UINT i;
-	static FILINFO fno;
+// 	/*
+// 	 * Write data to file.
+// 	 */
+// 	Res = f_write(&fil, (const void*)SourceAddress, FileSize,
+// 	              &NumBytesWritten);
+// 	if (Res) {
+// 		return XST_FAILURE;
+// 	}
 
 
-	res = f_opendir(&dir, path);                       /* Open the directory */
-	if (res == FR_OK) {
-		for (;;) {
-			xil_printf("Start loop\r\n");
-			res = f_readdir(&dir, &fno);                   /* Read a directory item */
-			if (res != FR_OK || fno.fname[0] == 0) break;  /* Break on error or end of dir */
-			if (fno.fattrib & AM_DIR) {                    /* It is a directory */
-				i = strlen(path);
-				sprintf(&path[i], "/%s", fno.fname);
-				res = scan_files(path);                    /* Enter the directory */
-				if (res != FR_OK) break;
-				path[i] = 0;
-			} else {                                       /* It is a file. */
-				xil_printf("%s/%s \r\n", path, fno.fname);
-			}
-		}
-		f_closedir(&dir);
-	}
+// 	/*
+// 	* Pointer to beginning of file .
+// 	*/
 
-	return res;
-}
+// 	Res = f_lseek(&fil, 0);
+// 	if (Res) {
+// 		return XST_FAILURE;
+// 	}
+
+	
+// 	 * Read data from file.
+	 
+// 	Res = f_read(&fil, (void*)DestinationAddress, FileSize,
+// 	             &NumBytesRead);
+// 	if (Res) {
+// 		return XST_FAILURE;
+// 	}
+
+// 	/*
+// 	 * Data verification
+// 	 */
+// 	for (BuffCnt = 0; BuffCnt < FileSize; BuffCnt++) {
+// 		if (SourceAddress[BuffCnt] != DestinationAddress[BuffCnt]) {
+// 			return XST_FAILURE;
+// 		}
+// 	}
+
+// 	/*
+// 	 * Close file.
+// 	 */
+// 	Res = f_close(&fil);
+// 	if (Res) {
+// 		return XST_FAILURE;
+// 	}
+
+// 	return XST_SUCCESS;
+// }
+
+// int scan_files (
+//     char* path        /* Start node to be scanned (***also used as work area***) */
+// )
+// {
+// 	int res;
+// 	DIR dir;
+// 	UINT i;
+// 	static FILINFO fno;
+
+
+// 	res = f_opendir(&dir, path);                       /* Open the directory */
+// 	if (res == FR_OK) {
+// 		for (;;) {
+// 			xil_printf("Start loop\r\n");
+// 			res = f_readdir(&dir, &fno);                   /* Read a directory item */
+// 			if (res != FR_OK || fno.fname[0] == 0) break;  /* Break on error or end of dir */
+// 			if (fno.fattrib & AM_DIR) {                    /* It is a directory */
+// 				i = strlen(path);
+// 				sprintf(&path[i], "/%s", fno.fname);
+// 				res = scan_files(path);                    /* Enter the directory */
+// 				if (res != FR_OK) break;
+// 				path[i] = 0;
+// 			} else {                                       /* It is a file. */
+// 				xil_printf("%s/%s \r\n", path, fno.fname);
+// 			}
+// 		}
+// 		f_closedir(&dir);
+// 	}
+
+// 	return res;
+// }

@@ -325,9 +325,10 @@ bigint_t init(const char *s) {
 bigint_t rand_b( void ) {
     int i;
     bigint_t data_res;
-    for (i = 0; i < NUMB_SIZE; i++) {
+    for (i = 0; i < NUMB_SIZE-1; i++) {
         data_res.numb[i] = (var_t) rand();
     }
+    data_res.numb[NUMB_SIZE-1] = 0;
     return data_res;
 }
 
