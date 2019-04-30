@@ -2,6 +2,7 @@
 import os, sys
 import numpy
 import scipy.stats as stat
+import copy
 
 class guess_test():
 	def __init__(self,plain,T,n,nb):
@@ -124,28 +125,38 @@ if __name__ == '__main__':
 
 	# control
 	step = 0
-	tau_corr = 0.3
+	tau_corr = 0.045
 	tau_miss = 0.1
 
 	# c = (1<<nb)%n
 	# s = (m*(1<<nb)) % n
 	messages, T_arr = read_plain(n=n, nb=nb)
 
+	mcpy = copy.deepcopy(messages)
+
+
 	#messages[0] = guess_test(m,0,n,nb)
 
 	for step, bit in zip(range(nb), private_key_bit):
 		#calculate timing estimate based on guessing 1 for the current exponent bit
 		t_arr = list()
-		for test in messages:
+		t_arr_wrong = list()
+		for test, trial in zip(messages, mcpy):
 			test.t = mm_estimate(test.c, test.s, n, nb)
 			# test.t = me_estimate(test.c, test.s, n, nb)
 			t_arr.append(test.t)
+			trial.t = mm_estimate(trial.c, trial.s, n, nb)
+			t_arr_wrong.append(trial.t)
 
 		# Calculate Pearson correlation coefficient
 		pcc = stat.pearsonr(T_arr, t_arr)
+		pcc_wrong = stat.pearsonr(T_arr, t_arr_wrong)
 		# Chiatant's Th : the PCC, if a correlation exists, should be larger equal than 0
 		# as correlation is always as t_arr increases, T_arr does the same
-		print("At step {} pcc is: {} bit: {}".format(step, pcc, bit))
+
+		mcpy = copy.deepcopy(messages)
+
+		print("At step {:3} pcc is: {}  -- wrong {} bit:{}".format(step, pcc, pcc_wrong, bit))
 
 		#analyze the goodness of the guess
 		if (step==0):
@@ -156,8 +167,12 @@ if __name__ == '__main__':
 			e_guess.append(0)
 
 		#update known private exponent and execute next step
-		for test in messages:
-			test.c, test.s = me_step(test.c, test.s, int(bit), n, nb)
+		for test, trial in zip(messages, mcpy):
+			# test.c, test.s = me_step(test.c, test.s, e_guess[-1], n, nb)
+			test.c, test.s = me_step(test.c, test.s, int(bit,2), n, nb)
+			trial.c, trial.s = me_step(trial.c, trial.s, int(bit,2) ^ 1, n, nb)
+
+
 
 
 	# test if the step algorithm ran correctly
