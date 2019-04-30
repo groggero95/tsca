@@ -44,14 +44,18 @@ def mm_estimate(a,b,n,nb):
 
 	return estimate
 
-def me_step(c, s, e_bit, n):
-	#mask = 1 << step
-	#if (e & mask):
+def me_step(c, s, e_bit, n,nb):
 	if (e_bit):
 		c = mm(c,s,n,nb)
 	s = mm(s,s,n,nb)
+	return c, s
 
-	return c,s
+def me_estimate(c, s, n, nb):
+	estimate = 0
+	estimate += mm_estimate(c,s,n,nb)
+	estimate += mm_estimate(s,s,n,nb)
+
+	return estimate
 
 def me(e,m,n,nb):
 # At some point we will settle up to a fixed number of bits
@@ -77,6 +81,9 @@ def me(e,m,n,nb):
 	c = mm(c,1,n,nb)
 	return c
 
+def padbin(m, nb=128):
+    return bin(m)[2:].zfill(nb)
+
 def read_plain(n, nb=130, file_msg='PLAIN.BIN', file_time='TIME.BIN', length_msg=16, length_time=8):
 	### The number of bytes that composes the stuff to be read
 	f_msg = open(file_msg,"rb")
@@ -101,16 +108,16 @@ if __name__ == '__main__':
 
 
 	#known informations
-	n       = 0x0e9d83cb9ebf9f88a17f569dcb0945be1
+	n       = 0x0c26e8d2105e3454baf122700611e915d
 	public  = 0x000000000000000000000000000010001
-	private = 0x02ca5e5ca55dcef7008e7656da6ab2801
-	m       = 0x000000000882beb97c2eb4916c19d16f3
+	private = 0x00745812bb1ffacf0b5d6200be2ced7d5
+	m       = 0x00000004369616f20636f6d652076613f
 	k0 	    = 0x08354f24c98cfac7a6ec8719a1b11ba4f
 	nb 		= 130
 
 	# Final to revert the key, as we start from LSB, just for testing with one bit at a time
-	private_key_bit = '0000101100101001011110010111001010010101011101110011101111011100000000100011100111011001010110110110100110101010110010100000000001'[::-1]
-	public_key_bit = '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000001'[::-1]
+	private_key_bit = padbin(private)[::-1]
+	public_key_bit = padbin(public)[::-1]
 
 	# private exponent to be found
 	e_guess = list()
@@ -126,11 +133,12 @@ if __name__ == '__main__':
 
 	#messages[0] = guess_test(m,0,n,nb)
 
-	for step, bit in zip(range(nb), public_key_bit):
+	for step, bit in zip(range(nb), private_key_bit):
 		#calculate timing estimate based on guessing 1 for the current exponent bit
 		t_arr = list()
 		for test in messages:
 			test.t = mm_estimate(test.c, test.s, n, nb)
+			# test.t = me_estimate(test.c, test.s, n, nb)
 			t_arr.append(test.t)
 
 		# Calculate Pearson correlation coefficient
@@ -149,11 +157,11 @@ if __name__ == '__main__':
 
 		#update known private exponent and execute next step
 		for test in messages:
-			test.c, test.s = me_step(test.c, test.s, int(bit), n)
+			test.c, test.s = me_step(test.c, test.s, int(bit), n, nb)
 
 
 	# test if the step algorithm ran correctly
 	c = mm(messages[0].c,1,n,nb)
 	print(hex(c))
-	c = me(public,messages[0].plaintext,n,nb)
+	c = me(private,messages[0].plaintext,n,nb)
 	print(hex(c))
