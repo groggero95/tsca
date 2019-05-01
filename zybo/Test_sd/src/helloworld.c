@@ -156,19 +156,40 @@ int main(void)
 
 	int i;
 
-	XTime tStart, tTots, tTote, tot;
+	XTime tStart;
 	XTime tEnd;
 	XTime delta __attribute__ ((aligned(32)));
 
-	XTime_GetTime(&tTots);
 
-	bigint_t modulus = init("0xc26e8d2105e3454baf122700611e915d");
+	// bigint_t modulus = init("0xc26e8d2105e3454baf122700611e915d");
+	// bigint_t modulus = init("0x5f4c6991b0042610e525a5c4981737a1");
+	bigint_t modulus = init("0xc8aed04da6c85dd4638add6c6fc04a59");
 	bigint_t public  = init("0x00000000000000000000000000010001");
-	bigint_t private = init("0x0745812bb1ffacf0b5d6200be2ced7d5");
+	// bigint_t private = init("0x0745812bb1ffacf0b5d6200be2ced7d5");
+	// bigint_t private = init("0x4c0929ca2608895dc42fbc87ef853e09");
+	bigint_t private = init("0x2845ecc7a890cd4356ef00ff86e63f81");
 	bigint_t message = init("0x0000004369616f20636f6d652076613f");
-	bigint_t k0 	 = init("0x8354f24c98cfac7a6ec8719a1b11ba4f");
+	// bigint_t k0 	 = init("0x8354f24c98cfac7a6ec8719a1b11ba4f");
+	// bigint_t k0 	 = init("0x0424eafd3cea52419284de3f6da92934");
+	bigint_t k0 	 = init("0x64d8149d5c75b7137c099ce764ab8335");
 
 	xil_printf("\r\n");
+
+	// print_to_stdout(&message);
+	// xil_printf("\r\n");
+
+	// message = ME_big(public,message,modulus,k0,130);
+
+	// print_to_stdout(&message);
+	// xil_printf("\r\n");
+
+	// message = ME_big(private,message,modulus,k0,130);
+
+	// print_to_stdout(&message);
+	// xil_printf("\r\n");	
+
+	srand(1678546890);
+
 
 	bigint_t enc;
 
@@ -211,14 +232,6 @@ int main(void)
 	}
 
 	xil_printf("Files written successfully\n\r");
-	XTime_GetTime(&tTote);
-
-	int h,l;
-
-	tot = tTote - tTots;
-	h = (int) tot >> 32U;
-	l = (int) tot & ~0;
-	xil_printf("%x %x\n\r",h,l);
 
 	return XST_SUCCESS;
 

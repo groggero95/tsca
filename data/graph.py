@@ -14,6 +14,9 @@ timing = []
 
 if __name__ == '__main__':
 
+    if len(sys.argv) > 1:
+        time = sys.argv[1]
+
     f_time = open(time,"rb")
     while True:
         measure = f_time.read(8)
