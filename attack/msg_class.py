@@ -5,7 +5,14 @@ import copy
 #import scipy.stats as stat
 
 class guess_test():
-	"""Class for handling the messages, with all the info related"""
+	"""Class for handling the messages, with all the info related.
+	- In plaintext we save the message
+	- n for (p-1)*(q-1)
+	- T is the time for the messages
+	- t_mm & t_me are the estimated time
+	- c and s are the values needed for the exponentiation
+	- hist is a list that stores tuples with the previous values
+	- hist_len limits the length of the above mentioned list"""
 	def __init__(self,plain,T,n,nb):
 		self.plaintext = plain
 		self.n = n
@@ -15,16 +22,16 @@ class guess_test():
 		self.t_mm = 0
 		self.c = (1<<nb)%n
 		self.s = (plain*(1<<nb)) % n
-		self.hist = list()
-		self.hist_len = 5
+		self.hist = [(self.c, self.s, self.t_mm, self.t_me)]
+		self.hist_len = 6
 
-	def mm_estimate(self,normal=True):
+	def mm_estimate(self,normal=True, change=True):
 		"""Estimate the time taken by the message for multplication. Optional parameter to distinguish the variable assignment"""
 		lt = [0, ~0]
 		res = 0
 		mask = 1
 		estimate = 0
-		if normal == True:
+		if (normal):
 			a, b = self.c, self.s
 		else:
 			a, b = self.s, self.s
@@ -37,13 +44,14 @@ class guess_test():
 
 			res = res >> 1
 			mask = mask << 1
-
-		self.t_mm = estimate
+		if (change):
+			self.t_mm = estimate
 		return estimate
 
 	def me_estimate(self):
 		"""Estimate the time taken by the message for a complete exponentiation"""
-		estimate = self.mm_estimate() + self.mm_estimate(False)
+		# The following to run the estimate without setting the t_mm attribute
+		estimate = self.mm_estimate(True, False) + self.mm_estimate(False, False)
 		self.t_me = estimate
 		return estimate
 
@@ -52,7 +60,7 @@ class guess_test():
 		lt = [0, ~0]
 		res = 0
 		mask = 1
-		if normal == True:
+		if normal:
 			a, b = self.c, self.s
 		else:
 			a, b = self.s, self.s
@@ -88,26 +96,6 @@ class guess_test():
 		del(self.hist[self.hist_len-count:-1])
 		return self.hist[self.hist_len-1-count]
 
-
-def me_step(c, s, e_bit, n,nb):
-	if (e_bit):
-		c = mm(c,s,n,nb)
-	s = mm(s,s,n,nb)
-	return c, s
-
-
-def mm(a,b,n,nb):
-	lt = [0, ~0]
-	res = 0
-	mask = 1
-	for i in range(nb):
-		ai = (a & mask) >> i
-		qi = (res + (ai&b)) & 1
-		res = (res + (lt[ai]&b) + (lt[qi]&n))
-
-		res = res >> 1
-		mask = mask << 1
-	return res
 
 
 def read_plain(n, nb=130, file_msg='PLAIN.BIN', file_time='TIME.BIN', length_msg=16, length_time=8):
@@ -146,7 +134,7 @@ if __name__ == '__main__':
 		for m, mw in zip(messages, msgc):
 			m.mm_estimate()
 			mw.mm_estimate()
-		if i == 5:
+		if i == 7:
 			bitw = 0
 		for test, trial in zip(messages, msgc):
 			# test.c, test.s = me_step(test.c, test.s, e_guess[-1], n, nb)
@@ -155,17 +143,10 @@ if __name__ == '__main__':
 			#print("At {}: {} {} {} {}".format(i, test.c, trial.c, test.s, trial.s))
 
 	for m, mw in zip(messages, msgc):
-		m.revert(2)
-		mw.revert(2)
+		#m.revert(2)
+		#mw.revert(2)
 		print(len(m.hist))
+		print("{} {} {} {}".format(m.c, mw.c, m.s, mw.s))
 
 		if ((m.c != mw.c) or (m.s != mw.s)):
 			print("Error: {} {} {} {}".format(m.c, mw.c, m.s, mw.s))
-
-
-
-
-
-	for a, b in zip(meth_test, func_test):
-		if a != b:
-			print("Error: {} {}".format(a, b))
