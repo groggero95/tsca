@@ -1,8 +1,7 @@
 #!/usr/bin/python3
 import os, sys
-import numpy
-import scipy.stats as stat
-# def me_step(s, c )
+#import numpy
+#import scipy.stats as stat
 
 class guess_test():
 	"""Class for handling the messages, with all the info related"""
@@ -16,6 +15,7 @@ class guess_test():
 		self.c = (1<<nb)%n
 		self.s = (plain*(1<<nb)) % n
 		self.hist = list()
+		self.hist_len = 3
 
 	def mm_estimate(self,normal=True):
 		"""Estimate the time taken by the message for multplication. Optional parameter to distinguish the variable assignment"""
@@ -63,14 +63,29 @@ class guess_test():
 			mask = mask << 1
 		return res
 
-	def me_step(self, e_bit):
+	def me_step(self, e_bit=True):
 		"""Execute a step of the ME. Save previous step in history list, to allow backtrack"""
 		if (e_bit):
 			c = self.mm(True)
 		else:
 			c = self.c
 		s = self.mm(False)
+		if (len(self.hist) >= self.hist_len):
+			self.hist.pop(0)
+		self.hist.append((c, s, e_bit, self.t_mm, self.t_me))
+
+		self.c = c
+		self.s = s
 		return c, s
+
+	def revert(self, count=1):
+		"""Allows to backtrack to previous values (up to history length) and returns the element of the history list"""
+		self.c = self.hist[hist_len-1-count][0]
+		self.s = self.hist[hist_len-1-count][1]
+		self.t_mm = self.hist[hist_len-1-count][3]
+		self.t_me = self.hist[hist_len-1-count][4]
+		del(self.hist[hist_len-count:-1])
+		return self.hist[hist_len-1-count]
 
 
 def me_step(c, s, e_bit, n,nb):
