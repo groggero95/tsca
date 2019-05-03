@@ -79,27 +79,37 @@ def main_attack():
 	private_key_bit = padbin(private)[::-1]
 	public_key_bit = padbin(public)[::-1]
 
-	tau_th = 0.045
-	tau_low = 0.025
+	tau_th = 0.040
+	tau_low = 0.012
 	i = 0
 	pcc_history = list()
 	err_history = list()
 	count = 2
-	repeat = 5
+	repeat = 6
 
 	while (i < nb):
 		pcc = step_forward(messages, e_bits, T_arr, tau_th)
 		pcc_history.append(pcc)
-		print("At step {} -- PCC: {:6} -- bit guessed: {} -- right {}".format(i,pcc,e_bits[-1],private_key_bit[i]))
+		error = 0
+		for j in range(i):
+			if e_bits[j] != int(private_key_bit[j]):
+				error += 1
+		print(private_key_bit[:i])
+		s = [str(j) for j in e_bits[:i]]
+		print(''.join(s))
+		print("- {:3} -- PCC: {:1.6f} -- guessed: {} -- right {} -- error {}".format(i,pcc,e_bits[-1],private_key_bit[i], error))
 		if pcc < tau_low:
-			if repeat < err_history.count(i):
+			if err_history.count(i) < repeat:
+				err_history.append(i)
 				step_back(messages, e_bits, pcc_history, count)
 				# count + 1
 				del(e_bits[len(e_bits)-count+1:])
 				e_bits[-1] = (e_bits[-1]) ^ 1
-				print("Corrected the bit at iteration {} : bits {}".format(i, e_bits))
-				step_force(messages,e_bits[-1]
+				step_force(messages,e_bits[-1])
+				print("Corrected the bit at iteration {} : bits {} {}".format(i, e_bits, len(e_bits)))
 			else:
+				print("Forced the bit at iteration {} : bits {}, {}".format(i, e_bits, len(e_bits)))
+
 
 
 		else:
