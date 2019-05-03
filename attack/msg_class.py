@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+import copy
 
 class guess_test():
 	"""Class for handling the messages, with all the info related.
@@ -85,9 +86,10 @@ class guess_test():
 
 	def revert(self, count=1):
 		"""Allows to backtrack to previous values (up to history length) and returns the element of the history list"""
-		self.c = self.hist[self.hist_len-1-count][0]
-		self.s = self.hist[self.hist_len-1-count][1]
-		self.t_mm = self.hist[self.hist_len-1-count][3]
-		self.t_me = self.hist[self.hist_len-1-count][4]
-		del(self.hist[self.hist_len-count:-1])
-		return self.hist[self.hist_len-1-count]
+		del(self.hist[len(self.hist)-count:])
+		self.c = self.hist[-1][0]
+		self.s = self.hist[-1][1]
+		self.t_mm = self.hist[-1][3]
+		self.t_me = self.hist[-1][4]
+
+		return self.hist[-1]
