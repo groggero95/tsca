@@ -101,10 +101,15 @@ def main_attack():
             bits = bin(numb)[2:].zfill(bits_considered)[::-1]
             for b in bits:
                 for msg in branch:
+                    if b == '0':
+                        msg.t_mm = 0.1
+                    else:
+                        msg.mm_estimate()
                     msg.me_step(int(b))
+        
+        time_est = [[sum([h[3] for h in msg.hist[-bits_considered::]]) for msg in branch] for branch in init_coll]
 
-        time_est = [[msg.mm_estimate() for msg in branch] for branch in init_coll]
-
+        #pcc_tot = [stat.pearsonr(T_arr, t_arr)[0] if (not(numpy.isnan(stat.pearsonr(T_arr, t_arr)[0]))) else 0 for t_arr in time_est]
         pcc_tot = [stat.pearsonr(T_arr, t_arr)[0] for t_arr in time_est]
         pcc_dic = dict()
         pcc_grouped = [0 for i in range(2**(bits_considered - bits_guessed))]
