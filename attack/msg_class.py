@@ -19,10 +19,10 @@ class guess_test():
 		self.t_mm = 0
 		self.c = (1<<nb)%n
 		self.s = (plain*(1<<nb)) % n
-		self.hist = [(self.c, self.s, self.t_mm, self.t_me)]
+		self.hist = [(self.c, self.s, 1, self.t_mm, self.t_me)]
 		self.hist_len = 6
 
-	def mm_estimate(self,normal=True, change=True):
+	def mm_estimate(self, normal=True, change=True):
 		"""Estimate the time taken by the message for multplication. Optional parameter to distinguish the variable assignment"""
 		lt = [0, ~0]
 		res = 0
