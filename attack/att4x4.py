@@ -86,66 +86,63 @@ def main_attack():
     private_key_bit = padbin(private)[::-1]
     public_key_bit = padbin(public)[::-1]
 
-    tau_th = 0.040
-    tau_low = 0.012
-    i = 0
-
     temp_coll = list()
-    pcc_history = list()
-    count = 2
+    key_guessed = list()
     repeat = 6
     bits_considered = 4
+    bits_guessed = 2
+    step = 0
+
     init_coll = [copy.deepcopy(messages) for i in range(2**bits_considered)]
 
-    # Start new attack here
-    for numb, branch in enumerate(init_coll):
-        bits = bin(numb)[2:].zfill(bits_considered)[::-1]
-        for b in bits:
-            for msg in branch:
-                msg.me_step(int(b))
+    while (step < len(private_key_bit)):
+        # Start new attack here
+        for numb, branch in enumerate(init_coll):
+            bits = bin(numb)[2:].zfill(bits_considered)[::-1]
+            for b in bits:
+                for msg in branch:
+                    msg.me_step(int(b))
 
-    time_est = [[msg.mm_estimate() for msg in branch] for branch in init_coll]
+        time_est = [[msg.mm_estimate() for msg in branch] for branch in init_coll]
 
-    pcc_tot = [stat.pearsonr(T_arr, t_arr)[0] for t_arr in time_est]
-    for i, value in enumerate(pcc_tot):
-        print("{}: PCC = {} ".format(bin(i)[2:].zfill(bits_considered), value))
+        pcc_tot = [stat.pearsonr(T_arr, t_arr)[0] for t_arr in time_est]
+        pcc_dic = dict()
+        pcc_grouped = [0 for i in range(2**(bits_considered - bits_guessed))]
 
-    for msg1, msg2 in zip(init_coll[1], init_coll[5]):
-        msg1.revert(2)
-        msg2.revert(2)
-        if msg1.hist != msg2.hist:
-            print("Houston, we have a problem")
+        for i, value in enumerate(pcc_tot):
+            bit_rev = bin(i)[2:].zfill(bits_considered)[::-1]
+            pcc_dic[bit_rev] = value
+            pcc_grouped[i % bits_considered] += value
+
+            #print("{}: PCC = {} ".format(bin(i)[2:].zfill(bits_considered), value))
+        for k in sorted(pcc_dic.keys()):
+            print("{}: PCC = {} ".format(k, pcc_dic[k]))
+
+
+        maxim = max(pcc_grouped)
+        guess_iter = pcc_grouped.index(maxim)
+        step += bits_guessed
+        print(maxim, guess_iter)
+        key_guessed.extend(bin(guess_iter)[2:].zfill(bits_guessed)[::-1])
+        print(''.join(key_guessed))
+        print(''.join(private_key_bit[:step]))
+        error=0
+        for j in range(step):
+            if private_key_bit[j] != key_guessed[j]:
+                print("Houston, we have a problem")
+                error += 1
+
+
+        for msg in init_coll[guess_iter]:
+            msg.revert(bits_considered-bits_guessed)
+
+        msg_restart = init_coll[guess_iter].copy()
+
+        init_coll = [copy.deepcopy(msg_restart) for i in range(2**bits_considered)]
 
 
     return
 
-    while (i < nb):
-        pcc = step_forward(messages, e_bits, T_arr, tau_th)
-        pcc_history.append(pcc)
-        error = 0
-        for j in range(i):
-            if e_bits[j] != int(private_key_bit[j]):
-                error += 1
-        print(private_key_bit[:i])
-        s = [str(j) for j in e_bits[:i]]
-        print(''.join(s))
-        print("- {:3} -- PCC: {:1.6f} -- guessed: {} -- right {} -- error {}".format(i, pcc, e_bits[-1], private_key_bit[i], error))
-        if pcc < tau_low:
-            if err_history.count(i) < repeat:
-                err_history.append(i)
-                step_back(messages, e_bits, pcc_history, count)
-                # count + 1
-                del(e_bits[len(e_bits)-count+1:])
-                e_bits[-1] = (e_bits[-1]) ^ 1
-                step_force(messages, e_bits[-1])
-                print("Corrected the bit at iteration {} : bits {} {}".format(
-                    i, e_bits, len(e_bits)))
-            else:
-                print("Forced the bit at iteration {} : bits {}, {}".format(
-                    i, e_bits, len(e_bits)))
-
-        else:
-            i += 1
 
 
 if __name__ == '__main__':
