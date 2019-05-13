@@ -9,6 +9,7 @@ build/*
 .pyc
 test/main
 main
+attack/__pycache__
 
 ## Core latex/pdflatex auxiliary files:
 *.aux
