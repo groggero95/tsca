@@ -71,16 +71,30 @@ def main_attack():
 
 	e_bits = list()
 
+	K = 3
+	Z = 0.25
 
 	# Read messages from file
 	messages, T_arr = read_plain(n=n, nb=nb)
+
+	t_mean = numpy.mean(T_arr)
+	t_std = numpy.std(T_arr)
+
+	print(len(messages))
+
+	messages, T_arr = zip(*[(ptxt,time) for ptxt,time in zip(messages,T_arr) if (abs(time-t_mean) < K*t_std) and (abs(time-t_mean) > Z*t_std)])
+
+	messages = list(messages)
+	T_arr = list(T_arr)
+
+	print(len(messages))
 
 	# Final to revert the key, as we start from LSB, just for testing with one bit at a time
 	private_key_bit = padbin(private)[::-1]
 	public_key_bit = padbin(public)[::-1]
 
 	tau_th = 0.040
-	tau_low = 0.012
+	tau_low = 0.013
 	i = 0
 	pcc_history = list()
 	err_history = list()
