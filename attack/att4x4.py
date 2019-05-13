@@ -90,7 +90,7 @@ def main_attack():
     key_guessed = list()
     repeat = 6
     bits_considered = 4
-    bits_guessed = 2
+    bits_guessed = 1
     step = 0
 
     init_coll = [copy.deepcopy(messages) for i in range(2**bits_considered)]
@@ -112,7 +112,7 @@ def main_attack():
         for i, value in enumerate(pcc_tot):
             bit_rev = bin(i)[2:].zfill(bits_considered)[::-1]
             pcc_dic[bit_rev] = value
-            pcc_grouped[i % bits_considered] += value
+            pcc_grouped[i % (2**bits_guessed)] += value
 
             #print("{}: PCC = {} ".format(bin(i)[2:].zfill(bits_considered), value))
         for k in sorted(pcc_dic.keys()):
@@ -124,21 +124,20 @@ def main_attack():
         step += bits_guessed
         print(maxim, guess_iter)
         key_guessed.extend(bin(guess_iter)[2:].zfill(bits_guessed)[::-1])
+        print('Step: {:>3}'.format(step))
         print(''.join(key_guessed))
         print(''.join(private_key_bit[:step]))
         error=0
         for j in range(step):
             if private_key_bit[j] != key_guessed[j]:
                 error += 1
-                print("Houston, we have a problem -- error: {}".format(error))
-
-
+        if (error):
+            print("Houston, we have a problem -- error: {}".format(error))
 
         for msg in init_coll[guess_iter]:
             msg.revert(bits_considered-bits_guessed)
 
         msg_restart = init_coll[guess_iter].copy()
-
         init_coll = [copy.deepcopy(msg_restart) for i in range(2**bits_considered)]
 
 
