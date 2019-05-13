@@ -66,6 +66,7 @@ def step_back(messages, bits_guessed, pcc, count=1):
     return
 
 
+
 def main_attack():
 
     # known informations
@@ -88,10 +89,35 @@ def main_attack():
     tau_th = 0.040
     tau_low = 0.012
     i = 0
+
+    temp_coll = list()
     pcc_history = list()
-    err_history = list()
     count = 2
     repeat = 6
+    bits_considered = 4
+    init_coll = [copy.deepcopy(messages) for i in range(2**bits_considered)]
+
+    # Start new attack here
+    for numb, branch in enumerate(init_coll):
+        bits = bin(numb)[2:].zfill(bits_considered)[::-1]
+        for b in bits:
+            for msg in branch:
+                msg.me_step(int(b))
+
+    time_est = [[msg.mm_estimate() for msg in branch] for branch in init_coll]
+
+    pcc_tot = [stat.pearsonr(T_arr, t_arr)[0] for t_arr in time_est]
+    for i, value in enumerate(pcc_tot):
+        print("{}: PCC = {} ".format(bin(i)[2:].zfill(bits_considered), value))
+
+    for msg1, msg2 in zip(init_coll[1], init_coll[5]):
+        msg1.revert(2)
+        msg2.revert(2)
+        if msg1.hist != msg2.hist:
+            print("Houston, we have a problem")
+
+
+    return
 
     while (i < nb):
         pcc = step_forward(messages, e_bits, T_arr, tau_th)
