@@ -93,6 +93,13 @@ def main_attack():
     bits_guessed = 2
     step = 0
 
+    """
+    Use this parameter to select which value has to be used:
+    - 4 for me_estimate
+    - 3 for mm_estimate
+    """
+    estimate = 4
+
     init_coll = [copy.deepcopy(messages) for i in range(2**bits_considered)]
 
     while (step < len(private_key_bit)):
@@ -102,12 +109,12 @@ def main_attack():
             for b in bits:
                 for msg in branch:
                     if b == '0':
-                        msg.t_mm = 0.1
+                        msg.me_estimate(0)
                     else:
-                        msg.mm_estimate()
+                        msg.me_estimate()
                     msg.me_step(int(b))
 
-        time_est = [[sum([h[3] for h in msg.hist[-bits_considered::]]) for msg in branch] for branch in init_coll]
+        time_est = [[sum([h[4] for h in msg.hist[-bits_considered::]]) for msg in branch] for branch in init_coll]
 
         #pcc_tot = [stat.pearsonr(T_arr, t_arr)[0] if (not(numpy.isnan(stat.pearsonr(T_arr, t_arr)[0]))) else 0 for t_arr in time_est]
         pcc_tot = [stat.pearsonr(T_arr, t_arr)[0] for t_arr in time_est]

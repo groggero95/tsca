@@ -45,10 +45,13 @@ class guess_test():
 			self.t_mm = estimate
 		return estimate
 
-	def me_estimate(self):
+	def me_estimate(self, bit=1):
 		"""Estimate the time taken by the message for a complete exponentiation"""
 		# The following to run the estimate without setting the t_mm attribute
-		estimate = self.mm_estimate(True, False) + self.mm_estimate(False, False)
+		if bit:
+			estimate = self.mm_estimate(True, False) + self.mm_estimate(False, False)
+		else:
+			estimate = self.mm_estimate(False, False)
 		self.t_me = estimate
 		return estimate
 
