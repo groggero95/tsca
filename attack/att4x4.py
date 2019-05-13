@@ -90,7 +90,7 @@ def main_attack():
     key_guessed = list()
     repeat = 6
     bits_considered = 4
-    bits_guessed = 1
+    bits_guessed = 2
     step = 0
 
     init_coll = [copy.deepcopy(messages) for i in range(2**bits_considered)]
@@ -106,7 +106,7 @@ def main_attack():
                     else:
                         msg.mm_estimate()
                     msg.me_step(int(b))
-        
+
         time_est = [[sum([h[3] for h in msg.hist[-bits_considered::]]) for msg in branch] for branch in init_coll]
 
         #pcc_tot = [stat.pearsonr(T_arr, t_arr)[0] if (not(numpy.isnan(stat.pearsonr(T_arr, t_arr)[0]))) else 0 for t_arr in time_est]
