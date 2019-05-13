@@ -129,8 +129,9 @@ def main_attack():
         error=0
         for j in range(step):
             if private_key_bit[j] != key_guessed[j]:
-                print("Houston, we have a problem")
                 error += 1
+                print("Houston, we have a problem -- error: {}".format(error))
+
 
 
         for msg in init_coll[guess_iter]:
