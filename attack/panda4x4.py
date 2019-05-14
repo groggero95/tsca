@@ -77,6 +77,7 @@ def main_attack():
     m = 0x00000004369616f20636f6d652076613f
     k0 = 0x08354f24c98cfac7a6ec8719a1b11ba4f
     nb = 130
+    nb_key = 128
 
     e_bits = list()
 
