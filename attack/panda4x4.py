@@ -18,7 +18,7 @@ def read_plain(n, nb=130, file_msg='PLAIN.BIN', file_time='TIME.BIN', length_msg
     f_time = open(file_time, "rb")
     T_arr = list()
     i = 0
-    while i < 5000:
+    while i < 20000:
         i = i + 1
         read_msg = f_msg.read(length_msg)
         read_time = f_time.read(length_time)
@@ -71,28 +71,26 @@ def step_back(messages, bits_guessed, pcc, count=1):
 def main_attack():
 
     # known informations
-    n = 0x0c26e8d2105e3454baf122700611e915d
-    public = 0x000000000000000000000000000010001
-    private = 0x00745812bb1ffacf0b5d6200be2ced7d5
+    n = 0x674b89bb51449c6281854973613618a189e52553b7974cc31026f50ecd3df6af1a2b1c086d1cbc9a9527536b9ebbb81fba8e751de1e408391e42a1e4451beba1
+    private = 0x10a51386ea3dd4035647c8644a335ae399d6b5e5175934c63aba1eca948f367b53c00e59ca21937a03792a96005b57c8106ad20e2af98b69ca2fd5cda48a37fb
     m = 0x00000004369616f20636f6d652076613f
-    k0 = 0x08354f24c98cfac7a6ec8719a1b11ba4f
-    nb = 130
-    nb_key = 128
+    k0 = 0x4e45781ff3ebd436b6497fcc94150fe0a90e5cbeabc2a017830d7a33362fb1537a75823a04729682d0501a92c5b689236df22ce1b4a0cff93ba6708a4924ff8f
+    nb = 514
+    nb_key = 512
 
     e_bits = list()
 
     # Read messages from file
     messages, T_arr = read_plain(
-        n=n, nb=nb, file_msg='P1M_Ofast_key0_128.BIN', file_time='T1M_Ofast_key0_128.BIN')
+        n=n, nb=nb, file_msg='P20k_Ofast_key5_512.BIN', file_time='T20k_Ofast_key5_512.BIN')
 
     print("Read messages: working on {} samples".format(len(T_arr)))
     # Final to revert the key, as we start from LSB, just for testing with one bit at a time
     private_key_bit = padbin(private)[::-1]
-    public_key_bit = padbin(public)[::-1]
 
     temp_coll = list()
     key_guessed = list()
-    bits_considered = 4
+    bits_considered = 6
     bits_guessed = 3
     step = 0
 
@@ -104,8 +102,12 @@ def main_attack():
     estimate = 4
 
     init_coll = [copy.deepcopy(messages) for i in range(2**bits_considered)]
+    
+    
 
     while (step < len(private_key_bit)):
+        
+        # time_est = [ [] for i in range(2**bits_considered)]
         # Start new attack here
         # Loop over the possible path for the key
         for numb, branch in enumerate(init_coll):
@@ -116,6 +118,8 @@ def main_attack():
                 for msg in branch:
                     msg.me_estimate(numb_t & 1)
                     msg.me_step(numb_t & 1)
+          #          if i == bits_considered-1:
+           #             time_est[numb].append(msg.tot_est)
                 numb_t >>= 1
 
         # time_est = [[sum([h[4] for h in msg.hist[-bits_considered::]]) for msg in branch] for branch in init_coll]
