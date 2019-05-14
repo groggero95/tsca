@@ -73,34 +73,26 @@ def main_attack():
     # known informations
     n = 0x0c26e8d2105e3454baf122700611e915d
     public = 0x000000000000000000000000000010001
-    private = 0x00745812bb1ffacf0b5d6200be2ced7d5
     m = 0x00000004369616f20636f6d652076613f
     k0 = 0x08354f24c98cfac7a6ec8719a1b11ba4f
     nb = 130
 
-    e_bits = list()
+    # Secret to discover:
+    private = 0x00745812bb1ffacf0b5d6200be2ced7d5
 
     # Read messages from file
-    messages, T_arr = read_plain(
-        n=n, nb=nb, file_msg='P1M_Ofast_key0_128.BIN', file_time='T1M_Ofast_key0_128.BIN')
+    messages, T_arr = read_plain(n=n, nb=nb, file_msg='P1M_Ofast_key0_128.BIN', file_time='T1M_Ofast_key0_128.BIN')
 
     print("Read messages: working on {} samples".format(len(T_arr)))
+
     # Final to revert the key, as we start from LSB, just for testing with one bit at a time
     private_key_bit = padbin(private)[::-1]
     public_key_bit = padbin(public)[::-1]
 
-    temp_coll = list()
     key_guessed = list()
     bits_considered = 4
-    bits_guessed = 3
+    bits_guessed = 2
     step = 0
-
-    """
-	Use this parameter to select which value has to be used:
-	- 4 for me_estimate
-	- 3 for mm_estimate
-	"""
-    estimate = 4
 
     init_coll = [copy.deepcopy(messages) for i in range(2**bits_considered)]
 
@@ -115,7 +107,9 @@ def main_attack():
                 for msg in branch:
                     msg.me_estimate(numb_t & 1)
                     msg.me_step(numb_t & 1)
+                # To shift and pass the next LSB
                 numb_t >>= 1
+
 
         # time_est = [[sum([h[4] for h in msg.hist[-bits_considered::]]) for msg in branch] for branch in init_coll]
         time_est = [[msg.tot_est for msg in branch] for branch in init_coll]
@@ -137,7 +131,7 @@ def main_attack():
         maxim = max(pcc_grouped)
         guess_iter = pcc_grouped.index(maxim)
         step += bits_guessed
-        print(maxim, guess_iter)
+        print("Choice: {:4} PCC: {:7.6f}".format(maxim, bin(guess_iter)[2:].zfill(bits_guessed)))
         key_guessed.extend(bin(guess_iter)[2:].zfill(bits_guessed)[::-1])
         print('Step: {:>3}'.format(step))
         print(''.join(key_guessed))
@@ -153,13 +147,13 @@ def main_attack():
             msg.revert(bits_considered-bits_guessed)
 
         msg_restart = init_coll[guess_iter].copy()
-        init_coll = [copy.deepcopy(msg_restart)
-                     for i in range(2**bits_considered)]
+        init_coll = [copy.deepcopy(msg_restart) for i in range(2**bits_considered)]
 
-    final_key = int(''.join(map(str, key_guessed[::-1])), 2)
-    print("Secret unveiled: the key is\n {}".format(hex(final_key)))
+final_key = int(''.join(map(str, key_guessed[::-1])),2)
+print("Secret unveiled: the key is\n {}".format(hex(final_key)))
+print(hex(private))
 
-    return
+return
 
 
 if __name__ == '__main__':
