@@ -11,14 +11,14 @@ def padbin(m, nb=128):
     return bin(m)[2:].zfill(nb)
 
 
-def read_plain(n, nb=130, file_msg='PLAIN.BIN', file_time='TIME.BIN', length_msg=16, length_time=8):
+def read_plain(n, nb=130, file_msg='PLAIN.BIN', file_time='TIME.BIN', length_msg=16, length_time=8, max_messages=5000):
     # The number of bytes that composes the stuff to be read
     f_msg = open(file_msg, "rb")
     messages = list()
     f_time = open(file_time, "rb")
     T_arr = list()
     i = 0
-    while i < 5000:
+    while i < max_messages:
         i = i + 1
         read_msg = f_msg.read(length_msg)
         read_time = f_time.read(length_time)
@@ -33,40 +33,6 @@ def read_plain(n, nb=130, file_msg='PLAIN.BIN', file_time='TIME.BIN', length_msg
     return messages, T_arr
 
 
-def step_forward(messages, bits_guessed, T_arr, tau):
-
-    t_arr = [msg.mm_estimate() for msg in messages]
-    pcc = stat.pearsonr(T_arr, t_arr)[0]
-    if (len(bits_guessed) == 0):
-        # Being odd, LSB is 1, always
-        bits_guessed.append(1)
-    elif (pcc > tau):
-        # A correlation is observed, so one is guessed
-        bits_guessed.append(1)
-    else:
-        # else we append 0
-        bits_guessed.append(0)
-
-    for msg in messages:
-        msg.me_step(bits_guessed[-1])
-
-    return pcc
-
-
-def step_force(messages, bit_force):
-    for msg in messages:
-        msg.me_step(bit_force)
-    return
-
-
-def step_back(messages, bits_guessed, pcc, count=1):
-
-    for msg in messages:
-        msg.revert(count)
-    # del(bits_guessed[len(bits_guessed)-count:-1])
-    # del(pcc[len(pcc)-count:-1])
-    return
-
 
 def main_attack():
 
@@ -80,7 +46,7 @@ def main_attack():
     nb_key = 128
 
     # Read messages from file
-    messages, T_arr = read_plain(n=n, nb=nb, file_msg='P1M_Ofast_key0_128.BIN', file_time='T1M_Ofast_key0_128.BIN')
+    messages, T_arr = read_plain(n=n, nb=nb, file_msg='P1M_Ofast_key0_128.BIN', file_time='T1M_Ofast_key0_128.BIN', max_messages=4000)
 
     print("Read messages: working on {} samples".format(len(T_arr)))
     # Final to revert the key, as we start from LSB, just for testing with one bit at a time
