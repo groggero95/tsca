@@ -79,8 +79,6 @@ def main_attack():
     nb = 130
     nb_key = 128
 
-    e_bits = list()
-
     # Read messages from file
     messages, T_arr = read_plain(
         n=n, nb=nb, file_msg='P1M_Ofast_key0_128.BIN', file_time='T1M_Ofast_key0_128.BIN')
@@ -90,10 +88,9 @@ def main_attack():
     private_key_bit = padbin(private)[::-1]
     public_key_bit = padbin(public)[::-1]
 
-    temp_coll = list()
     key_guessed = list()
     bits_considered = 4
-    bits_guessed = 3
+    bits_guessed = 2
     step = 0
 
     """
@@ -116,6 +113,7 @@ def main_attack():
                 for msg in branch:
                     msg.me_estimate(numb_t & 1)
                     msg.me_step(numb_t & 1)
+                # To shift and pass the next LSB
                 numb_t >>= 1
 
         # time_est = [[sum([h[4] for h in msg.hist[-bits_considered::]]) for msg in branch] for branch in init_coll]
@@ -137,8 +135,13 @@ def main_attack():
 
         maxim = max(pcc_grouped)
         guess_iter = pcc_grouped.index(maxim)
-        step += bits_guessed
-        print(maxim, guess_iter)
+
+        if (nb_key - step <= bits_guessed):
+            step += bits_guessed
+        else:
+            step = nb_key
+
+        print("Choice: {:4} PCC: {:7.6f}".format(maxim, bin(guess_iter)[2:].zfill(bits_guessed)))
         key_guessed.extend(bin(guess_iter)[2:].zfill(bits_guessed)[::-1])
         print('Step: {:>3}'.format(step))
         print(''.join(key_guessed))
