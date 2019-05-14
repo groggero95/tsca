@@ -19,7 +19,8 @@ class guess_test():
 		self.t_mm = 0
 		self.c = (1<<nb)%n
 		self.s = (plain*(1<<nb)) % n
-		self.hist = [(self.c, self.s, 1, self.t_mm, self.t_me)]
+		self.tot_est = 0
+		self.hist = [(self.c, self.s, 1, self.t_mm, self.t_me, self.tot_est)]
 		self.hist_len = 6
 
 	def mm_estimate(self, normal=True, change=True):
@@ -33,14 +34,14 @@ class guess_test():
 		else:
 			a, b = self.s, self.s
 		for i in range(self.nb):
-			ai = (a & mask) >> i
+			ai = a & 1
 			qi = (res + (ai&b)) & 1
 
 			estimate += (lt[ai]&1) + (lt[qi]&1)
 			res = (res + (lt[ai]&b) + (lt[qi]&self.n))
 
 			res = res >> 1
-			mask = mask << 1
+			a = a >> 1
 		if (change):
 			self.t_mm = estimate
 		return estimate
@@ -53,23 +54,23 @@ class guess_test():
 		else:
 			estimate = self.mm_estimate(False, False)
 		self.t_me = estimate
+		self.tot_est += estimate
 		return estimate
 
 	def mm(self, normal=True):
 		"""Execute the Montgomery multplication on the instance. Optional parameter to differentiate variable assignment"""
 		lt = [0, ~0]
 		res = 0
-		mask = 1
 		if normal:
 			a, b = self.c, self.s
 		else:
 			a, b = self.s, self.s
 		for i in range(self.nb):
-			ai = (a & mask) >> i
+			ai = a & 1
 			qi = (res + (ai&b)) & 1
 			res = (res + (lt[ai]&b) + (lt[qi]&self.n))
 			res = res >> 1
-			mask = mask << 1
+			a = a >> 1
 		return res
 
 	def me_step(self, e_bit=True):
@@ -81,7 +82,7 @@ class guess_test():
 		s = self.mm(False)
 		if (len(self.hist) >= self.hist_len):
 			self.hist.pop(0)
-		self.hist.append((c, s, e_bit, self.t_mm, self.t_me))
+		self.hist.append((c, s, e_bit, self.t_mm, self.t_me, self.tot_est))
 
 		self.c = c
 		self.s = s
@@ -94,5 +95,6 @@ class guess_test():
 		self.s = self.hist[-1][1]
 		self.t_mm = self.hist[-1][3]
 		self.t_me = self.hist[-1][4]
+		self.tot_est = self.hist[-1][5]
 
 		return self.hist[-1]
