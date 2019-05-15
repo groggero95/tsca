@@ -167,7 +167,7 @@ def main_attack():
         msg_restart = init_coll[guess_iter].copy()
         init_coll = [copy.deepcopy(msg_restart) for i in range(2**bits_considered)]
 
-    final_key = int(''.join(map(str, key_guessed[nb_key::-1])), 2)
+    final_key = int(''.join(map(str, key_guessed[nb_key-1::-1])), 2)
     print("Secret unveiled: the key is\n {}".format(hex(final_key)), flush=True)
     if final_key == private:
         print("We can rob some bank here, dudes")
