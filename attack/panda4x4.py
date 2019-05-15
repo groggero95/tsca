@@ -1,11 +1,32 @@
 #!/usr/bin/python3
 import os
 import sys
-import numpy
+import numpy as np
 import scipy.stats as stat
 import copy
+import requests
 from msg_class import guess_test
 
+
+def telegram_bot_sendtext(bot_message, bot_chatID):
+
+    bot_token = '781195409:AAGIPvT3jA7P0EfUcUAHo6VVKCV1ekZCBpY'
+    send_text = 'https://api.telegram.org/bot' + bot_token + '/sendMessage?chat_id=' + bot_chatID + '&parse_mode=Markdown&text=' + bot_message
+    response = requests.get(send_text)
+    return response.json()
+
+def check_bot():
+
+    if os.path.exists('./chat.txt'):
+        f_chat = open('chat.txt', "r")
+        for line in f_chat:
+            word = line.split()
+            if word[0] == os.environ.get('USER'):
+                id = word[1]
+                f_chat.close()
+                return True, id
+        f_chat.close()
+    return False, ''
 
 def padbin(m, nb=128):
     return bin(m)[2:].zfill(nb)
@@ -44,18 +65,43 @@ def main_attack():
     nb = 130
     nb_key = 128
 
-    # Read messages from file
-    messages, T_arr = read_plain(n=n, nb=nb, file_msg='P1M_Ofast_key2_128.BIN', file_time='T1M_Ofast_key2_128.BIN', max_messages=30000)
+    chat_on, chat_id = check_bot()
 
-    print("Read messages: working on {} samples".format(len(T_arr)))
+    # Read messages from file
+    m_in, T_in = read_plain(n=n, nb=nb, file_msg='P1M_Ofast_key2_128.BIN', file_time='T1M_Ofast_key2_128.BIN', max_messages=30000)
+
+    # Evaluate the round mean and box mean, without
+    t_mean = np.mean(T_in)
+    t_variance = np.std(T_in)
+    coeff = 0.25
+    extr = 1.5
+
+    messages = list()
+    T_arr = list()
+
+    for time, m in zip(T_in, m_in):
+        #if (abs(time - t_mean) > extr*t_variance):
+        if (not(t_mean - coeff*t_variance < time < t_mean + coeff*t_variance) and (abs(time - t_mean) < extr*t_variance)):
+            T_arr.append(time)
+            messages.append(m)
+
+    print("Read messages: {} samples; -- After filtering {} samples".format(len(T_in),len(T_arr)))
+    if chat_on:
+        sms_in = "Read messages: {} samples; -- After filtering {} samples".format(len(T_in),len(T_arr))
+        telegram_bot_sendtext(sms_in, chat_id)
     # Final to revert the key, as we start from LSB, just for testing with one bit at a time
     private_key_bit = padbin(private)[::-1]
     #public_key_bit = padbin(public)[::-1]
 
-    key_guessed = list()
+    for m in messages:
+        m.me_estimate(1)
+        m.me_step(1)
+
+
+    key_guessed = ['1']
     bits_considered = 4
     bits_guessed = 2
-    step = 0
+    step = 1
 
     init_coll = [copy.deepcopy(messages) for i in range(2**bits_considered)]
 
@@ -110,6 +156,10 @@ def main_attack():
         if (error):
             print("Houston, we have a problem -- error: {}".format(error), flush=True)
 
+        if chat_on:
+            sms = 'Step {:4} -> error: {:4}'.format(step, error)
+            telegram_bot_sendtext(sms, chat_id)
+
         for msg in init_coll[guess_iter]:
             msg.revert(bits_considered-bits_guessed)
 
@@ -118,7 +168,9 @@ def main_attack():
 
     final_key = int(''.join(map(str, key_guessed[::-1])), 2)
     print("Secret unveiled: the key is\n {}".format(hex(final_key)))
-
+    if chat_on:
+        sms_end = 'End reached {:4} bits -> error: {:4}\nThe key is:\n{}'.format(step, error, hex(final_key))
+        telegram_bot_sendtext(sms_end, chat_id)
     return
 
 

@@ -10,6 +10,7 @@ build/*
 test/main
 main
 attack/__pycache__/*
+attack/chat.txt
 
 ## Core latex/pdflatex auxiliary files:
 *.aux
