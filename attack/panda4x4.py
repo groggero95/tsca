@@ -68,14 +68,14 @@ def main_attack():
     chat_on, chat_id = check_bot()
 
     # Read messages from file
-    m_in, T_in = read_plain(n=n, nb=nb, file_msg='P1M_Ofast_key2_128.BIN', file_time='T1M_Ofast_key2_128.BIN', max_messages=30000)
+    m_in, T_in = read_plain(n=n, nb=nb, file_msg='P1M_Ofast_key2_128.BIN', file_time='T1M_Ofast_key2_128.BIN', max_messages=60000)
 
     # Evaluate the round mean and box mean, without
     t_mean = np.mean(T_in)
     t_variance = np.std(T_in)
     coeff = 0.25
-    extr = 0.5
-    tail = 3
+    extr = 1.5
+    tail = 2.5
 
     messages = list()
     T_arr = list()
@@ -167,8 +167,10 @@ def main_attack():
         msg_restart = init_coll[guess_iter].copy()
         init_coll = [copy.deepcopy(msg_restart) for i in range(2**bits_considered)]
 
-    final_key = int(''.join(map(str, key_guessed[::-1])), 2)
+    final_key = int(''.join(map(str, key_guessed[nb_key::-1])), 2)
     print("Secret unveiled: the key is\n {}".format(hex(final_key)), flush=True)
+    if final_key == private:
+        print("We can rob some bank here, dudes")
     if chat_on:
         sms_end = 'Hey {}, we have finished!\nEnd reached {:4} bits -> error: {:4}\nThe key is:\n{}'.format(chat_id[1], step, error, hex(final_key))
         telegram_bot_sendtext(sms_end, chat_id[0])
