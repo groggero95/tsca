@@ -37,16 +37,15 @@ def read_plain(n, nb=130, file_msg='PLAIN.BIN', file_time='TIME.BIN', length_msg
 def main_attack():
 
     # known informations
-    n = 0x0c26e8d2105e3454baf122700611e915d
-    public = 0x000000000000000000000000000010001
-    private = 0x00745812bb1ffacf0b5d6200be2ced7d5
+    n = 0xc8aed04da6c85dd4638add6c6fc04a59
+    private = 0x2845ecc7a890cd4356ef00ff86e63f81
     m = 0x00000004369616f20636f6d652076613f
-    k0 = 0x08354f24c98cfac7a6ec8719a1b11ba4f
+    k0 = 0x64d8149d5c75b7137c099ce764ab8335
     nb = 130
     nb_key = 128
 
     # Read messages from file
-    messages, T_arr = read_plain(n=n, nb=nb, file_msg='P1M_Ofast_key0_128.BIN', file_time='T1M_Ofast_key0_128.BIN', max_messages=4000)
+    messages, T_arr = read_plain(n=n, nb=nb, file_msg='P1M_Ofast_key2_128.BIN', file_time='T1M_Ofast_key2_128.BIN', max_messages=6000)
 
     print("Read messages: working on {} samples".format(len(T_arr)))
     # Final to revert the key, as we start from LSB, just for testing with one bit at a time
