@@ -50,7 +50,7 @@ def main_attack():
     print("Read messages: working on {} samples".format(len(T_arr)))
     # Final to revert the key, as we start from LSB, just for testing with one bit at a time
     private_key_bit = padbin(private)[::-1]
-    public_key_bit = padbin(public)[::-1]
+    #public_key_bit = padbin(public)[::-1]
 
     key_guessed = list()
     bits_considered = 4
