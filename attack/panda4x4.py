@@ -74,14 +74,14 @@ def main_attack():
     t_mean = np.mean(T_in)
     t_variance = np.std(T_in)
     coeff = 0.25
-    extr = 1.5
+    extr = 1
 
     messages = list()
     T_arr = list()
 
     for time, m in zip(T_in, m_in):
-        #if (abs(time - t_mean) > extr*t_variance):
-        if (not(t_mean - coeff*t_variance < time < t_mean + coeff*t_variance) and (abs(time - t_mean) < extr*t_variance)):
+        if (abs(time - t_mean) > extr*t_variance):
+        #if (not(t_mean - coeff*t_variance < time < t_mean + coeff*t_variance) and (abs(time - t_mean) < extr*t_variance)):
             T_arr.append(time)
             messages.append(m)
 
