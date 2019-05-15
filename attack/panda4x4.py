@@ -108,7 +108,7 @@ def main_attack():
             if private_key_bit[j] != key_guessed[j]:
                 error += 1
         if (error):
-            print("Houston, we have a problem -- error: {}".format(error))
+            print("Houston, we have a problem -- error: {}".format(error), flush=True)
 
         for msg in init_coll[guess_iter]:
             msg.revert(bits_considered-bits_guessed)
