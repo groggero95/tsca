@@ -99,7 +99,7 @@ def main_attack():
 
 
     key_guessed = ['1']
-    bits_considered = 4
+    bits_considered = 3
     bits_guessed = 2
     step = 1
 
