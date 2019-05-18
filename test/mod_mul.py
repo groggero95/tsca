@@ -15,14 +15,17 @@ def padhex(m, nb=32):
 
 def mm_test(sel=0, nbit=128, testnum=1000, over=1):
     """Perform the needed tests, taking as arguments the operation (MM, ME), number of bits, number of tests, scaling coefficient for struct bits """
-    pad = 128 + 32
-    nbit_mod = 128
+    pad = nbit + 32
+    nbit_mod = nbit
     path = './main'
     operation = ['mm', 'me']
     toterr = 0
 
+    a = random.getrandbits(nbit)  # exponent
+
+    a = 0x03c71d14ee6b177683a32751c239becb0504e087ee52293d402ed6a3e01053cb
+
     for i in range(testnum):
-        a = random.getrandbits(nbit)  # exponent
         b = random.getrandbits(nbit)  # message
 #        n=0
 #        while (n < b):

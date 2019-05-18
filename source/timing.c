@@ -21,11 +21,11 @@ int main(int argc, char **argv){
 	    k0 = init(argv[4]); // (1<<2nb) % n
 		mode = atoi(argv[5]);	// ME (0) or MM (1)
 	}else{
-		a = init("0x0745812bb1ffacf0b5d6200be2ced7d5"); // exponent
-	    n = init("0xc26e8d2105e3454baf122700611e915d"); // modulus
-	    k0 = init("0x8354f24c98cfac7a6ec8719a1b11ba4f"); // (1<<2nb) % n
+		a = init("0x60c0fdfc71f6698b0a2529c4d64712fb135a399d27fd9f1b720aa52268c90a91"); // exponent
+	    n = init("0x8bd09d3203b60a2255885d348eb020af8d2c040a399c6e07e40ee478ac4a2881"); // modulus
+	    k0 = init("0x2801ebbfecc8bf74941d23e9fb4edc7fb51a964a86ae40027ad15a791325ffc5"); // (1<<2nb) % n
 		mode = 0;	// ME (0) or MM (1)
-		n_rnd = 1;
+		n_rnd = 1000;
 		n_rep = 10;
 		f_time = fopen("data/TIME.BIN","w");
 		f_plain = fopen("data/PLAIN.BIN","w");
@@ -68,6 +68,8 @@ int main(int argc, char **argv){
 				}
 				fwrite(&(timer->min),1,sizeof(timer->min),f_time);
 				fwrite(b.numb,1,INT_SIZE/8,f_plain);
+				reset_meas(timer);
+
 			}
 			
 	    }else if(mode == 1){

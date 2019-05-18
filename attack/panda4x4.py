@@ -61,13 +61,13 @@ def main_attack():
     n = 0x5f4c6991b0042610e525a5c4981737a1
     private = 0x4c0929ca2608895dc42fbc87ef853e09
     k0 = 0x0424eafd3cea52419284de3f6da92934
-    nb = 130
-    nb_key = 128
+    nb = 256
+    nb_key = nb + 2
 
     chat_on, chat_id = check_bot()
 
     # Read messages from file
-    m_in, T_in = read_plain(n=n, nb=nb, file_msg='P1M_Ofast_key1_128.BIN', file_time='T1M_Ofast_key1_128.BIN', max_messages=60000)
+    m_in, T_in = read_plain(n=n, nb=nb, file_msg='../data/P1M_Ofast_key3_256.BIN', file_time='../data/T1M_Ofast_key3_256.BIN', max_messages=200000)
 
     # Evaluate the round mean and box mean, without
     t_mean = np.mean(T_in)
@@ -99,8 +99,8 @@ def main_attack():
 
 
     key_guessed = ['1']
-    bits_considered = 3
-    bits_guessed = 2
+    bits_considered = 2
+    bits_guessed = 1
     step = 1
 
     init_coll = [copy.deepcopy(messages) for i in range(2**bits_considered)]

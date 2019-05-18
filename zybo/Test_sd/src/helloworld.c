@@ -155,10 +155,10 @@ int main(void)
 	}
 
 
-	Res = f_open(&f_cypher, SD_cypher, FA_CREATE_ALWAYS | FA_WRITE | FA_READ);
-	if (Res) {
-		return XST_FAILURE;
-	}
+	// Res = f_open(&f_cypher, SD_cypher, FA_CREATE_ALWAYS | FA_WRITE | FA_READ);
+	// if (Res) {
+	// 	return XST_FAILURE;
+	// }
 
 
 	int i;
@@ -171,8 +171,8 @@ int main(void)
 	// bigint_t modulus = init("0xc26e8d2105e3454baf122700611e915d");
 	// bigint_t modulus = init("0x5f4c6991b0042610e525a5c4981737a1");
 	// bigint_t modulus = init("0xc8aed04da6c85dd4638add6c6fc04a59");
-	// bigint_t modulus = init("0x8bd09d3203b60a2255885d348eb020af8d2c040a399c6e07e40ee478ac4a2881");
-	bigint_t modulus = init("0x4da608e6f07e83d2e96d24d2926bcb7428fab686240e82fa20da0a9b855df395");
+	bigint_t modulus = init("0x8bd09d3203b60a2255885d348eb020af8d2c040a399c6e07e40ee478ac4a2881");
+	// bigint_t modulus = init("0x4da608e6f07e83d2e96d24d2926bcb7428fab686240e82fa20da0a9b855df395");
 	// bigint_t modulus = init("0x674b89bb51449c6281854973613618a189e52553b7974cc31026f50ecd3df6af1a2b1c086d1cbc9a9527536b9ebbb81fba8e751de1e408391e42a1e4451beba1");
 	// bigint_t modulus = init("0xe65b47e568e75923e7815e93173f5e5a5eac67c589a9b5140a08eed202b68fc2f28bc0648403bc8fab1463c018df350d5ee91c6ed0e05a6298715bcb5ac25833");
 	// bigint_t modulus = init("0xd9ab1a2608b02d939f8119200a599acb229d7a78c196463d519cd2057e9ba913dbc41b8d6a879a8ef3d0bce5766903f9be119980508252cb89d039605d400dceca702d5381d2288f97f2e7b04c1afdd10b9d0928b3102130661bb9758a45b7d32d5927c0a44e564e19b7fe32ae9417436f4a79a1414f3ed59c2d32608cbfe239");
@@ -180,8 +180,8 @@ int main(void)
 	// bigint_t modulus = init("0xc068948d0d0ae42f9d7116c6650cef879a2d6314912e8ca5c0b49c124f2a81481f0430ec2d2f3651a432e4d83a1e1cc2c1d6489589540aec1d77aa93ef6011c2d899e5eb00a02bc4bab1c449141f6f18392cc16d83e36dea93de095853a205fbbf74228823f3abd53c19e63164aaaa49564d79d5b7404d7de14166657ff038d1de37b74d7ec89c57208fc747669842faa3c49cdbe1c5dee32b0e044e18f6a06f5acb6c440a86ccc4247a86456448892659c87b86cda8e5a670f35555e74b556a6ece4d06f898024d96e7563374b14a3b52846930ac29d85d2dd747abfc125e9de2213aacb65b9242e469bae628629f0d1b195d48832bf528e1c55c6b58c02f31");
 	// bigint_t modulus = init("0xda2fbef83c89087ce75f35795ec138cffeb1b59a313737d60c0e2fd59633a95e6b9d1c526fd974dbd17a894c4a4703592fa108530ac629f2ad6a605ad3032925d3bc63635e63b37ac2acdfcf475ab27af16b4ae0cc7358114959402e09bd0920329e9ebb16f9f949b5bc7c7b3d8be597976c86d36d339f9ce3a37c5af5109e3ed9fce199b3c8a58461f9838f778a6bdb5db59372e773af39350df939832ad3cc50ee512c1948f3e8af317f1df4f5fd79c8c8b2906bce961381132f1a4e5ff0eeb8757a1fa8cfba0b6e545dde7c74b8c09e2afda7fcd14ff2524ba7900f7b8ab5ffe0adf454f61ed90b1fbad976f26720f5b5a0ca33086c990cf4158bf4a4d317");
 	// bigint_t public  = init("0x00000000000000000000000000010001");
-	// bigint_t public  = init("0x3a4ed057cd61b97bae9c104f6eac35ab80b1cd11b4a90828fc5089de2389a661");
-	bigint_t public  = init("0x1a9381041236491002e2144b8faf2e4ce1e5e0a78c1e1db02f33c7f0e5152dcf"); // wrong one i don't know it anymore
+	bigint_t public  = init("0x3a4ed057cd61b97bae9c104f6eac35ab80b1cd11b4a90828fc5089de2389a661");
+	// bigint_t public  = init("0x1a9381041236491002e2144b8faf2e4ce1e5e0a78c1e1db02f33c7f0e5152dcf"); // wrong one i don't know it anymore
 	// bigint_t public  = init("0x577184ec9665075ff2eec5219d49d98f58db2b1d6cbf461559a98a7440f1fec82984fa61c881f11eaa8cf6593e5be1019df7c0af87d6edc287e7990ca2f96233");
 	// bigint_t public  = init("0xa5a9a570e769ed60af6f56682176c069fbdca43e2baaf44c5516a266535f7147a497ee28a2329ae01c6b5ac2af4dd6fd5adfad587ab018d8a8d25a3b288a5689");
 	// bigint_t public  = init("0x09ca73ee6bfb1096a80b8ca3cd54e8dd9b3c5b123bde5c49c242f7d296a0e696d520dd9f5b80908f2bb54907873bde84f4ac5c0f6b42568e094b2ce4c8942d8dae8fe9317db27badf5ef98fd51e5a3397e72641db48241f5a9cecaa0c8d72020239a03c56e6a0955cefe2c4c6fad35f2993b1c0c34bf4d52f11a307e7fd1a9e7");
@@ -191,8 +191,8 @@ int main(void)
 	// bigint_t private = init("0x0745812bb1ffacf0b5d6200be2ced7d5");
 	// bigint_t private = init("0x4c0929ca2608895dc42fbc87ef853e09");
 	// bigint_t private = init("0x2845ecc7a890cd4356ef00ff86e63f81");
-	// bigint_t private = init("0x60c0fdfc71f6698b0a2529c4d64712fb135a399d27fd9f1b720aa52268c90a91");
-	bigint_t private = init("0x03c71d14ee6b177683a32751c239becb0504e087ee52293d402ed6a3e01053cb");
+	bigint_t private = init("0x60c0fdfc71f6698b0a2529c4d64712fb135a399d27fd9f1b720aa52268c90a91");
+	// bigint_t private = init("0x03c71d14ee6b177683a32751c239becb0504e087ee52293d402ed6a3e01053cb");
 	// bigint_t private = init("0x10a51386ea3dd4035647c8644a335ae399d6b5e5175934c63aba1eca948f367b53c00e59ca21937a03792a96005b57c8106ad20e2af98b69ca2fd5cda48a37fb");
 	// bigint_t private = init("0x1b87c092b8c74c1dc4ddfa70c45e49dd109e561cc9508eaaf20293d421776d5db1f180d0c735d321362823ec248702060f3a94e785b714cfc10696043e29c911");
 	// bigint_t private = init("0x8c9f600a82919b3b70cf10e575eeefce627f41662ddd27c86ad8dc23edb0da8ab819a72ff73ea2df71122a90208dd7476a732c96b3b3fa69f6ffed727858dc5cdc64812ad6f748763a87c6ad0883209e2a6d31ca2cca61f5ce00a5830699b3aa0876d0ccb2a795b2c951e224d4cd68d663b071aac221f55ea3fd69287246d633");
@@ -203,8 +203,8 @@ int main(void)
 	// bigint_t k0 	 = init("0x8354f24c98cfac7a6ec8719a1b11ba4f");
 	// bigint_t k0 	 = init("0x0424eafd3cea52419284de3f6da92934");
 	// bigint_t k0 	 = init("0x64d8149d5c75b7137c099ce764ab8335");
-	// bigint_t k0 	 = init("0x2801ebbfecc8bf74941d23e9fb4edc7fb51a964a86ae40027ad15a791325ffc5");
-	bigint_t k0 	 = init("0x31b4f8009bba93da537be726cb9ae710df71cb8a1a7e66c8ffb5e15ba5d7cbf5");
+	bigint_t k0 	 = init("0x2801ebbfecc8bf74941d23e9fb4edc7fb51a964a86ae40027ad15a791325ffc5");
+	// bigint_t k0 	 = init("0x31b4f8009bba93da537be726cb9ae710df71cb8a1a7e66c8ffb5e15ba5d7cbf5");
 	// bigint_t k0 	 = init("0x4e45781ff3ebd436b6497fcc94150fe0a90e5cbeabc2a017830d7a33362fb1537a75823a04729682d0501a92c5b689236df22ce1b4a0cff93ba6708a4924ff8f");
 	// bigint_t k0 	 = init("0xaa1a0fca84d8ecc72a7c3608802b73dc25b2bd8cbf8fe05e4c3ba100fc5437cb95f1b40bd815e62a5b7a0fbeaee08d694ea7d41bb6fb23db0c748800b3201da7");
 	// bigint_t k0 	 = init("0x3701ca8f3275a47f80a11d09d059236773ece4719a60ccd3e17122197a9b623d6b2597ba4cf8f4fb254995266669df05546e56ac01f3ce1433185ced12de3e0c6fa6e04585c14ef77555bf7c4b25623c1ed3385bda2b998121909556b968e01efe9036634ecc602f0b742cce201442ce20b0022acf96c2f5e634d0117bff26c6");
@@ -236,12 +236,12 @@ int main(void)
 	print_to_stdout(&message);
 	xil_printf("\r\n");	
 
-	srand(21);
+	srand(2);
 
 
 	bigint_t enc;
 
-	for (i = 0; i < 700000; i++ ) {
+	for (i = 0; i < 1000000; i++ ) {
 		message = rand_b();
 		XTime_GetTime(&tStart);
 		enc = ME_big(private, message, modulus, k0, INT_SIZE+2);
@@ -260,11 +260,11 @@ int main(void)
 			return XST_FAILURE;
 		}
 
-		Res = f_write(&f_cypher, (const void*)enc.numb, INT_SIZE/8, NULL);
-		if (Res) {
-			xil_printf("Error failed to write cypher text\n\r");
-			return XST_FAILURE;
-		}
+		// Res = f_write(&f_cypher, (const void*)enc.numb, INT_SIZE/8, NULL);
+		// if (Res) {
+		// 	xil_printf("Error failed to write cypher text\n\r");
+		// 	return XST_FAILURE;
+		// }
 
 
 		// f_sync(&f_time);
