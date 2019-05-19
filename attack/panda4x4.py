@@ -67,20 +67,21 @@ def main_attack():
     chat_on, chat_id = check_bot()
 
     # Read messages from file
-    m_in, T_in = read_plain(n=n, nb=nb, file_msg='../data/P1M_Ofast_key3_256.BIN', file_time='../data/T1M_Ofast_key3_256.BIN', max_messages=300000)
+    m_in, T_in = read_plain(n=n, nb=nb, file_msg='../data/P1M_Ofast_key3_256.BIN', file_time='../data/T1M_Ofast_key3_256.BIN', max_messages=1000000)
 
     # Evaluate the round mean and box mean, without
     t_mean = np.mean(T_in)
     t_variance = np.std(T_in)
     coeff = 0.25
     extr = 1.5
-    tail = 2.5
+    tail = 2.1
 
     messages = list()
     T_arr = list()
 
     for time, m in zip(T_in, m_in):
-        if (extr*t_variance < abs(time - t_mean) < tail*t_variance):
+        if (abs(time - t_mean) > tail*t_variance):
+        # if (extr*t_variance < abs(time - t_mean) < tail*t_variance):
         #if (not(t_mean - coeff*t_variance < time < t_mean + coeff*t_variance) and (abs(time - t_mean) < extr*t_variance)):
             T_arr.append(time)
             messages.append(m)
@@ -99,7 +100,7 @@ def main_attack():
 
 
     key_guessed = ['1']
-    bits_considered = 2
+    bits_considered = 3
     bits_guessed = 1
     step = 1
 
@@ -124,6 +125,11 @@ def main_attack():
 
         #pcc_tot = [stat.pearsonr(T_arr, t_arr)[0] if (not(numpy.isnan(stat.pearsonr(T_arr, t_arr)[0]))) else 0 for t_arr in time_est]
         pcc_tot = [stat.pearsonr(T_arr, t_arr)[0] for t_arr in time_est]
+        # pcc_tot = [stat.spearmanr(T_arr, t_arr)[0] for t_arr in time_est]
+        # pcc_tot = [stat.pointbiserialr(T_arr, t_arr)[0] for t_arr in time_est]
+        # pcc_tot = [stat.kendalltau(T_arr, t_arr)[0] for t_arr in time_est]
+        # pcc_tot = [stat.weightedtau(T_arr, t_arr)[0] for t_arr in time_est]
+        # pcc_tot = [stat.pointbiserialr(T_arr, t_arr)[0] for t_arr in time_est]
         pcc_dic = dict()
         pcc_grouped = [0 for i in range(2**(bits_guessed))]
 
