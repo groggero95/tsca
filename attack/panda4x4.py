@@ -58,16 +58,16 @@ def read_plain(n, nb=130, file_msg='PLAIN.BIN', file_time='TIME.BIN', length_msg
 def main_attack():
 
     # known informations
-    n = 0x5f4c6991b0042610e525a5c4981737a1
-    private = 0x4c0929ca2608895dc42fbc87ef853e09
-    k0 = 0x0424eafd3cea52419284de3f6da92934
+    n = 0x8ae8fe509879989bb1314c5a1ac92506a95a284a336cfe29d9a60b5113eeb33b
+    private = 0x1d8232d4f22da2e0705cac6d27a4d839149c23bd63746e9957bef4e85ae8f2b7
+    k0 = 0x2792adec387c47a694860bac38ca8ed7fb28e4c04f74695f7f35a915e3ed6b07
     nb = 256
     nb_key = nb + 2
 
     chat_on, chat_id = check_bot()
 
     # Read messages from file
-    m_in, T_in = read_plain(n=n, nb=nb, file_msg='../data/P1M_Ofast_key3_256.BIN', file_time='../data/T1M_Ofast_key3_256.BIN', max_messages=200000)
+    m_in, T_in = read_plain(n=n, nb=nb, file_msg='../data/P1M_Ofast_key3_256.BIN', file_time='../data/T1M_Ofast_key3_256.BIN', max_messages=300000)
 
     # Evaluate the round mean and box mean, without
     t_mean = np.mean(T_in)
