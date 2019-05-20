@@ -40,11 +40,6 @@ bigint_t ME_big(bigint_t e, bigint_t m, bigint_t n, bigint_t k0, int nb) {
     // Here is the error in this function somewhere
     s = MM_big(k0, m, n, nb);
 
-    // print_to_stdout(&c);
-    // printf("\n");
-    // print_to_stdout(&s);
-    // printf("\n");
-
     for (int i = 0; i < nb; i++) {
         bit_and = and (mask, e);
         if (df(zero, bit_and)) {
@@ -52,34 +47,28 @@ bigint_t ME_big(bigint_t e, bigint_t m, bigint_t n, bigint_t k0, int nb) {
         }
         s = MM_big(s, s, n, nb);
         mask = lsl(mask, 1);
-        // printf("%d ", i);
-        // print_to_stdout(&c);
-        // printf(" ");
-        // print_to_stdout(&s);
-        // printf("\n");
     }
     c = MM_big(c, one, n, nb);
-    // printf("\n");
 
     return c;
 }
 
 
-void ME_big_step(bigint_t e, bigint_t m, bigint_t n, bigint_t *c, bigint_t *s, bigint_t *c_next, bigint_t *s_next,  int nb, int cycle) {
+void ME_big_estimate(uint32_t bits, msg_t *m, bigint_t n, int bits_step) {
     
-    bigint_t mask = init(ONE);
-    bigint_t zero = init(ZERO);
-    bigint_t one = init(ONE);
-    bigint_t bit_and;
-
-    mask = lsl(mask,cycle);
-    bit_and = and (mask, e);
-    if (df(zero, bit_and)) {
-        *c_next = MM_big(*c, *s, n, nb);
+    int mask = (1 << (bits_step - 1));
+    for (int i = 0; i < bits_step; i++)
+    {
+        if (bits & mask) {
+            m->c = MM_big_estimate(m->c, m->s, n, INT_SIZE+2, &(m->tot_est));
+        }
+        m->s = MM_big_estimate(m->s, m->s, n, INT_SIZE+2, &(m->tot_est));  
+        mask >>= 1;
     }
-    *s_next = MM_big(*s, *s, n, nb);
 
-
+    printf("%d\n", m->tot_est);
+    
     return;
 }
+
 

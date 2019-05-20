@@ -59,19 +59,20 @@ def read_plain(n, nb=130, file_msg='PLAIN.BIN', file_time='TIME.BIN', length_tim
 def main_attack():
 
     # known informations
-    n = 0x8ae8fe509879989bb1314c5a1ac92506a95a284a336cfe29d9a60b5113eeb33b
-    private = 0x1d8232d4f22da2e0705cac6d27a4d839149c23bd63746e9957bef4e85ae8f2b7
-    k0 = 0x2792adec387c47a694860bac38ca8ed7fb28e4c04f74695f7f35a915e3ed6b07
-    nb = 256
+    n = 0xc26e8d2105e3454baf122700611e915d
+    private = 0x0745812bb1ffacf0b5d6200be2ced7d5
+    k0 = 0x8354f24c98cfac7a6ec8719a1b11ba4f
+    nb = 128
     nb_key = nb + 2
 
     chat_on, chat_id = check_bot()
 
     # Read messages from file
-    m_in, T_in = read_plain(n=n, nb=nb_key, file_msg='../data/P1M_Ofast_key3_256.BIN', file_time='../data/T1M_Ofast_key3_256.BIN', max_messages=10000000)
+    # m_in, T_in = read_plain(n=n, nb=nb_key, file_msg='../data/P1M_Ofast_key3_256.BIN', file_time='../data/T1M_Ofast_key3_256.BIN', max_messages=10000000)
+    m_in, T_in = read_plain(n=n, nb=nb_key, file_msg='../data/P1_5M_Ofast_key0_128.BIN', file_time='../data/T1_5M_Ofast_key0_128.BIN', max_messages=10)
 
     # for m in m_in:
-    #     print(m.n)
+    #     print(hex(m.plaintext))
     # Evaluate the round mean and box mean, without
     t_mean = np.mean(T_in)
     t_variance = np.std(T_in)
@@ -79,15 +80,15 @@ def main_attack():
     extr = 1.5
     tail = 2.8
 
-    messages = list()
-    T_arr = list()
+    messages = m_in#list()
+    T_arr = T_in#list()
 
-    for time, m in zip(T_in, m_in):
-        if (abs(time - t_mean) > tail*t_variance):
-        # if (extr*t_variance < abs(time - t_mean) < tail*t_variance):
-        #if (not(t_mean - coeff*t_variance < time < t_mean + coeff*t_variance) and (abs(time - t_mean) < extr*t_variance)):
-            T_arr.append(time)
-            messages.append(m)
+    # for time, m in zip(T_in, m_in):
+    #     if (abs(time - t_mean) > tail*t_variance):
+    #     # if (extr*t_variance < abs(time - t_mean) < tail*t_variance):
+    #     #if (not(t_mean - coeff*t_variance < time < t_mean + coeff*t_variance) and (abs(time - t_mean) < extr*t_variance)):
+    #         T_arr.append(time)
+    #         messages.append(m)
 
     print("Read messages: {} samples; -- After filtering {} samples".format(len(T_in),len(T_arr)), flush=True)
     if chat_on:
@@ -126,6 +127,8 @@ def main_attack():
 
         # time_est = [[sum([h[4] for h in msg.hist[-bits_considered::]]) for msg in branch] for branch in init_coll]
         time_est = [[msg.tot_est for msg in branch] for branch in init_coll]
+
+        print(time_est)
 
         #pcc_tot = [stat.pearsonr(T_arr, t_arr)[0] if (not(numpy.isnan(stat.pearsonr(T_arr, t_arr)[0]))) else 0 for t_arr in time_est]
         pcc_tot = [stat.pearsonr(T_arr, t_arr)[0] for t_arr in time_est]
