@@ -32,7 +32,7 @@ def padbin(m, nb=128):
     return bin(m)[2:].zfill(nb)
 
 
-def read_plain(n, nb=130, file_msg='PLAIN.BIN', file_time='TIME.BIN', length_msg=16, length_time=8, max_messages=5000):
+def read_plain(n, nb=130, file_msg='PLAIN.BIN', file_time='TIME.BIN', length_time=8, max_messages=5000):
     # The number of bytes that composes the stuff to be read
     f_msg = open(file_msg, "rb")
     messages = list()
@@ -41,7 +41,8 @@ def read_plain(n, nb=130, file_msg='PLAIN.BIN', file_time='TIME.BIN', length_msg
     i = 0
     while i < max_messages:
         i = i + 1
-        read_msg = f_msg.read(length_msg)
+        read_msg = f_msg.read((nb-2)//8)
+        # print((nb-2)//8)
         read_time = f_time.read(length_time)
         if not ((read_msg) and (read_time)):
             break
@@ -67,14 +68,16 @@ def main_attack():
     chat_on, chat_id = check_bot()
 
     # Read messages from file
-    m_in, T_in = read_plain(n=n, nb=nb, file_msg='../data/P1M_Ofast_key3_256.BIN', file_time='../data/T1M_Ofast_key3_256.BIN', max_messages=1000000)
+    m_in, T_in = read_plain(n=n, nb=nb_key, file_msg='../data/P1M_Ofast_key3_256.BIN', file_time='../data/T1M_Ofast_key3_256.BIN', max_messages=10000000)
 
+    # for m in m_in:
+    #     print(m.n)
     # Evaluate the round mean and box mean, without
     t_mean = np.mean(T_in)
     t_variance = np.std(T_in)
     coeff = 0.25
     extr = 1.5
-    tail = 2.1
+    tail = 2.8
 
     messages = list()
     T_arr = list()
@@ -97,10 +100,11 @@ def main_attack():
     for m in messages:
         m.me_estimate(1)
         m.me_step(1)
+        # print(m.tot_est)
 
 
     key_guessed = ['1']
-    bits_considered = 3
+    bits_considered = 2
     bits_guessed = 1
     step = 1
 
