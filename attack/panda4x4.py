@@ -32,7 +32,7 @@ def padbin(m, nb=128):
     return bin(m)[2:].zfill(nb)
 
 
-def read_plain(n, nb=130, file_msg='PLAIN.BIN', file_time='TIME.BIN', length_time=8, max_messages=5000):
+def read_plain(n, nb=130, file_msg='../data/PLAIN.BIN', file_time='../data/TIME.BIN', length_time=8, max_messages=5000):
     # The number of bytes that composes the stuff to be read
     f_msg = open(file_msg, "rb")
     messages = list()
@@ -54,6 +54,17 @@ def read_plain(n, nb=130, file_msg='PLAIN.BIN', file_time='TIME.BIN', length_tim
     f_msg.close()
     return messages, T_arr
 
+def get_tails(messages, times, percentage=0.1):
+    d = dict()
+    len_vect = int(len(times)*percentage//(2*100))
+    all_list = [[t, m] for t, m in zip(times, messages)]
+    # sort on the basis of the messages
+    all_list.sort(key=lambda x: x[0])
+    filt_list = all_list[:len_vect] + all_list[-len_vect:]
+    t_cp = [i[0] for i in filt_list]
+    m_cp = [i[1] for i in filt_list]
+
+    return m_cp, t_cp
 
 
 def main_attack():
@@ -78,16 +89,22 @@ def main_attack():
     coeff = 0.25
     extr = 1.5
     tail = 2.8
+    ratio = 0.2
+    bits_considered = 2
+    bits_guessed = 1
 
     messages = list()
     T_arr = list()
 
-    for time, m in zip(T_in, m_in):
-        if (abs(time - t_mean) > tail*t_variance):
-        # if (extr*t_variance < abs(time - t_mean) < tail*t_variance):
-        #if (not(t_mean - coeff*t_variance < time < t_mean + coeff*t_variance) and (abs(time - t_mean) < extr*t_variance)):
-            T_arr.append(time)
-            messages.append(m)
+    #for time, m in zip(T_in, m_in):
+    #    if (abs(time - t_mean) > tail*t_variance):
+    #    # if (extr*t_variance < abs(time - t_mean) < tail*t_variance):
+    #    #if (not(t_mean - coeff*t_variance < time < t_mean + coeff*t_variance) and (abs(time - t_mean) < extr*t_variance)):
+    #        T_arr.append(time)
+    #        messages.append(m)
+
+    messages, T_arr = get_tails(m_in, T_in, percentage=ratio)
+
 
     print("Read messages: {} samples; -- After filtering {} samples".format(len(T_in),len(T_arr)), flush=True)
     if chat_on:
@@ -100,12 +117,8 @@ def main_attack():
     for m in messages:
         m.me_estimate(1)
         m.me_step(1)
-        # print(m.tot_est)
-
 
     key_guessed = ['1']
-    bits_considered = 2
-    bits_guessed = 1
     step = 1
 
     init_coll = [copy.deepcopy(messages) for i in range(2**bits_considered)]
@@ -170,10 +183,10 @@ def main_attack():
             sms = '{}: Step {:4} -> error: {:4}'.format(chat_id[1], step, error)
             telegram_bot_sendtext(sms, chat_id[0])
 
-        for msg in init_coll[guess_iter]:
+        msg_restart = init_coll[guess_iter].copy()
+        for msg in msg_restart:
             msg.revert(bits_considered-bits_guessed)
 
-        msg_restart = init_coll[guess_iter].copy()
         init_coll = [copy.deepcopy(msg_restart) for i in range(2**bits_considered)]
 
     final_key = int(''.join(map(str, key_guessed[nb_key-1::-1])), 2)
