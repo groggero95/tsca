@@ -69,4 +69,3 @@ void ME_big_estimate(uint32_t bits, msg_t *m, bigint_t n, int bits_step) {
     return;
 }
 
-
