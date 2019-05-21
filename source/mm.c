@@ -67,7 +67,7 @@ bigint_t MM_big(bigint_t a, bigint_t b, bigint_t n, int nb) {
 }
 
 
-bigint_t MM_big(bigint_t a, bigint_t b, bigint_t n, int nb, uint32_t* cnt) {
+bigint_t MM_big_estimate(bigint_t a, bigint_t b, bigint_t n, int nb, uint32_t* cnt) {
 
 	bigint_t res = init(ZERO);
 	var_t qi;

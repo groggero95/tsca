@@ -9,6 +9,8 @@ build/*
 .pyc
 test/main
 main
+timing
+panda4x4
 attack/__pycache__/*
 attack/chat.txt
 
