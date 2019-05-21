@@ -111,7 +111,7 @@ def main_attack():
         sms_in = "{}, starting your test.\nRead messages: {} samples\nAfter filtering {} samples".format(chat_id[1], len(T_in),len(T_arr))
         telegram_bot_sendtext(sms_in, chat_id[0])
     # Final to revert the key, as we start from LSB, just for testing with one bit at a time
-    private_key_bit = padbin(private)[::-1]
+    private_key_bit = padbin(private, nb)[::-1]
     #public_key_bit = padbin(public)[::-1]
 
     for m in messages:
