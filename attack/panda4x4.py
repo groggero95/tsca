@@ -75,15 +75,16 @@ def main_attack():
     k0 = 0x8354f24c98cfac7a6ec8719a1b11ba4f
     nb = 128
     nb_key = nb + 2
+    n_msg = 10
 
     chat_on, chat_id = check_bot()
 
     # Read messages from file
     # m_in, T_in = read_plain(n=n, nb=nb_key, file_msg='../data/P1M_Ofast_key3_256.BIN', file_time='../data/T1M_Ofast_key3_256.BIN', max_messages=10000000)
-    m_in, T_in = read_plain(n=n, nb=nb_key, file_msg='../data/P1_5M_Ofast_key0_128.BIN', file_time='../data/T1_5M_Ofast_key0_128.BIN', max_messages=10)
+    m_in, T_in = read_plain(n=n, nb=nb_key, file_msg='../data/P1_5M_Ofast_key0_128.BIN', file_time='../data/T1_5M_Ofast_key0_128.BIN', max_messages=n_msg)
 
     # for m in m_in:
-    #     print(hex(m.plaintext))
+    #     print(hex(m.c))
     # Evaluate the round mean and box mean, without
     t_mean = np.mean(T_in)
     t_variance = np.std(T_in)
@@ -94,7 +95,9 @@ def main_attack():
     bits_considered = 2
     bits_guessed = 1
 
-    messages, T_arr = get_tails(m_in, T_in, percentage=ratio)
+    # messages, T_arr = get_tails(m_in, T_in, percentage=ratio)
+    messages = m_in
+    T_arr = T_in
 
     print("Read messages: {} samples; -- After filtering {} samples".format(len(T_in),len(T_arr)), flush=True)
     if chat_on:
@@ -107,13 +110,14 @@ def main_attack():
     for m in messages:
         m.me_estimate(1)
         m.me_step(1)
+        # print(hex(m.c))
 
     key_guessed = ['1']
     step = 1
 
     init_coll = [copy.deepcopy(messages) for i in range(2**bits_considered)]
 
-    while (step < len(private_key_bit)):
+    while (step < nb):
         # Start new attack here
         # Loop over the possible path for the key
         for numb, branch in enumerate(init_coll):
@@ -124,13 +128,14 @@ def main_attack():
                 for msg in branch:
                     msg.me_estimate(numb_t & 1)
                     msg.me_step(numb_t & 1)
+
                 # To shift and pass the next LSB
                 numb_t >>= 1
 
         # time_est = [[sum([h[4] for h in msg.hist[-bits_considered::]]) for msg in branch] for branch in init_coll]
         time_est = [[msg.tot_est for msg in branch] for branch in init_coll]
 
-        print(time_est)
+        # print(time_est)
 
         #pcc_tot = [stat.pearsonr(T_arr, t_arr)[0] if (not(numpy.isnan(stat.pearsonr(T_arr, t_arr)[0]))) else 0 for t_arr in time_est]
         pcc_tot = [stat.pearsonr(T_arr, t_arr)[0] for t_arr in time_est]

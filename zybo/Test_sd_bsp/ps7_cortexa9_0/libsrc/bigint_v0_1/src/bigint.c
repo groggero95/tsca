@@ -363,22 +363,8 @@ bigint_t ME_big(bigint_t e, bigint_t m, bigint_t n, bigint_t k0, int nb) {
     bigint_t one = init(ONE);
     bigint_t bit_and;
 
-    // xil_printf("\r\n");
-    // print_to_stdout(&mask);
-    // xil_printf("\r\n");
-    // print_to_stdout(&zero);
-    // xil_printf("\r\n");
-    // print_to_stdout(&one);
-    // xil_printf("\r\n"); 
-
     c = MM_big(k0, one, n, nb);
     s = MM_big(k0, m, n, nb);
-
-    // xil_printf("\r\n");
-    // print_to_stdout(&c);
-    // xil_printf("\r\n");
-    // print_to_stdout(&s);
-    // xil_printf("\r\n");
 
     for (int i = 0; i < nb; i++) {
         bit_and = and (mask, e);

@@ -10,6 +10,16 @@
 #define NB INT_SIZE
 #define NB_EFF NB+2
 
+char *int_to_bitstring_alloc(uint32_t x, int count)
+{
+    count = count<1 ? sizeof(x)*8 : count;
+    char *pstr = malloc(count+1);
+    pstr[count] = '\0';
+    for(int i = count; i > 0; i--)
+        pstr[count-i] = '0' | ((x >> (i-1)) & 1);
+    pstr[count]=0;
+    return pstr;
+}
 
 uint32_t max(double *vect, uint32_t dim){
 	uint32_t index = 0;
@@ -33,8 +43,6 @@ void read_plain(char *time_file, char * msg_file, int n_sample, uint64_t *T_arr,
 	for (int i = 0; i < n_sample; i++) {
 		fread(T_arr + i, 8, 1, t_f);
 		fread(m.numb, VAR_SIZE / 8, NUMB_SIZE - 1, p_f);
-		// print_to_stdout(&m);
-		// printf("\n");
 		M_arr[i].c = MM_big(k0, one, n, NB_EFF);
 		M_arr[i].s = MM_big(k0, m, n, NB_EFF);
 		M_arr[i].tot_est = 0;
@@ -52,16 +60,16 @@ int main(int argc, char* argv[]) {
 	// define the structure which holds timing and messages
 	uint64_t *T_arr;
 	msg_t *M_arr;
-	uint32_t n_sample = 10;
+	uint32_t n_sample = 10000;
 
 	T_arr = (uint64_t *) malloc(sizeof(uint64_t) * n_sample);
 	M_arr = (msg_t *) malloc(sizeof(msg_t) * n_sample);
 
-	read_plain("../tsca/data/T1_5M_Ofast_key0_128.BIN", "../tsca/data/P1_5M_Ofast_key0_128.BIN", n_sample, T_arr, M_arr, n, k0);
+	read_plain("../tsca/data/T10k_Ofast_key0_128.BIN", "../tsca/data/P10k_Ofast_key0_128.BIN", n_sample, T_arr, M_arr, n, k0);
 
 
-	uint32_t key_guessed[INT_SIZE] = {0};
-	uint32_t bits_considered = 3;
+	uint32_t key_guessed[INT_SIZE] = {1};
+	uint32_t bits_considered = 2;
 	uint32_t bits_guessed  = 1;
 	uint32_t step = 1;
 
@@ -72,19 +80,15 @@ int main(int argc, char* argv[]) {
 	double *pcc_arr = (double *) malloc(sizeof(double) * groups);
 
 
-	for (int i = 0; i < window_len; i++) {
-		window[i] = (msg_t*) malloc(sizeof(msg_t) * n_sample);
-		// printf("%x %x\n", M_arr, window[i]);
-		memcpy( window[i],  M_arr, sizeof(msg_t) * n_sample);
+	for (int i = 0; i < n_sample; i++)
+	{
+		ME_big_estimate(1,M_arr + i,n,1);
 	}
 
-	ME_big_estimate(1,M_arr,n,1);
-	// pcc_context *ctx_ref = pcc_init(window_len);
-
-	// for(int i = 0; i < n_sample; i++)
-	// {
-	// 	pcc_insert_x(cnt_ref, (double) T_arr[i]);
-	// }
+	for (int i = 0; i < window_len; i++) {
+		window[i] = (msg_t*) malloc(sizeof(msg_t) * n_sample);
+		memcpy( window[i],  M_arr, sizeof(msg_t) * n_sample);
+	}
 
 	pcc_context *ctx;
 	uint32_t guess;
@@ -106,20 +110,18 @@ int main(int argc, char* argv[]) {
 				ME_big_estimate(branch, window[branch] + i, n, bits_considered);
 				// Insert the estimate into the correct branch to have all the necessary pcc
 				pcc_insert_y(ctx, branch, (double) window[branch][i].tot_est);
-				printf("%d\n", window[branch][i].tot_est);
 			}
 			
 		}
-
 		// Compute all the pcc now
 		pcc_consolidate(ctx);
 
 		// Init the array of pcc
 		for (int i = 0; i < groups; pcc_arr[i++] = 0);
 
-		for (int i = 0; i < window_len; ++i)
+		for (int i = 0; i < window_len; i++)
 		{
-			printf("%f\n", pcc_get_pcc(ctx,i));
+			printf("%s :%f\n", int_to_bitstring_alloc(i,bits_considered), pcc_get_pcc(ctx,i));
 		}
 
 		// Copy and group together pcc which have bit_guessed bits in common
@@ -131,25 +133,25 @@ int main(int argc, char* argv[]) {
 			}
 		}
 
-		// for (int i = 0; i < groups; ++i)
-		// {
-		// 	printf("%b\n", );
-		// }
-
 		// Clear the pcc for next cycle
 		pcc_free(ctx);
 
 		// Extarct the index of the max, which represent our guessed bits
 		guess = max(pcc_arr,groups);
 
+		for (int i = 0; i < n_sample; i++)
+		{
+			ME_big_estimate(guess,M_arr + i,n,bits_guessed);
+		}
+
 		// Advance the refernece messaged of our guess
-		ME_big_estimate(guess,M_arr,n,bits_guessed);
 
 		// Reset all possible path to the guessed state for next cycle
 		for(int i = 0; i < window_len; i++) {
-			memcpy((void *) window[i], (const void*) M_arr, sizeof(msg_t) * n_sample);
+			memcpy( window[i],  M_arr, sizeof(msg_t) * n_sample);
 		}
 
+		printf("Guess: %x  PCC: %f\n", guess, pcc_arr[guess]);
 		// Upfate the private key, the mask is necessary as the guess has the LSB in the left
 	    int mask = (1 << (bits_guessed - 1));
 		for (int i = 0; i < bits_guessed; i++)
@@ -162,6 +164,7 @@ int main(int argc, char* argv[]) {
 		}
 
 		step += bits_guessed;
+		printf("Step: %d\n",step);
 
 		for (int i = 0; i < step; i++)
 		{
@@ -170,15 +173,12 @@ int main(int argc, char* argv[]) {
 
 		printf("\n");
 
-		bigint_t key_tmp = private;
 		for (int i = 0; i < step; i++)
 		{
-			printf("%d", key_tmp.numb[0] & 1);
-			key_tmp = lsr(key_tmp,1);
+			printf("%d", lsr(private,i).numb[0] & 1);
 		}
 
 		printf("\n\n");
-
 
 
 	}
