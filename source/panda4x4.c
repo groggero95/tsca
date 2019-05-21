@@ -60,12 +60,12 @@ int main(int argc, char* argv[]) {
 	// define the structure which holds timing and messages
 	uint64_t *T_arr;
 	msg_t *M_arr;
-	uint32_t n_sample = 9000;
+	uint32_t n_sample = N_SAMPLES;
 
 	T_arr = (uint64_t *) malloc(sizeof(uint64_t) * n_sample);
 	M_arr = (msg_t *) malloc(sizeof(msg_t) * n_sample);
 
-	read_plain("./data/T10k_Ofast_key0_128.BIN", "./data/P10k_Ofast_key0_128.BIN", n_sample, T_arr, M_arr, n, k0);
+	read_plain(TIME_FILE, MSG_FILE, n_sample, T_arr, M_arr, n, k0);
 
 
 	uint32_t key_guessed[INT_SIZE] = {1};
@@ -111,7 +111,7 @@ int main(int argc, char* argv[]) {
 				// Insert the estimate into the correct branch to have all the necessary pcc
 				pcc_insert_y(ctx, branch, (double) window[branch][i].tot_est);
 			}
-			
+
 		}
 		// Compute all the pcc now
 		pcc_consolidate(ctx);

@@ -1,5 +1,6 @@
 CC 			= gcc
 CFLAGS 		= -O3 -g -std=gnu99 -W -Wall -Wno-comment
+CFLAGS_ATT	= -Ofast -std=gnu99 -W -Wall -Wno-comment
 INCLUDES 	= -I./include/
 LDFLAGS 	= -L./libraries -lm
 BUILD_DIR 	= ./build
@@ -24,7 +25,7 @@ timing: dir $(filter-out ./build/main.o ./build/panda4x4.o, $(OBJS)) ${HEAD}
 	$(CC) $(CFLAGS) $(INCLUDES) $(filter-out ./build/main.o ./build/panda4x4.o, $(OBJS)) $(LDFLAGS) -o $(TIME)
 
 attack: dir $(filter-out ./build/timing.o ./build/main.o, $(OBJS)) ${HEAD}
-	$(CC) $(CFLAGS) $(INCLUDES) $(filter-out ./build/main.o ./build/timing.o, $(OBJS)) $(LDFLAGS) -o $(ATTACK)
+	$(CC) $(CFLAGS_ATT) $(INCLUDES) $(filter-out ./build/main.o ./build/timing.o, $(OBJS)) $(LDFLAGS) -o $(ATTACK)
 
 deb:
 	@echo ${OBJS}
