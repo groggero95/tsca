@@ -12,7 +12,7 @@ ATTACK		= ./panda4x4
 OBJS = $(patsubst $(SOURCE_DIR)/%.c, $(BUILD_DIR)/%.o, $(wildcard $(SOURCE_DIR)/*.c))
 HEAD = $(wildcard $(INCLUDE_DIR)/*.h)
 
-all: main
+all: main attack
 
 test:
 	 $(MAKE) -C ./test/ all
@@ -20,7 +20,7 @@ test:
 cleant:
 	 $(MAKE) -C ./test/ clean
 
-timing: dir $(filter-out ./build/main.o, $(OBJS)) ${HEAD}
+timing: dir $(filter-out ./build/main.o ./build/panda4x4.o, $(OBJS)) ${HEAD}
 	$(CC) $(CFLAGS) $(INCLUDES) $(filter-out ./build/main.o ./build/panda4x4.o, $(OBJS)) $(LDFLAGS) -o $(TIME)
 
 attack: dir $(filter-out ./build/timing.o ./build/main.o, $(OBJS)) ${HEAD}
@@ -31,7 +31,7 @@ deb:
 	@echo ${HEAD}
 
 main: dir $(filter-out ./build/timing.o ./build/panda4x4.o, $(OBJS)) ${HEAD}
-	$(CC) $(CFLAGS) $(INCLUDES) $(filter-out ./build/timing.o, $(OBJS)) $(LDFLAGS) -o $(BIN)
+	$(CC) $(CFLAGS) $(INCLUDES) $(filter-out ./build/timing.o ./build/panda4x4.o, $(OBJS)) $(LDFLAGS) -o $(BIN)
 
 dir:
 	mkdir -p $(BUILD_DIR)
