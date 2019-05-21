@@ -69,8 +69,8 @@ int main(int argc, char* argv[]) {
 
 
 	uint32_t key_guessed[INT_SIZE] = {1};
-	uint32_t bits_considered = 2;
-	uint32_t bits_guessed  = 1;
+	uint32_t bits_considered = B_CONSIDERED;
+	uint32_t bits_guessed  = B_GUESSED;
 	uint32_t step = 1;
 
 	uint32_t window_len = (0x01 << bits_considered);
