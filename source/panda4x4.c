@@ -6,9 +6,35 @@
 #include "bigint.h"
 #include "panda4x4.h"
 #include "pcc.h"
+#include <math.h>
 
 #define NB INT_SIZE
 #define NB_EFF NB+2
+
+void get_filter_param(uint64_t *a, int dim, double *mean, double *std){
+	double sum = 0;
+	double sq_sum = 0;
+	for(int i; i < dim; i++){
+		sum += a[i];
+		sq_sum += a[i]*a[i];
+	}
+	*mean = sum/dim;
+	*std = sqrt(sq_sum/dim - (*mean)*(*mean));
+	return;
+}
+
+
+int filter(uint64_t *T_in, msg_t *M_in, double mean, double std, double coeff, uint64_t *T_arr, msg_t *M_arr){
+	int j = 0;
+	for(int i = 0; i < N_SAMPLES; i++){
+		if( fabs(T_in[i] - mean) < std*coeff ){
+			memcpy(T_arr + j, T_in + i, sizeof(uint64_t));
+			memcpy(M_arr + j, M_in + i, sizeof(msg_t));
+			j++;
+		}
+	}
+	return j;
+}
 
 char *int_to_bitstring_alloc(uint32_t x, int count)
 {
@@ -57,21 +83,33 @@ void read_plain(char *time_file, char * msg_file, int n_sample, uint64_t *T_arr,
 int main(int argc, char* argv[]) {
 
 	// Declaration of the key that we want ro attack and other parameters needed for the attack
-	bigint_t n = init("0x674b89bb51449c6281854973613618a189e52553b7974cc31026f50ecd3df6af1a2b1c086d1cbc9a9527536b9ebbb81fba8e751de1e408391e42a1e4451beba1");
-	bigint_t private = init("0x10a51386ea3dd4035647c8644a335ae399d6b5e5175934c63aba1eca948f367b53c00e59ca21937a03792a96005b57c8106ad20e2af98b69ca2fd5cda48a37fb");
-	bigint_t k0 = init("0x4e45781ff3ebd436b6497fcc94150fe0a90e5cbeabc2a017830d7a33362fb1537a75823a04729682d0501a92c5b689236df22ce1b4a0cff93ba6708a4924ff8f");
+	bigint_t n = init("0xc8aed04da6c85dd4638add6c6fc04a59");
+	bigint_t private = init("0x2845ecc7a890cd4356ef00ff86e63f81");
+	bigint_t k0 = init("0x64d8149d5c75b7137c099ce764ab8335");
 
 	// define the structure which holds timing and messages
-	uint64_t *T_arr;
-	msg_t *M_arr;
+	uint64_t *T_arr, *T_in;
+	msg_t *M_arr, *M_in;
 	uint32_t n_sample = N_SAMPLES;
 
 	T_arr = (uint64_t *) malloc(sizeof(uint64_t) * n_sample);
+	T_in = (uint64_t *) malloc(sizeof(uint64_t) * n_sample);
 	M_arr = (msg_t *) malloc(sizeof(msg_t) * n_sample);
+	M_in = (msg_t *) malloc(sizeof(msg_t) * n_sample);
 
-	read_plain(TIME_FILE, MSG_FILE, n_sample, T_arr, M_arr, n, k0);
+	read_plain(TIME_FILE, MSG_FILE, n_sample, T_in, M_in, n, k0);
 
+	double mean, std;
+	double coeff = 2;
 
+	printf("Post read messages\n");
+
+	get_filter_param(T_in, n_sample, &mean, &std);
+
+	printf("Post mean and std\n");
+	n_sample = filter(T_in, M_in, mean, std, coeff, T_arr, M_arr);
+
+	printf("Prefilter %d messages, post-filter %d messages\n", N_SAMPLES, n_sample);
 	uint32_t key_guessed[INT_SIZE] = {1};
 	uint32_t bits_considered = B_CONSIDERED;
 	uint32_t bits_guessed  = B_GUESSED;
