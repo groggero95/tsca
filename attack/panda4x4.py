@@ -32,7 +32,7 @@ def padbin(m, nb=128):
     return bin(m)[2:].zfill(nb)
 
 
-def read_plain(n, nb=130, file_msg='../data/PLAIN.BIN', file_time='../data/TIME.BIN', length_time=8, max_messages=5000):
+def read_plain(n, k0, nb=130, file_msg='../data/PLAIN.BIN', file_time='../data/TIME.BIN', length_time=8, max_messages=5000):
     # The number of bytes that composes the stuff to be read
     f_msg = open(file_msg, "rb")
     messages = list()
@@ -47,7 +47,7 @@ def read_plain(n, nb=130, file_msg='../data/PLAIN.BIN', file_time='../data/TIME.
         if not ((read_msg) and (read_time)):
             break
         msg = guess_test(int.from_bytes(read_msg, byteorder='little', signed=False), int.from_bytes(
-            read_time, byteorder='little', signed=False), n, nb)
+            read_time, byteorder='little', signed=False), n, nb, k0)
         T_arr.append(msg.T)
         messages.append(msg)
     f_time.close()
@@ -70,10 +70,10 @@ def get_tails(messages, times, percentage=0.1):
 def main_attack():
 
     # known informations
-    n = 0xc26e8d2105e3454baf122700611e915d
-    private = 0x0745812bb1ffacf0b5d6200be2ced7d5
-    k0 = 0x8354f24c98cfac7a6ec8719a1b11ba4f
-    nb = 128
+    n = 0x674b89bb51449c6281854973613618a189e52553b7974cc31026f50ecd3df6af1a2b1c086d1cbc9a9527536b9ebbb81fba8e751de1e408391e42a1e4451beba1
+    private = 0x10a51386ea3dd4035647c8644a335ae399d6b5e5175934c63aba1eca948f367b53c00e59ca21937a03792a96005b57c8106ad20e2af98b69ca2fd5cda48a37fb
+    k0 = 0x4e45781ff3ebd436b6497fcc94150fe0a90e5cbeabc2a017830d7a33362fb1537a75823a04729682d0501a92c5b689236df22ce1b4a0cff93ba6708a4924ff8f
+    nb = 512
     nb_key = nb + 2
     n_msg = 10
 
@@ -81,10 +81,10 @@ def main_attack():
 
     # Read messages from file
     # m_in, T_in = read_plain(n=n, nb=nb_key, file_msg='../data/P1M_Ofast_key3_256.BIN', file_time='../data/T1M_Ofast_key3_256.BIN', max_messages=10000000)
-    m_in, T_in = read_plain(n=n, nb=nb_key, file_msg='../data/P1_5M_Ofast_key0_128.BIN', file_time='../data/T1_5M_Ofast_key0_128.BIN', max_messages=n_msg)
+    m_in, T_in = read_plain(n=n, k0=k0, nb=nb_key, file_msg='../data/P20k_Ofast_key5_512.BIN', file_time='../data/T20k_Ofast_key5_512.BIN', max_messages=n_msg)
 
-    # for m in m_in:
-    #     print(hex(m.c))
+    for m in m_in:
+        print(hex(m.s))
     # Evaluate the round mean and box mean, without
     t_mean = np.mean(T_in)
     t_variance = np.std(T_in)
@@ -117,7 +117,7 @@ def main_attack():
 
     init_coll = [copy.deepcopy(messages) for i in range(2**bits_considered)]
 
-    while (step < nb):
+    while (step < 0):
         # Start new attack here
         # Loop over the possible path for the key
         for numb, branch in enumerate(init_coll):

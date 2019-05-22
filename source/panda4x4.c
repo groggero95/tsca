@@ -46,6 +46,10 @@ void read_plain(char *time_file, char * msg_file, int n_sample, uint64_t *T_arr,
 		M_arr[i].c = MM_big(k0, one, n, NB_EFF);
 		M_arr[i].s = MM_big(k0, m, n, NB_EFF);
 		M_arr[i].tot_est = 0;
+		// print_to_stdout(&M_arr[i].s);
+		// printf("\n");
+		// // print_to_stdout(&n);
+		// // printf("\n");
 	}
 
 }
@@ -53,9 +57,9 @@ void read_plain(char *time_file, char * msg_file, int n_sample, uint64_t *T_arr,
 int main(int argc, char* argv[]) {
 
 	// Declaration of the key that we want ro attack and other parameters needed for the attack
-	bigint_t n = init("0xc26e8d2105e3454baf122700611e915d");
-	bigint_t private = init("0x0745812bb1ffacf0b5d6200be2ced7d5");
-	bigint_t k0 = init("0x8354f24c98cfac7a6ec8719a1b11ba4f");
+	bigint_t n = init("0x674b89bb51449c6281854973613618a189e52553b7974cc31026f50ecd3df6af1a2b1c086d1cbc9a9527536b9ebbb81fba8e751de1e408391e42a1e4451beba1");
+	bigint_t private = init("0x10a51386ea3dd4035647c8644a335ae399d6b5e5175934c63aba1eca948f367b53c00e59ca21937a03792a96005b57c8106ad20e2af98b69ca2fd5cda48a37fb");
+	bigint_t k0 = init("0x4e45781ff3ebd436b6497fcc94150fe0a90e5cbeabc2a017830d7a33362fb1537a75823a04729682d0501a92c5b689236df22ce1b4a0cff93ba6708a4924ff8f");
 
 	// define the structure which holds timing and messages
 	uint64_t *T_arr;

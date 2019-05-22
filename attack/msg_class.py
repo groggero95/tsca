@@ -12,15 +12,15 @@ class guess_test():
     - hist is a list that stores tuples with the previous values
     - hist_len limits the length of the above mentioned list"""
 
-    def __init__(self, plain, T, n, nb):
+    def __init__(self, plain, T, n, nb, k0):
         self.plaintext = plain
         self.n = n
         self.nb = nb
         self.T = T
         self.t_me = 0
         self.t_mm = 0
-        self.c = (1 << nb) % n
-        self.s = (plain*(1 << nb)) % n
+        self.c = self.mm_init(k0)
+        self.s = self.mm_init(k0,plain)
         self.tot_est = 0
         self.hist = [(self.c, self.s, 1, self.t_mm, self.t_me, self.tot_est)]
         self.hist_len = 6
@@ -72,6 +72,16 @@ class guess_test():
             ai = a & 1
             qi = (res + (ai & b)) & 1
             res = (res + (lt[ai] & b) + (lt[qi] & self.n))
+            res = res >> 1
+            a = a >> 1
+        return res
+
+    def mm_init(self,a,b=1):
+        lt = [0, ~0]
+        res = 0
+        for i in range(self.nb):
+            qi = (res + (a&b)) & 1
+            res = (res + (lt[a&1]&b) + (lt[qi]&self.n))
             res = res >> 1
             a = a >> 1
         return res

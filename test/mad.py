@@ -14,7 +14,7 @@ def mm(a,b,n,nb):
 #		print(res)
 		res = res >> 1
 		mask = mask << 1
-		step.append( str(i) + ' ' +  str(ai) + ' ' + str(qi) + ' ' + str(padhex(res,128+32)))
+		step.append( str(i) + ' ' +  str(ai) + ' ' + str(qi) + ' ' + hex(res))
 # only used for testing pourposes
 #	if res >= n:
 #		return res - n
