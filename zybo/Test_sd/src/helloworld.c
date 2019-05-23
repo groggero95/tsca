@@ -75,6 +75,8 @@
 #include "bigint.h"
 #include "sleep.h"
 #include <stdio.h>
+#include "xgpiops.h"
+#include "sleep.h"
 
 /************************** Constant Definitions *****************************/
 
@@ -257,7 +259,7 @@ int main(void)
 	// print_to_stdout(&public);
 	// xil_printf("\r\n");
 	// print_to_stdout(&private);
-	// xil_printf("\r\n");	
+	// xil_printf("\r\n");
 	// print_to_stdout(&k0);
 	// xil_printf("\r\n");
 
@@ -273,12 +275,22 @@ int main(void)
 	message = ME_big(private,message,modulus,k0,INT_SIZE+2);
 
 	print_to_stdout(&message);
-	xil_printf("\r\n");	
+	xil_printf("\r\n");
 
 	srand(949);
 
 
 	bigint_t enc;
+
+	XGpioPs_Config ledcfg = {XPAR_PS7_GPIO_0_DEVICE_ID, XPAR_PS7_GPIO_0_BASEADDR};
+	XGpioPs led;
+
+	XGpioPs_CfgInitialize(&led, &ledcfg, ledcfg.BaseAddr); // initialize the driver device
+	XGpioPs_SetOutputEnablePin(&led, 7, 0b1); // set MIO7 as output
+	XGpioPs_SetDirectionPin(&led, 7, 0b1); // set MIO7 tristate as output (idk if both are required)
+	XGpioPs_IntrDisablePin(&led, 7); // disable interrupts on MIO7, (just in case)
+
+	XGpioPs_WritePin(&led, 7, 0b0); // set MIO7 low
 
 	for (i = 0; i < 1000000; i++ ) {
 		message = rand_b();
@@ -330,6 +342,8 @@ int main(void)
 	}
 
 	xil_printf("Files written successfully\n\r");
+
+	XGpioPs_WritePin(&led, 7, 0b1); // set MIO7 high
 
 	return XST_SUCCESS;
 
@@ -422,9 +436,9 @@ int main(void)
 // 		return XST_FAILURE;
 // 	}
 
-	
+
 // 	 * Read data from file.
-	 
+
 // 	Res = f_read(&fil, (void*)DestinationAddress, FileSize,
 // 	             &NumBytesRead);
 // 	if (Res) {

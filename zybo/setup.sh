@@ -14,7 +14,7 @@ if [[ -z "$flag" ]]; then
           PATH=/home/fausto/xilinx/SDK/2018.3/gnu/aarch32/lin/gcc-arm-none-eabi/bin/:$PATH
             #echo $PATH
             ;;
-        "Chiabetor")
+        "simone")
           PATH=/mnt/6760628c-3810-49ef-88a9-ed56dc6f2462/tools/Xilinx/SDK/2018.3/gnu/aarch32/lin/gcc-arm-none-eabi/bin/:$PATH
             ;;
         "giul")
@@ -25,6 +25,7 @@ if [[ -z "$flag" ]]; then
             ;;
     esac
 	echo "Setting Compiler"
+  echo $PATH
 fi
 
 prebuild="SDK/2018.3/bin/"
@@ -40,7 +41,7 @@ if [[ -z "$flag" ]]; then
         "fausto")
           PATH=/home/fausto/xilinx/SDK/2018.3/bin/:$PATH
             ;;
-        "Chiabetor")
+        "simone")
           PATH=/mnt/6760628c-3810-49ef-88a9-ed56dc6f2462/tools/Xilinx/SDK/2018.3/bin/:$PATH
             ;;
         "giul")
@@ -52,4 +53,5 @@ if [[ -z "$flag" ]]; then
             ;;
     esac
 	echo "Setting pre-build tool"
+  echo $PATH
 fi
