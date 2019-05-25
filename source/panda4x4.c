@@ -74,7 +74,7 @@ void read_plain(char *time_file, char * msg_file, int n_sample, uint64_t *T_arr,
 		M_arr[i].tot_est = 0;
 		// print_to_stdout(&M_arr[i].s);
 		// printf("\n");
-		// // print_to_stdout(&n);
+		// printf("%d\n", T_arr[i]);
 		// // printf("\n");
 	}
 
@@ -82,10 +82,10 @@ void read_plain(char *time_file, char * msg_file, int n_sample, uint64_t *T_arr,
 
 int main(int argc, char* argv[]) {
 
-	// Declaration of the key that we want ro attack and other parameters needed for the attack
-	bigint_t n = init("0xc8aed04da6c85dd4638add6c6fc04a59");
-	bigint_t private = init("0x2845ecc7a890cd4356ef00ff86e63f81");
-	bigint_t k0 = init("0x64d8149d5c75b7137c099ce764ab8335");
+	// Declaration of the key that we want to attack and other parameters needed for the attack
+	bigint_t n = init("0xc26e8d2105e3454baf122700611e915d");
+	bigint_t private = init("0x0745812bb1ffacf0b5d6200be2ced7d5");
+	bigint_t k0 = init("0x8354f24c98cfac7a6ec8719a1b11ba4f");
 
 	// define the structure which holds timing and messages
 	uint64_t *T_arr, *T_in;
@@ -104,10 +104,15 @@ int main(int argc, char* argv[]) {
 
 	printf("Post read messages\n");
 
-	get_filter_param(T_in, n_sample, &mean, &std);
+	if (FILTERING == 1){
+		get_filter_param(T_in, n_sample, &mean, &std);
 
-	printf("Post mean and std\n");
-	n_sample = filter(T_in, M_in, mean, std, coeff, T_arr, M_arr);
+		printf("Post mean and std\n");
+		n_sample = filter(T_in, M_in, mean, std, coeff, T_arr, M_arr);
+	} else {
+		T_arr = T_in;
+		M_arr = M_in;
+	}
 
 	printf("Prefilter %d messages, post-filter %d messages\n", N_SAMPLES, n_sample);
 	uint32_t key_guessed[INT_SIZE] = {1};
@@ -144,7 +149,6 @@ int main(int argc, char* argv[]) {
 		for (int i = 0; i < n_sample; i++){
 			// Insert a realization of the X variable (time samples)
 			pcc_insert_x(ctx, (double) T_arr[i]);
-
 			// Iterate over all possible path
 			for (int branch = 0; branch < window_len; branch++)
 			{
@@ -226,6 +230,15 @@ int main(int argc, char* argv[]) {
 	}
 
 
+	int tmp;
+	for (int i = 0; i < NB; i++) {
+		tmp = lsr(private,i).numb[0] & 1;
+		if (key_guessed[i] != tmp){
+			printf("Houston, we have a problem: KEYS DON'T MATCH\n");
+			return -1;
+		}
+	}
+	printf("BAZINGA! Attack succeeded!\n");
 
 	return 0;
 }
