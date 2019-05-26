@@ -200,7 +200,7 @@ int main(int argc, char* argv[]) {
 		printf("Guess: %x  PCC: %f\n", guess, pcc_arr[guess]);
 		// Update the private key, the mask is necessary as the guess has the LSB in the left
 	    int mask = (1 << (bits_guessed - 1));
-		for (int i = 0; i < bits_guessed; i++)
+		for (int i = 0; i < bits_guessed & i+step < NB; i++)
 		{
 			if(guess & mask){
 				key_guessed[i + step] = 1;
@@ -213,14 +213,14 @@ int main(int argc, char* argv[]) {
 		step += bits_guessed;
 		printf("Step: %d\n",step);
 
-		for (int i = 0; i < step; i++)
+		for (int i = 0; i < step & i < NB; i++)
 		{
 			printf("%d", key_guessed[i]);
 		}
 
 		printf("\n");
 
-		for (int i = 0; i < step; i++)
+		for (int i = 0; i < step & i < NB; i++)
 		{
 			printf("%d", lsr(private,i).numb[0] & 1);
 		}
@@ -232,7 +232,7 @@ int main(int argc, char* argv[]) {
 
 
 	for (int i = 0; i < NB; i++) {
-		if (key_guessed[i] != lsr(private,i).numb[0] & 1){
+		if (key_guessed[i] != (lsr(private,i).numb[0] & 1)){
 			printf("Houston, we have a problem: KEYS DON'T MATCH\n");
 			return -1;
 		}
