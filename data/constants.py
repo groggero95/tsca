@@ -76,3 +76,16 @@ for ms,t in zip(msg_file,time_file):
 	data_l.append(Data(keys[index],k0[index],n[index],t,ms))
 
 
+import random
+import gmpy2
+
+def get_blinding_pair(key,n,nb):
+	vi = random.getrandbits(nb)
+	while gmpy2.gcd(vi,n) != 1:
+		vi = random.getrandbits(nb)
+	t = pow(vi,k,n)
+	vf = gmpy2.invert(t,n)
+	vi_M = vi * 2**(nb+2) % n
+	vf_M = vf * 2**(nb+2) % n
+	return vi_M, vf_M, vi, vf
+
