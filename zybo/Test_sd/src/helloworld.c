@@ -323,18 +323,22 @@ int main(void)
 
 	XGpioPs_WritePin(&led, 7, 0b0); // set MIO7 low
 
-	for (i = 0; i < 10000; i++ ) {
+	for (i = 0; i < 100000; i++ ) {
 		message = rand_b();
 		XTime_GetTime(&tStart);
 
 		//BLINDING
 		#if BLINDING == 1
-		message = MM_big(vi_M, message, modulus, INT_SIZE+2);
+		message_blind = MM_big(vi_M, message, modulus, INT_SIZE+2);
 		#endif
 
 		//ENCRIPTION
+		#if BLINDING == 1
+		enc = ME_big(private, message_blind, modulus, k0, INT_SIZE+2);
+		#else
 		enc = ME_big(private, message, modulus, k0, INT_SIZE+2);
-
+		#endif
+		
 		//BLINDING CORRECTION
 		#if BLINDING == 1
 		enc = MM_big(vf_M, enc, modulus, INT_SIZE+2);
@@ -344,10 +348,10 @@ int main(void)
 		delta = tEnd - tStart;
 
 		//BLINDING squaring
-		#if BLINDING == 1
+		// #if BLINDING == 1
 		vi_M = MM_big(vi_M, vi_M, modulus, INT_SIZE+2);
 		vf_M = MM_big(vf_M, vf_M, modulus, INT_SIZE+2);
-		#endif
+		// #endif
 
 		Res = f_write(&f_time, (const void*)&delta, sizeof(delta), NULL);
 		if (Res) {

@@ -12,7 +12,7 @@
 #define VAR_SIZE 32
 #define NUMB_SIZE INT_SIZE/VAR_SIZE + 1
 #define HEX_DIGIT VAR_SIZE/4
-#define BLINDING 0
+#define BLINDING 1
 
 #if INT_SIZE == 64
 static const char ONE[] = "0x0000000000000001";
