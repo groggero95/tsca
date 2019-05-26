@@ -25,7 +25,7 @@ if [[ -z "$flag" ]]; then
             ;;
     esac
 	echo "Setting Compiler"
-  echo $PATH
+  # echo $PATH
 fi
 
 prebuild="SDK/2018.3/bin/"
@@ -53,5 +53,5 @@ if [[ -z "$flag" ]]; then
             ;;
     esac
 	echo "Setting pre-build tool"
-  echo $PATH
+  # echo $PATH
 fi

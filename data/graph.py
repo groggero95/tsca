@@ -22,7 +22,8 @@ if __name__ == '__main__':
         measure = f_time.read(8)
         if not measure:
             break
-        timing.append(int.from_bytes(measure, byteorder='little',signed=False))
+        if int.from_bytes(measure, byteorder='little',signed=False) < 49588816:
+            timing.append(int.from_bytes(measure, byteorder='little',signed=False))
 
     sigma = numpy.std(timing)
     mu = numpy.mean(timing)
