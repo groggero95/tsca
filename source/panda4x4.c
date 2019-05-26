@@ -104,15 +104,15 @@ int main(int argc, char* argv[]) {
 
 	printf("Post read messages\n");
 
-	if (FILTERING == 1){
+	#if FILTERING == 1
 		get_filter_param(T_in, n_sample, &mean, &std);
 
 		printf("Post mean and std\n");
 		n_sample = filter(T_in, M_in, mean, std, coeff, T_arr, M_arr);
-	} else {
+	#else
 		T_arr = T_in;
 		M_arr = M_in;
-	}
+	#endif
 
 	printf("Prefilter %d messages, post-filter %d messages\n", N_SAMPLES, n_sample);
 	uint32_t key_guessed[INT_SIZE] = {1};
@@ -198,7 +198,7 @@ int main(int argc, char* argv[]) {
 		}
 
 		printf("Guess: %x  PCC: %f\n", guess, pcc_arr[guess]);
-		// Upfate the private key, the mask is necessary as the guess has the LSB in the left
+		// Update the private key, the mask is necessary as the guess has the LSB in the left
 	    int mask = (1 << (bits_guessed - 1));
 		for (int i = 0; i < bits_guessed; i++)
 		{
@@ -207,6 +207,7 @@ int main(int argc, char* argv[]) {
 			}else{
 				key_guessed[i + step] = 0;
 			}
+			mask >>= 1;
 		}
 
 		step += bits_guessed;
@@ -230,10 +231,8 @@ int main(int argc, char* argv[]) {
 	}
 
 
-	int tmp;
 	for (int i = 0; i < NB; i++) {
-		tmp = lsr(private,i).numb[0] & 1;
-		if (key_guessed[i] != tmp){
+		if (key_guessed[i] != lsr(private,i).numb[0] & 1){
 			printf("Houston, we have a problem: KEYS DON'T MATCH\n");
 			return -1;
 		}
