@@ -255,10 +255,10 @@ int main(void)
 	// bigint_t k0 	 = init("0xa762c8e7ca2644cb1f83eeab33a84fd5a34fa9c5aecfb1bb7022ba1c4b0918ccd98e48d13684bdaaecdfc2a0ac60d346d006d4b739eb671c2bb16ea439b53e289b2106ff749f6aec6f6aac8bffaadfc09bc72092d8032b8a248abe0333dcecf24dbe9a8e8acea13ee105469cef59dc5af3344d2b93db5530a5a3251ee448613a295bc6b1f16ff7fb6592ede0c42dd205b98d80ab7cd6baebcc06e029da0cf7f96bb2f26aa8b25107343820e9989c12c3430659b1248e8a8b6e701793d808cf2cecc3bb1e2b188c84f8aca78f195f672c7567d96cc213521d5b3eb1797123eecf5d3258e2b75bdc1a42f47ac98c3c86670a150f895836c6c61dee56dfe9b2e3da");
 
 	//vi 0 128
-	bigint_t vi_M	= init("0x1b55e2322113a4bfb5656d51845e6f94");
-
+	bigint_t vi_M	= init("0x02bbe7e3a87bff652d8c132e4179d9f8");
+							
 	//vf 0 128
-	bigint_t vf_M	= init("0x9c92d443ea3b448d27abf1546581a8b4");
+	bigint_t vf_M	= init("0x987641e5532d7be197729a00e4aa88f4");
 
 	// xil_printf("\r\n");
 	// print_to_stdout(&modulus);
@@ -269,6 +269,9 @@ int main(void)
 	// xil_printf("\r\n");
 	// print_to_stdout(&k0);
 	// xil_printf("\r\n");
+
+	vi_M = MM_big(vi_M,vi_M,modulus,INT_SIZE+2); 
+	vf_M = MM_big(vf_M,vf_M,modulus,INT_SIZE+2); 
 
 	message = rand_b();
 	// printf("MSG: ");
@@ -288,10 +291,13 @@ int main(void)
 	// xil_printf("\r\n");
 
 	message_blind = MM_big(message,vi_M,modulus,INT_SIZE+2);
+	print_to_stdout(&message_blind);
+	xil_printf("\r\n");
 	message_blind = ME_big(private,message_blind,modulus,k0,INT_SIZE+2);
+	print_to_stdout(&message_blind);
+	xil_printf("\r\n");
 	message_blind = MM_big(message_blind,vf_M,modulus,INT_SIZE+2);
-
-	print_to_stdout(&message);
+	print_to_stdout(&message_blind);
 	xil_printf("\r\n");
 
 	message = ME_big(private,message,modulus,k0,INT_SIZE+2);
