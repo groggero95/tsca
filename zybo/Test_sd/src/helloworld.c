@@ -111,6 +111,7 @@ u8 SourceAddress[10 * 1024 * 1024] __attribute__ ((aligned(32)));
 #endif
 
 #define TEST 7
+#define BLINDING 1
 
 /*****************************************************************************/
 /**
@@ -251,7 +252,11 @@ int main(void)
 	// k0 10 2048
 	// bigint_t k0 	 = init("0xa762c8e7ca2644cb1f83eeab33a84fd5a34fa9c5aecfb1bb7022ba1c4b0918ccd98e48d13684bdaaecdfc2a0ac60d346d006d4b739eb671c2bb16ea439b53e289b2106ff749f6aec6f6aac8bffaadfc09bc72092d8032b8a248abe0333dcecf24dbe9a8e8acea13ee105469cef59dc5af3344d2b93db5530a5a3251ee448613a295bc6b1f16ff7fb6592ede0c42dd205b98d80ab7cd6baebcc06e029da0cf7f96bb2f26aa8b25107343820e9989c12c3430659b1248e8a8b6e701793d808cf2cecc3bb1e2b188c84f8aca78f195f672c7567d96cc213521d5b3eb1797123eecf5d3258e2b75bdc1a42f47ac98c3c86670a150f895836c6c61dee56dfe9b2e3da");
 
+	//vi 0 128
+	bigint vi_M		= init("0x6d5788c8844e92fed595b5461179be5");
 
+	//vf 0 128
+	bigint vf_M		= init("0x2724b510fa8ed12349eafc5519606a2d");
 
 	// xil_printf("\r\n");
 	// print_to_stdout(&modulus);
@@ -295,9 +300,28 @@ int main(void)
 	for (i = 0; i < 1000000; i++ ) {
 		message = rand_b();
 		XTime_GetTime(&tStart);
+
+		//BLINDING
+		#if BLINDING == 1
+		message = MM_big(vi_M, message, modulus, INT_SIZE+2);
+		#endif
+
+		//ENCRIPTION
 		enc = ME_big(private, message, modulus, k0, INT_SIZE+2);
+
+		//BLINDING CORRECTION
+		#if BLINDING == 1
+		enc = MM_big(vf_M, enc, modulus, INT_SIZE+2);
+		#endif
+
 		XTime_GetTime(&tEnd);
 		delta = tEnd - tStart;
+
+		//BLINDING squaring
+		#if BLINDING == 1
+		vi = MM_big(vi_M, vi_M, modulus, INT_SIZE+2);
+		vf = MM_big(vf_M, vf_M, modulus, INT_SIZE+2);
+		#endif
 
 		Res = f_write(&f_time, (const void*)&delta, sizeof(delta), NULL);
 		if (Res) {
