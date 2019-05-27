@@ -15,11 +15,9 @@ HEAD = $(wildcard $(INCLUDE_DIR)/*.h)
 
 all: main attack
 
-test:
-	 $(MAKE) -C ./test/ all
+pres:
+	 $(MAKE) -C ./presentation/ all
 
-cleant:
-	 $(MAKE) -C ./test/ clean
 
 timing: dir $(filter-out ./build/main.o ./build/panda4x4.o, $(OBJS)) ${HEAD}
 	$(CC) $(CFLAGS) $(INCLUDES) $(filter-out ./build/main.o ./build/panda4x4.o, $(OBJS)) $(LDFLAGS) -o $(TIME)
