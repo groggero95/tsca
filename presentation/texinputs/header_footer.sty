@@ -1,0 +1,35 @@
+\def\myheader {
+    \vspace*{0.8cm}
+    \hspace*{-0.7cm}	
+	\parbox{0.93\paperwidth}{
+		      	\includegraphics[height=1.7cm]{./graphics/EURECOM_logo_quadri} \hfill
+                \raisebox{1ex}{\includegraphics[height=1.7cm]{./graphics/T_LARGE}}
+		    	}
+     \vspace*{0.7cm}
+	}
+
+\def\myfooter{
+    \vspace*{-0.4cm}
+    \hspace*{-\beamer@leftmargin}
+    \hspace*{0.15cm}  
+    \parbox{\paperwidth} {\textcolor{gray}{\hrule width 0.95\paperwidth}}\\
+    \vspace*{0.1cm}
+    \hspace*{-\beamer@leftmargin}
+    \hspace*{0.25cm}	
+    \parbox{\paperwidth-0.8cm}
+    {\centering{\raisebox{0.2cm}{\includegraphics[height=0.9cm]{./graphics/polito}}} \hfill
+\hskip0.2cm
+\includegraphics[height=1.2cm]{./graphics/RSA}}}
+
+\setbeamertemplate{footline}{
+    \hskip0.025\paperwidth
+    \parbox{\paperwidth}{
+    %\parbox{0.15\paperwidth}{\includegraphics[width=0.15\paperwidth]{./graphics/T_LARGE}}
+    \parbox{0.12\paperwidth}{\includegraphics[height=1cm]{./graphics/T_LARGE}}
+    \parbox{0.83\paperwidth}{\vspace*{0.1cm}\textcolor{gray}{\hrule width 0.83\paperwidth}
+                            \vspace{0.3cm}
+                            {\textcolor{gray}{\tiny \auth \hskip0.1cm {\it \rd} \hfill\insertframenumber}}
+    }
+    }\\
+    \vskip0.2cm
+ 	}
