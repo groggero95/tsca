@@ -8,11 +8,12 @@
 
 
 //Following number has to be a multiple of 32
-#define INT_SIZE 128
+#define INT_SIZE 1024
 #define VAR_SIZE 32
 #define NUMB_SIZE INT_SIZE/VAR_SIZE + 1
 #define HEX_DIGIT VAR_SIZE/4
-#define BLINDING 1
+#define BYTE_NUMB INT_SIZE/8
+#define BLINDING 0
 
 #if INT_SIZE == 64
 static const char ONE[] = "0x0000000000000001";

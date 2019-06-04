@@ -111,7 +111,7 @@ u8 SourceAddress[10 * 1024 * 1024] __attribute__ ((aligned(32)));
 #endif
 
 #define TEST 7
-#define BLINDING 1
+#define BLINDING 0
 
 /*****************************************************************************/
 /**
@@ -171,12 +171,12 @@ int main(void)
 	XTime delta __attribute__ ((aligned(32)));
 
 
-	bigint_t public  = init("0x00000000000000000000000000010001");
+	// bigint_t public  = init("0x00000000000000000000000000010001");
 	// bigint_t public  = init("0x171f87ecffdafedd7a96a03f3606dffc0acd8d8c0618fe72ae3e61b598558527");
 	// bigint_t public  = init("0x7821e76988333ca6edb5d53aa695054fa469381ee8b285b703a4714daeee3251");
 	// bigint_t public  = init("0xb65efa9be7541a10f0e0ac0b296a6006267189bb59bec3b2624c7ac94871526b6fc597b682b7ccf678b636d58547533458afeb2607789b18ad7caad8c959b781");
 	// bigint_t public  = init("0x1e907e1781857506bc54209287d871dfd08ae1811a676347fec59b4395e5af21b2ddc4df6fe2dfba93f38ca398f34bba12b7268ac5a09b785ffd04aa855a0171");
-	// bigint_t public  = init("0x9cd409338b62fed2424b0cfaa82cba98b3c7750c68932c007676e8fc5fada6bfd95936b5132851b0d67819a6226210151f508794cf88069931760338fc543694f6e86a7dcae4821726a210e5228d1e11e3b1bb4d6a5feec1b09b19907123875c82ac85460aa84c48b7e2c3b4a2f738e47eb72b10cbd65c70d9cbab3a5b05077d");
+	bigint_t public  = init("0x9cd409338b62fed2424b0cfaa82cba98b3c7750c68932c007676e8fc5fada6bfd95936b5132851b0d67819a6226210151f508794cf88069931760338fc543694f6e86a7dcae4821726a210e5228d1e11e3b1bb4d6a5feec1b09b19907123875c82ac85460aa84c48b7e2c3b4a2f738e47eb72b10cbd65c70d9cbab3a5b05077d");
 	// bigint_t public  = init("0x778f547e808b4c1238a889c69653cbb92f144abc8e322600d8c8728fa64716a13a535130b95386395401506ba18508548a274581a991df0bbd1cb0504ca503158b550ae4178c14f394d3017761cb94583e704da3a311fd628a0a38ed4825439c770bdd615c08a691f6cf7b14a463f3b584e65b8b21d1f159ac2024949b8d5d2f");
 	// bigint_t public  = init("0x12f267156fae0798d5432e6b8e7dae859982a41bff534efc6e22cfe04483f2257da83eb9ef111ee0252c7934b8cbd5a3222f7da7336d3147ff0a3ea261d1c787ccd5447de14662e7f0608f939c63df008d93b73fa1c779370f0b2e63e872fde95047b3cb4f4d7200d5b2dafc46ef039fa0628652cd74d65895d91816c66d820cfd0f97b2bef892d1c9392bed0ffffc22fd9d683fc826e43fa485c7a9860cd1b792a9dd909d36bf3bd53bc6cf18b40c23862b5145cbecf5970f988341d30ba4299a110a8f674dffb4a51df6cf712ff6c2a793e649b660ec1e31c4a26ed6fe5140cb5f3af164452c1e4f3c539888f4cf8b4a940b65a1ab2b3aab2e7cc1cf35ac41");
 	// bigint_t public  = init("0x015d3168e9dd7d6874c0037872402e2c20103df363ecc49c77b435c888fec235bb00519c02de5de47a5d87447950a62ba735830b110adbd025a4954adf13f1e9540616e3a150a9957a93f837a2b0d1fe94b945929b61a0265609ee817aa7c7ec73d784b0a688c88af0aa8bd0a016d756b895334ec56ef8b62202b4cd51444add26eed5854b7b01478cfb18e70a5810efa6e4c82722ab02e3def85efecd1011cf58a0af858aaae7bca5b2ba74cb621e1a6941a0beb87410c0d3ad1dd4208aaedbba48c95b1c09ade78a6667c8bb9a6569e3edeaefdbb407f2207aa98738e06a21a31392427166fc4cf2a767a628bd981e2e66d3a9a21fb85bde960bc60649fcd3");
@@ -184,7 +184,7 @@ int main(void)
 	bigint_t message, message_blind;
 
 	// mod0 128
-	bigint_t modulus = init("0xc26e8d2105e3454baf122700611e915d");
+	// bigint_t modulus = init("0xc26e8d2105e3454baf122700611e915d");
 	// mod1 128
 	// bigint_t modulus = init("0x5f4c6991b0042610e525a5c4981737a1");
 	// mod2 128
@@ -198,7 +198,7 @@ int main(void)
 	// mod6 512
 	// bigint_t modulus = init("0xb8db0a56ef03b60c5171980681d05dd81a297500e9b06ad3f3b05bb2e1985e8de10f8eeccd0d962bf993c383092d510a5e44e43e4b2dd74ac3295f2fdc6204f1");
 	// mod7 1024
-	// bigint_t modulus = init("0x9e1770c77f71106d352173ad61a54b8db2884e29fa19b2094fe53c2ad2ccfa4b027068ac9b0740535a3dbb08c9bb7e8cf67d45b44f433ee5d412282c8df46f27f8b7963e1ba718b8cf4b6436e00cd15e9723a1ddb7b57a707be972b7410d14ac6ee727e593036aff4783c0e708e1f49fdc288a803f0cc0d244924ba12cbbee1b");
+	bigint_t modulus = init("0x9e1770c77f71106d352173ad61a54b8db2884e29fa19b2094fe53c2ad2ccfa4b027068ac9b0740535a3dbb08c9bb7e8cf67d45b44f433ee5d412282c8df46f27f8b7963e1ba718b8cf4b6436e00cd15e9723a1ddb7b57a707be972b7410d14ac6ee727e593036aff4783c0e708e1f49fdc288a803f0cc0d244924ba12cbbee1b");
 	// mod8 1024
 	// bigint_t modulus = init("0xfd149e15687d6430ef21f0c083619c2baa6fa6435e3b83a7b00238e752d610d83b7d6459e6caaa138577df7b4dfe1cbe6001df3862f89a2454c1b5925c18884ddb0a5e0e71e92fea90aba974e58914a153578efcd36999ec069a03724b7df922a69218eca4ed02c5b49d05c3ef71641418857b8d9ca724799d6109ae1b0c3a13");
 	// mod9 2048
@@ -208,7 +208,7 @@ int main(void)
 
 
 	// key0 128
-	bigint_t private = init("0x0745812bb1ffacf0b5d6200be2ced7d5");
+	// bigint_t private = init("0x0745812bb1ffacf0b5d6200be2ced7d5");
 	// key1 128
 	// bigint_t private = init("0x4c0929ca2608895dc42fbc87ef853e09");
 	// key2 128
@@ -222,7 +222,7 @@ int main(void)
 	// // key6 512
 	// bigint_t private = init("0x191858e17018a85a8de29403596a33b53792f691026d0dc2f21661ff48f558f0693fa9b206eb139a7cb8f5df1a33d1c7227dd94b837fe64cf3a977d1ec5c5cd1");
 	// // key7 1024
-	// bigint_t private = init("0x70b7ad9ba748fff86b9b8bfd20b97afe06f9eed59e34c8fd40b5cf614c2201687cbe6ce266502682b723eae67220c440f98db2967c7db53bc1095d035636232766b2e16e26eb94caf7af56286d82cec2824b1509591d60ed08e9b2db50cec84cbcab83b191878628c4daea65d21051ce916f9941d603a96b349c83ae120ee3b5");
+	bigint_t private = init("0x70b7ad9ba748fff86b9b8bfd20b97afe06f9eed59e34c8fd40b5cf614c2201687cbe6ce266502682b723eae67220c440f98db2967c7db53bc1095d035636232766b2e16e26eb94caf7af56286d82cec2824b1509591d60ed08e9b2db50cec84cbcab83b191878628c4daea65d21051ce916f9941d603a96b349c83ae120ee3b5");
 	// // key8 1024
 	// bigint_t private = init("0x63eee9ff13ee48d66c85787113622e5933ae4f2e8bdff62549a94800c21ba4f3b4406c06bc2b63ac706b4a2e47b783102fac11e119be2b08ce0aad36246c4d8ed5de93e701f1cb4c6e035f3dd0284e737a5c758bf8606508f19c16cf37f17bc1cfad7dbaff50f0e6e30236b7fcf54478da35def9f2311bc50387ed6236e7adff");
 	// // key9 2048
@@ -232,7 +232,7 @@ int main(void)
 
 
 	// k0 0 128
-	bigint_t k0 	 = init("0x8354f24c98cfac7a6ec8719a1b11ba4f");
+	// bigint_t k0 	 = init("0x8354f24c98cfac7a6ec8719a1b11ba4f");
 	// k0 1 128
 	// bigint_t k0 	 = init("0x0424eafd3cea52419284de3f6da92934");
 	// k0 2 128
@@ -246,7 +246,7 @@ int main(void)
 	// k0 6 512
 	// bigint_t k0 	 = init("0x30bed69e48d03d9ef171d7925d216d4097aa79e7ad72bc61afb1a94df9eb5ca35d51e52f2528bb9f1d123887bdefa2cf63e8b38c8a711239114468e4f381389b");
 	// k0 7 1024
-	// bigint_t k0 	 = init("0x56e99a7f5165f2ad889074dc920fc29891272bd0ad379398ee99e8e5de538405304e40c7bee16178ba5a3cb9103771dd7d37c1559b76ef4bb4fcdd54bceef2655f1fa8da45e2ef3a875661ed2dd4c4204ec82260014531ee3ee92defdfa706b0ab51e81d2993bfdaf93bb8f3fe2b12e8d214d70be7f2c7204216615f34a573d5");
+	bigint_t k0 	 = init("0x56e99a7f5165f2ad889074dc920fc29891272bd0ad379398ee99e8e5de538405304e40c7bee16178ba5a3cb9103771dd7d37c1559b76ef4bb4fcdd54bceef2655f1fa8da45e2ef3a875661ed2dd4c4204ec82260014531ee3ee92defdfa706b0ab51e81d2993bfdaf93bb8f3fe2b12e8d214d70be7f2c7204216615f34a573d5");
 	// k0 8 1024
 	// bigint_t k0 	 = init("0xdd2e7e49c50226b01744188a44297147807a6d9df1de6d513319d5aaa9bc0954073700984a25ff70672c79d50a3c5639ecee092762c4ee103e731a0c92e38913d81bd35e72c33c9a19fa5eaaebb024ce8959b6849c5a91ccc1d05bb35b88015289fc928ebabd935e5aacce6f0a6a586162253e65477f207988b83fdd3d950dd6");
 	// k0 9 2048
@@ -255,57 +255,57 @@ int main(void)
 	// bigint_t k0 	 = init("0xa762c8e7ca2644cb1f83eeab33a84fd5a34fa9c5aecfb1bb7022ba1c4b0918ccd98e48d13684bdaaecdfc2a0ac60d346d006d4b739eb671c2bb16ea439b53e289b2106ff749f6aec6f6aac8bffaadfc09bc72092d8032b8a248abe0333dcecf24dbe9a8e8acea13ee105469cef59dc5af3344d2b93db5530a5a3251ee448613a295bc6b1f16ff7fb6592ede0c42dd205b98d80ab7cd6baebcc06e029da0cf7f96bb2f26aa8b25107343820e9989c12c3430659b1248e8a8b6e701793d808cf2cecc3bb1e2b188c84f8aca78f195f672c7567d96cc213521d5b3eb1797123eecf5d3258e2b75bdc1a42f47ac98c3c86670a150f895836c6c61dee56dfe9b2e3da");
 
 	//vi 0 128
-	bigint_t vi_M	= init("0x02bbe7e3a87bff652d8c132e4179d9f8");
+	// bigint_t vi_M	= init("0x02bbe7e3a87bff652d8c132e4179d9f8");
 							
-	//vf 0 128
-	bigint_t vf_M	= init("0x987641e5532d7be197729a00e4aa88f4");
+	// //vf 0 128
+	// bigint_t vf_M	= init("0x987641e5532d7be197729a00e4aa88f4");
 
+	// // xil_printf("\r\n");
+	// // print_to_stdout(&modulus);
+	// // xil_printf("\r\n");
+	// // print_to_stdout(&public);
+	// // xil_printf("\r\n");
+	// // print_to_stdout(&private);
+	// // xil_printf("\r\n");
+	// // print_to_stdout(&k0);
+	// // xil_printf("\r\n");
+
+	// vi_M = MM_big(vi_M,vi_M,modulus,INT_SIZE+2); 
+	// vf_M = MM_big(vf_M,vf_M,modulus,INT_SIZE+2); 
+
+	// message = rand_b();
+	// // printf("MSG: ");
+	// print_to_stdout(&message);
 	// xil_printf("\r\n");
-	// print_to_stdout(&modulus);
+
+
+	// message = ME_big(public,message,modulus,k0,INT_SIZE+2);
+
+
+	// // printf("CYT: ");
+	// print_to_stdout(&message);
 	// xil_printf("\r\n");
-	// print_to_stdout(&public);
+
+	// // printf("CTB: ");
+	// // print_to_stdout(&message_blind);
+	// // xil_printf("\r\n");
+
+	// message_blind = MM_big(message,vi_M,modulus,INT_SIZE+2);
+	// print_to_stdout(&message_blind);
 	// xil_printf("\r\n");
-	// print_to_stdout(&private);
+	// message_blind = ME_big(private,message_blind,modulus,k0,INT_SIZE+2);
+	// print_to_stdout(&message_blind);
 	// xil_printf("\r\n");
-	// print_to_stdout(&k0);
-	// xil_printf("\r\n");
-
-	vi_M = MM_big(vi_M,vi_M,modulus,INT_SIZE+2); 
-	vf_M = MM_big(vf_M,vf_M,modulus,INT_SIZE+2); 
-
-	message = rand_b();
-	// printf("MSG: ");
-	print_to_stdout(&message);
-	xil_printf("\r\n");
-
-
-	message = ME_big(public,message,modulus,k0,INT_SIZE+2);
-
-
-	// printf("CYT: ");
-	print_to_stdout(&message);
-	xil_printf("\r\n");
-
-	// printf("CTB: ");
+	// message_blind = MM_big(message_blind,vf_M,modulus,INT_SIZE+2);
 	// print_to_stdout(&message_blind);
 	// xil_printf("\r\n");
 
-	message_blind = MM_big(message,vi_M,modulus,INT_SIZE+2);
-	print_to_stdout(&message_blind);
-	xil_printf("\r\n");
-	message_blind = ME_big(private,message_blind,modulus,k0,INT_SIZE+2);
-	print_to_stdout(&message_blind);
-	xil_printf("\r\n");
-	message_blind = MM_big(message_blind,vf_M,modulus,INT_SIZE+2);
-	print_to_stdout(&message_blind);
-	xil_printf("\r\n");
+	// message = ME_big(private,message,modulus,k0,INT_SIZE+2);
 
-	message = ME_big(private,message,modulus,k0,INT_SIZE+2);
-
-	print_to_stdout(&message);
-	xil_printf("\r\n");
-	print_to_stdout(&message_blind);
-	xil_printf("\r\n");
+	// print_to_stdout(&message);
+	// xil_printf("\r\n");
+	// print_to_stdout(&message_blind);
+	// xil_printf("\r\n");
 
 
 	srand(949);
@@ -323,7 +323,7 @@ int main(void)
 
 	XGpioPs_WritePin(&led, 7, 0b0); // set MIO7 low
 
-	for (i = 0; i < 100000; i++ ) {
+	for (i = 0; i < 100; i++ ) {
 		message = rand_b();
 		XTime_GetTime(&tStart);
 
@@ -338,6 +338,9 @@ int main(void)
 		#else
 		enc = ME_big(private, message, modulus, k0, INT_SIZE+2);
 		#endif
+
+		// print_to_stdout(&message);
+		// xil_printf("\r\n");
 		
 		//BLINDING CORRECTION
 		#if BLINDING == 1
@@ -348,10 +351,10 @@ int main(void)
 		delta = tEnd - tStart;
 
 		//BLINDING squaring
-		// #if BLINDING == 1
-		vi_M = MM_big(vi_M, vi_M, modulus, INT_SIZE+2);
-		vf_M = MM_big(vf_M, vf_M, modulus, INT_SIZE+2);
-		// #endif
+		// // #if BLINDING == 1
+		// vi_M = MM_big(vi_M, vi_M, modulus, INT_SIZE+2);
+		// vf_M = MM_big(vf_M, vf_M, modulus, INT_SIZE+2);
+		// // #endif
 
 		Res = f_write(&f_time, (const void*)&delta, sizeof(delta), NULL);
 		if (Res) {
@@ -359,7 +362,7 @@ int main(void)
 			return XST_FAILURE;
 		}
 
-		Res = f_write(&f_plain, (const void*)message.numb, INT_SIZE/8, NULL);
+		Res = f_write(&f_plain, (const void*)message.numb, BYTE_NUMB, NULL);
 		if (Res) {
 			xil_printf("Error failed to write plain text\n\r");
 			return XST_FAILURE;
@@ -372,8 +375,8 @@ int main(void)
 		// }
 
 
-		// f_sync(&f_time);
-		// f_sync(&f_plain);
+		f_sync(&f_time);
+		f_sync(&f_plain);
 		// f_sync(&f_cypher);
 
 	}
