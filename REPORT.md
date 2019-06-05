@@ -33,7 +33,7 @@ The RSA ecryption algorithm involves two steps:
 
 For the key pair generation, first two distinct large prime number (`p`,`q`) have to be found. Then, the modulus `n` is computed as the product of the two prime numbers. The Eulero's totient `t` is successively computed as the product
 
-$`t = (p-1) x (q-1)`$
+$`t = (p-1) x (q-1)`
 
 and the public exponent `e` is chosen such that
 
