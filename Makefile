@@ -1,5 +1,5 @@
 CC 			= gcc
-CFLAGS 		= -O3 -g -std=gnu99 -W -Wall -Wno-comment
+CFLAGS 		= -Ofast -g -std=gnu99 -W -Wall -Wno-comment
 CFLAGS_ATT	= -Ofast -std=gnu99 -W -Wall -Wno-comment
 INCLUDES 	= -I./include/
 LDFLAGS 	= -L./libraries -lm

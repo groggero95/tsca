@@ -4,7 +4,11 @@ void print_to_stdout(bigint_t *a){
   int i;
   printf("0x");
   for(i=NUMB_SIZE-1;i>=0; i--){
+#if VAR_SIZE == 32
     printf("%08x",a->numb[i]);
+#else
+    printf("%08lx",a->numb[i]);
+#endif
   }
 //  printf("\n");
   return;
