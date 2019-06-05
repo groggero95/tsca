@@ -85,6 +85,23 @@
     \end{block}
 \end{frame}
 
+\subsection{Library development}
+\begin{frame}{From the very beginning}
+	\begin{block}{BIGINT required}
+		In order to operate with large integers, we decided to develop our own library of functions to operate over integers of arbitrary length, in particular with the following elementary instructions:
+		\begin{itemize}
+			\item addition and subtraction
+			\item multiplication
+			\item bitwise operation, such as \texttt{AND, OR, XOR, NOT}
+			\item logical comparison
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+
+
+
+\section{Counter}
 
 \begin{frame}[fragile]
 \frametitle{Titlepage settings}
@@ -183,10 +200,12 @@ recent slide belongs to is highlighted
 \section{Countermeasures}
 \begin{frame}{Possible solution}
     \begin{block}{Blinding}
-    Test
+		The proposed countermeasure is the one given in \cite{kocher1996timing}.
+		It consists in blinding the message before the encryption using a couple of values $v_f, v_i$ chosen in such a way that:
+		\begin{equation*}
+			v_i^e \cdot v_f mod\: N = 1
+		\end{equation*}
     \end{block}
-    linding the messages before encryption.
-    % possible solution has been proposed in \cite{kocher1996timing}
 \end{frame}
 
 \begin{frame}[allowframebreaks]
