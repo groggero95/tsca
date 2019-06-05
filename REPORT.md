@@ -31,7 +31,7 @@ The RSA ecryption algorithm involves two steps:
 * key pair generation
 * modular exponentation and multiplication based ecryption
 
-For the key pair generation, first two distinct large prime number (`p`,`q`) have to be found, and which have to be kept secret. Then, the modulus `n` is computed as the product of the two prime numbers. The Eulero's totient `t` is then computed as the product $t = (p-1) \cdot (q-1)$
+For the key pair generation, first two distinct large prime number (`p`,`q`) have to be found, and which have to be kept secret. Then, the modulus `n` is computed as the product of the two prime numbers. The Eulero's totient `t` is then computed as the product $`t = (p-1) \cdot (q-1)`$
 
 ## Code development
 
