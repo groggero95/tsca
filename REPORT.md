@@ -33,7 +33,7 @@ The RSA ecryption algorithm involves two steps:
 
 For the key pair generation, first two distinct large prime number (`p`,`q`) have to be found. Then, the modulus `n` is computed as the product of the two prime numbers. The Eulero's totient `t` is successively computed as the product
 
-$`t = (p-1) x (q-1)`
+$`t = (p-1) x (q-1)`$
 
 and the public exponent `e` is chosen such that
 
@@ -45,14 +45,45 @@ $`gcd(e,t) = 1`$.
 
 Finally, the secret exponent `d` is chosen such that
 
-$`d \cdot e = 1 mod t`$.
+$`d \cdot e = 1 \; mod \; t`$.
 
 The pair `(n,e)` constitutes the public key, while the pair `(n,d)` the secret one.
 
 To perform the encryption of a message `m` to obtain the ciphertext `c`, the following operation is performed:
 
-$`c = m^e mod n`$
+$`c = m^e \; mod \; n`$.
 
+This computation consists of two main operations: modular multiplication and exponentiation. The implementation we adopted takes advantage instead of the Montgomery multiplication: the multiplier digits are consumed in the reverse order and no full length comparisons are required for the modular reductions (refer to [Colin D. Walter paper] on the argument). The basic pseudo-code it defines for the Montgomery modular multiplication is:
+
+```text
+S = 0 ;
+for i = 0 to nb−1 do
+  qi  = (s0 + aib0 )(-m^-1 ) mod r;
+  S   = (S + ai × b + qi × n) div r;
+end for;
+return S;
+```
+
+where `nb` is the total number of bits of the secret key, `a` and `b` are the two operands which are determined according to the Montgomery exponentation function:
+
+```text
+c = MM(k0,1,n);
+s = MM(k0,m,n);
+for i = 0 to nb−1 do
+  if (ei = 1) then
+    c = MM(c,s,n);  [multiply]
+  end if;
+  s = MM(s,s,n);    [square]
+end for;
+c = MM(c,1,n);
+return c;
+```
+
+where `MM()` is the Montgomery multiplication according to the previous algorithm and `k0` is
+
+$`k0 = 2^n`$
+
+where `n` is the modulus computed before.
 
 ## Code development
 
@@ -90,3 +121,7 @@ Finally, both the library and the RSA encryption have to be checked against a re
 
 
 ## Practical references
+
+
+
+[Colin D. Walter paper] : ./doc/CDW_ELL_99.pdf
