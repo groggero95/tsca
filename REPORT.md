@@ -6,6 +6,8 @@ This report shows the steps we have been through before getting to the final res
   * [Montgomery based RSA encryption](#montgomery-based-rsa-encryption)
 * [Code development](#code-development)
   * [Big integer library](#big-integer-library)
+    * [Data type](#data-type)
+    * [Operations](#operations)
   * [RSA ecryption](#rsa-ecryption)
   * [Code validation](#code-validation)
 * [Data acquisition](#data-acquisition)
@@ -33,7 +35,7 @@ The RSA ecryption algorithm involves two steps:
 
 For the key pair generation, first two distinct large prime number (`p`,`q`) have to be found. Then, the modulus `n` is computed as the product of the two prime numbers. The Eulero's totient `t` is successively computed as the product
 
-$`t = (p-1) x (q-1)`$
+$`t = (p-1) \cdot (q-1)`$
 
 and the public exponent `e` is chosen such that
 
@@ -41,22 +43,22 @@ $`1 < e < t`$
 
 and
 
-$`gcd(e,t) = 1`$.
+$`gcd(e,t) = 1`$ .
 
 Finally, the secret exponent `d` is chosen such that
 
-$`d \cdot e = 1 \; mod \; t`$.
+$`d \cdot e = 1 \; mod \; t`$ .
 
 The pair `(n,e)` constitutes the public key, while the pair `(n,d)` the secret one.
 
 To perform the encryption of a message `m` to obtain the ciphertext `c`, the following operation is performed:
 
-$`c = m^e \; mod \; n`$.
+$`c = m^e \; mod \; n`$ .
 
-This computation consists of two main operations: modular multiplication and exponentiation. The implementation we adopted takes advantage instead of the Montgomery multiplication: the multiplier digits are consumed in the reverse order and no full length comparisons are required for the modular reductions (refer to [Colin D. Walter paper] on the argument). The basic pseudo-code it defines for the Montgomery modular multiplication is:
+This computation consists of two main operations: modular multiplication and exponentiation. The implementation we adopted takes advantage instead of the Montgomery multiplication: the multiplier digits are consumed in the reverse order and no full length comparisons are required for the modular reductions (refer to [Colin D. Walter paper] on the topic). The basic pseudo-code it defines for the Montgomery modular multiplication is:
 
 ```text
-S = 0 ;
+S = 0;
 for i = 0 to nb−1 do
   qi  = (s0 + aib0 )(-m^-1 ) mod r;
   S   = (S + ai × b + qi × n) div r;
@@ -64,7 +66,7 @@ end for;
 return S;
 ```
 
-where `nb` is the total number of bits of the secret key, `a` and `b` are the two operands which are determined according to the Montgomery exponentation function:
+where `nb` is the total number of bits of the secret key, `a` and `b` are the first two operands which are determined according to the Montgomery exponentation function:
 
 ```text
 c = MM(k0,1,n);
@@ -79,15 +81,15 @@ c = MM(c,1,n);
 return c;
 ```
 
-where `MM()` is the Montgomery multiplication according to the previous algorithm and `k0` is
+where `MM()` is the Montgomery multiplication defined by the previous algorithm and `k0` is
 
-$`k0 = 2^n`$
+$`k_0 = 2^n`$
 
 where `n` is the modulus computed before.
 
 ## Code development
 
-The main starting point to get a working implementation for the Montgomery based RSA encryption is having a library capable of managing integers on a large number of bits (such as 1024 or 2048), since this will be most likely the size that will be used by most of the main core variables (private and public key, for instance). Usually, standard C libraries support numbers up to 128 bits (long double), which is the minimum key size for an admissible time side channel attack on RSA encryption. Thus, an extra library is needed.
+The starting point to get a working implementation for the Montgomery based RSA encryption is having a library capable of managing integers on a large number of bits (such as 1024 or 2048), since this will be most likely the size that will be used by most of the main core variables (private and public key, for instance). Usually, standard C libraries support numbers up to 128 bits (long double), which is the minimum key size for an admissible time side channel attack on RSA encryption. Thus, an extra library is needed.
 
 After such library is obtained, the pseudo-code presented above ([Theoretical references](#theoretical-references)) has to be ported into a real C implementation through the primary functions `Montgomery multiplication` and `Montgomery exponentation`.
 
@@ -95,7 +97,92 @@ Finally, both the library and the RSA encryption have to be checked against a re
 
 ### Big integer library
 
+There are two main possibilities to manage large integer numbers: rely on an available library (such as `GMP` (GNU Multiple Precision Arithmetic Library) or `OpenSSL`) or create one from scratch.
+
+The former implies to understand how it works and to deal with an optimized version of all the main operations. This code optimizations could lead to a significant reduction of the execution time related to data dependencies, making the final attack more complicated.
+
+The latter, on the other side, requires more time to be implemented and tested, but theoretically should guarantee a higher data dependency. Thus, this option is the one used.  
+
+The custom library is implemented through the files [bigint.h] and [bigint.c], which define:
+* the data type we will use to work on large integers
+* all the main operation needed to perform the Montgomery multiplication and exponentation.
+
+#### Data type
+
+In the file [bigint.h] the following parameter are free to be set:
+
+  * `VAR_SIZE`: it determines the basic unit to build the larger integer among 8 (uint8_t), 16 (uint16_t), 32 (uint32_t) and 64 (uint64_t) bits. Recommended size is 32.
+  * `INT_SIZE`: it determines the actual length of the data the system is working on (for instance, public and private key dimensions). Possible sizes are 64, 128, 256, 512, 1024 and 2048 bits.
+
+As a consequence of these two parameter, the code defines the `bigint_t` data type as a struct containing a vector of `NUMB_SIZE` elements of size `VAR_SIZE`, where `NUMB_SIZE` is equal to
+
+$`NUMB\_SIZE = \frac{INT_SIZE}{VAR_SIZE} + 1`$ .
+
+Thus, the vector will always have and extra element, used to store possible carries due to intermediate operations. Instead of an extra element `VAR_SIZE` long, a couple of bits would have been enough but, to keep the operations implementation simpler and straightforward, the choice fell back on the first solution.
+
+#### Operations
+
+All the operations use parameter passed by value (no pointer usage). The library contains the following operations:
+
+* Comparisons (if `first` is `eq`/`df`/`gt`/`ge`/`lt`/`le` to/than `second`, then the comparison returns `1` (true), otherwise returns `0` (false)):
+  * Equality:
+    * int eq(bigint_t first, bigint_t second);
+  * Diversity:
+    * int df(bigint_t first, bigint_t second);
+  * Greater than:
+    * int gt(bigint_t first, bigint_t second);
+  * Greater or equal:
+    * int ge(bigint_t first, bigint_t second);
+  * Lower than:
+    * int lt(bigint_t first, bigint_t second);
+  * Lower or equal:
+    * int le(bigint_t first, bigint_t second);
+
+
+* Logicals (bitwise operation between `a` and `b`, except the `not`, which reverts `a`):
+  * Bitwise and:
+    * bigint_t and(bigint_t a, bigint_t b);
+  * Bitwise or:
+    * bigint_t or(bigint_t a, bigint_t b);
+  * Not:
+    * bigint_t not(bigint_t a);
+  * Bitwise xor:
+    * bigint_t xor(bigint_t a, bigint_t b);
+
+
+* Shifts (bigint_t `a` is shifted of `pl` positions (logical shift semantic)):
+  * Logical shift right:
+    * bigint_t lsr(bigint_t a, int pl);
+  * Logical shift left:
+    * bigint_t lsl(bigint_t a, int pl);
+
+
+* Arithmetics (`a` is `sum`/`sub`/`mul` with `b`):
+  * Sum:
+    * bigint_t sum(bigint_t a, bigint_t b);
+  * Subtraction:
+    * bigint_t sub(bigint_t a, bigint_t b);
+  * Multiplication (the result is casted to the `bigint_t` size):
+    * bigint_t mul(bigint_t a, bigint_t b);
+
+
+* Utility:
+  * Init: initialize a variable into the `bigint_t` structure passed a pointer, except the extra element (element `NUMB\_SIZE`):
+    * bigint_t init(const char \*s);
+  * Init_full: as `init`, but initialize also the extra element:
+    * bigint_t init_full(const char \*s);
+  * Sum_4_mul: special sum for the `mul` operation:
+    * var_t sum_4_mul(var_t \*a, var_t b, var_t \*carry, int act);
+  * print_to_stdout: print the `bigint_t` number in hexadecimal format (0x..):
+    * void print_to_stdout(bigint_t \*a);
+  * rand_b: return a random `bigint_t` number:
+    * bigint_t rand_b( void );
+
+To check the actual implemetations of those functions, refer to the file [bigint.c].
+
 ### RSA ecryption
+
+The Montgomery multiplication and exponentiation pseudo-codes (section [Montgomery based RSA encryption](#montgomery-based-rsa-encryption)) are ported in C with the implemetations reported in the files pair [mm.h], [mm.c] and [me.h], [me.c]. More specifically, refer to the functions `MM_big` and `ME_big`.
 
 ### Code validation
 
@@ -124,4 +211,10 @@ Finally, both the library and the RSA encryption have to be checked against a re
 
 
 
-[Colin D. Walter paper] : ./doc/CDW_ELL_99.pdf
+[Colin D. Walter paper]: ./docs/CDW_ELL_99.pdf
+[bigint.h]: ./include/bigint.h
+[mm.h]: ./include/mm.h
+[me.h]: ./include/me.h
+[bigint.c]: ./source/bigint.c
+[mm.c]: ./source/mm.c
+[me.c]: ./source/me.c
