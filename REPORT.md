@@ -124,4 +124,4 @@ Finally, both the library and the RSA encryption have to be checked against a re
 
 
 
-[Colin D. Walter paper] : ./docs/CDW_ELL_99.pdf
+[Colin D. Walter paper]: ./docs/CDW_ELL_99.pdf
