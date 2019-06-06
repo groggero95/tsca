@@ -12,6 +12,7 @@
 \usepackage{apalike}
 \usepackage{floatrow}
 \usepackage{wasysym}
+\usepackage[absolute,overlay]{textpos}
 \usepackage[version=4]{mhchem}
 \usepackage[long,nodayofweek,level,12hr]{datetime}
 \makeatletter 
@@ -99,6 +100,17 @@
 \end{frame}
 
 
+\section{Attack}
+\subsection{Algorithm}
+\begin{frame}[fragile]
+	\frametitle{Finding correlations}
+	\begin{block}{PCC: our game changer}
+		In order to find the linerar contribution of each sample in the overall time, we have used the \textit{Pearson Correlation Coefficient} as an estimator. It has proved to be really effective for our needs, working on the realizations of a random variable.
+	\end{block}
+	\begin{center}
+		\includegraphics[]{./graphics/polito}
+	\end{center}
+\end{frame}
 
 
 \section{Counter}
@@ -209,10 +221,11 @@ recent slide belongs to is highlighted
 \end{frame}
 
 \begin{frame}[allowframebreaks]
-\Large{References} \\[0.5cm]
-\footnotesize
-\bibliographystyle{apalike}
-\bibliography{./bibliography/LaTeX}
+	\frametitle{References}
+%\Large{References} \\[0.5cm]
+	\footnotesize
+	\bibliographystyle{apalike}
+	\bibliography{./bibliography/LaTeX}
 \end{frame} 
 
 \end{document}
