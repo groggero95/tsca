@@ -1,3 +1,5 @@
 - Eliminare Makefile in test folder
 
-- La MM non simula
+- La MM non simula python
+
+- fix the compilation of 

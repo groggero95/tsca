@@ -239,13 +239,24 @@ All the functions have been tested with the approach just shown for a number of 
 
 ## Data acquisition
 
-It's time now to intensively run many Montgomery exponentation encryption on a bunch of messages using different sets of private exponent `e`, modolus `m` and `k0` and obtain the timing measurements associated to each set, to be able afterwards to mount an attack.
+It's time now to intensively run many Montgomery exponentation encryption on a bunch of messages using different sets of private exponent `e`, modolus `m` and `k0` and obtain the timing measurements associated to each set, to be able afterwards to mount an attack on them.
 
-The different predefined pairs are declared in the file [cipher.c]: selecting the values for `VERSION` in [cipher.h] and having a predefined value for the key width, a different pair is selected.
+The different predefined sets are declared in the file [cipher.c]:  the values for `VERSION` in [cipher.h] and having a predefined value for the key width (set in [bigint.h] with the parameter `INT_SIZE`) picks up a different set. The number of sets is limited since we don't have a code capable of generating them autonomously. Have a look at them and select one.
+
+Two different codes are available to obtain timing measurements:
+
+* [helloworld.c]: to get measurements on the zybo board without the intervention of an OS;
+* [timing.c]: to get measurement on a pc/laptop running an OS.
+
 
 ### Bare metal Zybo Board acquisition
 
-To run acquisitions on a OS-less system, for example on the Zybo board, two preliminary steps are necessary:
+The folder [zybo] contains all the necessary files to 
+
+To run acquisitions on a OS-less system, in our case the Zybo board, two preliminary steps are necessary:
+
+* set the `VERSION` and the `INT_SIZE` as explained before;
+*
 
 ### OS acquisition
 
@@ -275,3 +286,7 @@ To run acquisitions on a OS-less system, for example on the Zybo board, two prel
 [mm.c]: ./source/mm.c
 [me.c]: ./source/me.c
 [cipher.c]: ./source/cipher.c
+[cipher.h]: ./source/cipher.h
+[helloworld.c]: ./zybo/Test_sd/Debug
+[timing.c]: ./source/timing.c
+[zybo]: ./zybo/
