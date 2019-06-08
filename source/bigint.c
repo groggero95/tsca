@@ -85,13 +85,13 @@ int lt(bigint_t first, bigint_t second){
 int le(bigint_t first, bigint_t second){
     // if (first->pos != second->pos){
     //         return -1;
-    // }
-    for(int i=NUMB_SIZE; i>=0; i--){
+    //}
+    for(int i=NUMB_SIZE-1; i>=0; i--){
         if(first.numb[i] > second.numb[i])
             return 0;
         else if(first.numb[i] < second.numb[i])
             return 1;
-        }
+    }
     return 1;
 }
 
@@ -199,17 +199,11 @@ bigint_t sum(bigint_t a, bigint_t b){
     new_carry = a.numb[i] > data_res.numb[i];
     data_res.numb[i] = data_res.numb[i] + carry;
     carry = new_carry | (a.numb[i] > data_res.numb[i]);
-    //printf("stage %d sum = %x\n", i, data_res.numb[i]);
   }
-
-  //data_res.pos = INT_SIZE + carry*VAR_SIZE;
-  //data_res.numb[i] = carry; //+ a.numb[i] + b.numb[i];
-  //printf("and additional digits pos = %d, last = %x\n",data_res.pos,data_res.numb[i]);
-
   return data_res;
 }
 
-// TODO fix the sub, problems are here
+
 // SUB, gets data on NUMB_SIZE -1  and returns data on NUMB_SIZE
 bigint_t sub(bigint_t a, bigint_t b){
 
@@ -223,13 +217,7 @@ bigint_t sub(bigint_t a, bigint_t b){
     new_borrow = data_res.numb[i] > a.numb[i];
     data_res.numb[i] = data_res.numb[i] - borrow;
     borrow = new_borrow | (data_res.numb[i] > a.numb[i]);
-    //printf("stage %d sub = %x\n", i, data_res.numb[i]);
   }
-
-  // data_res.pos = INT_SIZE + borrow*VAR_SIZE;
-  // data_res.numb[i] = 0-borrow;
-  //printf("and additional digits pos = %d, last = %x\n",data_res.pos,data_res.numb[i]);
-
   return data_res;
 }
 

@@ -20,6 +20,16 @@ This report shows the steps we have been through before getting to the final res
 * [Conclusions](#conclusions)
 * [Practical references](#practical-references)
 
+Before starting, clone the git repository and get into it:
+
+```bash
+$ git config --global user.name "John Doe"
+$ git config --global user.email johndoe@example.com
+$ cd some-where
+$ git clone git@gitlab.eurecom.fr:roggero/tsca.git
+$ cd tsca
+```
+
 ## Theoretical references
 
 ### Side channel attack
@@ -116,9 +126,11 @@ In the file [bigint.h] the following parameter are free to be set:
 
 As a consequence of these two parameter, the code defines the `bigint_t` data type as a struct containing a vector of `NUMB_SIZE` elements of size `VAR_SIZE`, where `NUMB_SIZE` is equal to
 
-$`NUMB\_SIZE = \frac{INT_SIZE}{VAR_SIZE} + 1`$ .
+$`NUMB\_SIZE = \frac{INT\_SIZE}{VAR\_SIZE} + 1`$ .
 
 Thus, the vector will always have and extra element, used to store possible carries due to intermediate operations. Instead of an extra element `VAR_SIZE` long, a couple of bits would have been enough but, to keep the operations implementation simpler and straightforward, the choice fell back on the first solution.
+
+Data are saved in little endian format, i.e. the lowest address in the array contains the lowest chunk of data, and so on.
 
 #### Operations
 
@@ -182,14 +194,58 @@ To check the actual implemetations of those functions, refer to the file [bigint
 
 ### RSA ecryption
 
-The Montgomery multiplication and exponentiation pseudo-codes (section [Montgomery based RSA encryption](#montgomery-based-rsa-encryption)) are ported in C with the implemetations reported in the files pair [mm.h], [mm.c] and [me.h], [me.c]. More specifically, refer to the functions `MM_big` and `ME_big`.
+The Montgomery multiplication and exponentiation pseudo-codes (section [Montgomery based RSA encryption](#montgomery-based-rsa-encryption)) are ported instruction by instruction in C with the implemetations reported in the files pair [mm.h], [mm.c] and [me.h], [me.c]. More specifically, refer to the functions `MM_big` and `ME_big`.
 
 ### Code validation
 
+The `bigint` library and the Montgomery exponentation are now ready to be tested. As previously mentioned, Python is the programming language chosen both to launch several times the test operation and to provided the reference implementation. To compile the code, issue the following commands:
+
+```bash
+$ cd tsca
+$ make test
+```
+
+It will generate a file called `main` in the same folder. Enter then the folder `test`:
+
+```bash
+$ cd test
+```
+
+It contains a set of python test programs which implement reliable versions of the very same C functions listed in C (section [Operations](#operations)). To run the tests on the `bigint` library, type:
+
+```bash
+# Comparisons:
+$ python3 comp.py <operation> <numberoftests> <bit>
+# Logicals:
+$ python3 logic.py <operation> <numberoftests> <bit>
+# Shifts:
+$ python3 shift.py <operation> <numberoftests> <bit>
+# Arithmetics:
+$ python3 arith.py <operation> <numberoftests> <bit>
+```
+
+The chosen python script will check the custom implementation launching the executabe `main` aginst its intenal implementation. If `<numberoftest>` and `<bit>` are not defined, the program will automatically test for 10000 tests on 128 bits.
+
+To run instead the test on the Montomery operations type:
+
+```bash
+# Multiplication
+$ python3 modular.py mm <numberoftests> <bit>
+# Exponentation
+$ python3 modular.py me <numberoftests> <bit>
+```
+
+All the functions have been tested with the approach just shown for a number of tests between 10 millions and 100 millions each. Each iteration of any of the Python scripts uses random numbers generated runtime. Since at the time this report is written no error is detected, the library are supposed to be reliable from now on.
 
 ## Data acquisition
 
+It's time now to intensively run many Montgomery exponentation encryption on a bunch of messages using different sets of private exponent `e`, modolus `m` and `k0` and obtain the timing measurements associated to each set, to be able afterwards to mount an attack.
+
+The different predefined pairs are declared in the file [cipher.c]: selecting the values for `VERSION` in [cipher.h] and having a predefined value for the key width, a different pair is selected.
+
 ### Bare metal Zybo Board acquisition
+
+To run acquisitions on a OS-less system, for example on the Zybo board, two preliminary steps are necessary:
 
 ### OS acquisition
 
@@ -218,3 +274,4 @@ The Montgomery multiplication and exponentiation pseudo-codes (section [Montgome
 [bigint.c]: ./source/bigint.c
 [mm.c]: ./source/mm.c
 [me.c]: ./source/me.c
+[cipher.c]: ./source/cipher.c

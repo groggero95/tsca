@@ -32,6 +32,9 @@ deb:
 main: dir $(filter-out ./build/timing.o ./build/panda4x4.o, $(OBJS)) ${HEAD}
 	$(CC) $(CFLAGS) $(INCLUDES) $(filter-out ./build/timing.o ./build/panda4x4.o, $(OBJS)) $(LDFLAGS) -o $(BIN)
 
+test: dir $(filter-out ./build/timing.o ./build/panda4x4.o ./build/pcc.o ./build/utils.o, $(OBJS)) ${HEAD}
+	$(CC) $(CFLAGS) $(INCLUDES) $(filter-out ./build/timing.o ./build/panda4x4.o ./build/pcc.o ./build/utils.o, $(OBJS)) $(LDFLAGS) -o $(BIN)
+
 dir:
 	mkdir -p $(BUILD_DIR)
 
@@ -44,4 +47,3 @@ clean:
 	-rm -f ./main
 	-rm -f ./timing
 	-rm -f ./panda4x4
-

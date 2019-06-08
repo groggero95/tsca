@@ -19,7 +19,6 @@ int main(int argc, char **argv){
     return 1;
   }
 
-
   if ((!strcmp(argv[1],"lsl")) || (!strcmp(argv[1],"lsr"))) {
     a = init(argv[2]);
     shift=atoi(argv[3]);
@@ -35,11 +34,14 @@ int main(int argc, char **argv){
     n = init(argv[4]); // modulus
     k0 = init(argv[5]); // (1<<2nb) % n
     nb = INT_SIZE+2;
-  } else {
+  } else if (!strcmp(argv[1],"lsl") || !strcmp(argv[1],"lsr")
+            || !strcmp(argv[1],"mm") || !strcmp(argv[1],"me")) {
     a = init(argv[2]);
     b = init(argv[3]);
+   } else {
+    a = init_full(argv[2]);
+    b = init_full(argv[3]);
   }
-
 
   if (!strcmp(argv[1],"sum")){
     res = sum(a,b);
@@ -95,7 +97,6 @@ int main(int argc, char **argv){
   } else {
     printf("No operation available");
   }
-
 
   return 0;
 }
