@@ -172,7 +172,7 @@ int main(void)
 	// added by simo instead of the manual selection: set the following parameters:
 	#define BITS INT_SIZE
 	#define VERSION 0
-	#define TESTNUM 10000
+	#define TESTNUM 10
 	#define BLINDING 0
 
 	// to get the following structure updated
@@ -323,7 +323,7 @@ int main(void)
 
 	XGpioPs_WritePin(&led, 7, 0b0); // set MIO7 low
 
-	for (i = 0; i < 100; i++ ) {
+	for (i = 0; i < TESTNUM; i++ ) {
 		message = rand_b();
 		XTime_GetTime(&tStart);
 
@@ -339,7 +339,7 @@ int main(void)
 		enc = ME_big(pair.private, message, pair.modulus, pair.k0, INT_SIZE+2);
 		#endif
 
-		// print_to_stdout(&message);
+		print_to_stdout(&message);
 		// xil_printf("\r\n");
 
 		//BLINDING CORRECTION

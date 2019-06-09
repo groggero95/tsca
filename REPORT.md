@@ -251,12 +251,37 @@ Two different codes are available to obtain timing measurements:
 
 ### Bare metal Zybo Board acquisition
 
-The folder [zybo] contains all the necessary files to 
+The folder [zybo] contains all the necessary files to define an hardware platform which is capable of running a custom code. Inside, the folder [ZC010_wrapper_hw_platform_0] specifies a set of information useful to the first stage boot loader to initialize the hardware platform on which our code will run. The folder [Test_sd_bsp] contains the Xilinx libraries with a set of built-in functions for the board. Finally, the folder [Test_sd] contains the actual acquisition code ([helloworld.c]), together with the [boot.bin] and a set of other configuration files.
 
 To run acquisitions on a OS-less system, in our case the Zybo board, two preliminary steps are necessary:
+* set the `VERSION` parameter in [cipher.h];
+* set the `INT_SIZE` parameter in [bigint.h];
+* set the `TESTNUM` parameter in [helloworld.c] (number of total acquisitions).
 
-* set the `VERSION` and the `INT_SIZE` as explained before;
-*
+As just mentioned, the actual acquisition code is contained in the file [helloworld.c]. Have a look at it:
+
+```bash
+$ cd ..
+$ vi ./zybo/Test_sd/src/helloword.c
+```
+
+The `main()` function performs the following:
+* Creates two data file (`PLAIN.BIN` and `TIME.BIN`) that will be written on the same SD card we will plug in the zybo; the first contains the actual value of the message it has been encrypted, the second one the timing measurement related to that encryption;
+* Initializes the data structure `pair`, which contains the set of private key, public key and modulus;
+* Initialize the configuration of one led (`MIO7` on the zybo board) that will be turned on when the acquisition is concluded;
+* Starts the acquisition loop a number of times equal to `TESTNUM`: the message to be encrypted is randomly generated run-time and feeds one Montomery exponentiation, whose execution time in terms of clock cycles is recorded thanks to the Xilinx built in function `XTime_GetTime`, included in the library `xtime_l.h`; finally, write the two data files;
+* When the acquisition loop is over, le led is turned on and the `main()` returns.
+
+To run an acquisition campaign, plug and SD card in the laptop/pc and type the following commands:
+
+```bash
+$ export PATH=/path-to-/Xilinx/SDK/2018.3/gnu/aarch32/lin/gcc-arm-none-eabi/bin/:$PATH
+$ export PATH=/path-to-/Xilinx/SDK/2018.3/bin/:$PATH
+$ cd ./zybo/Test_sd/Debug/
+$ source set.sh <path-to-SD>
+```
+
+This will compile the whole bunch of files, create the [boot.bin] file, copy it to the SD card and unmount it. At this point, plug the SD card in the zybo board and power it on. When the `MIO7` led will turn on, the acquisition will be ended and the files ready to be read. Be careful, the zybo board is way less powerful than a PC microprocessor, setting a higher number of bits for the secret key and a higher number of acquisitions may need up to days! Setting 128 bits (`INT_SIZE`) and 10000 acquisitions (`TESTNUM`), the board should take around ?????????? to generate the two files.
 
 ### OS acquisition
 
@@ -290,3 +315,7 @@ To run acquisitions on a OS-less system, in our case the Zybo board, two prelimi
 [helloworld.c]: ./zybo/Test_sd/Debug
 [timing.c]: ./source/timing.c
 [zybo]: ./zybo/
+[ZC010_wrapper_hw_platform_0]: ./zybo/ZC010_wrapper_hw_platform_0/
+[Test_sd_bsp]: ./zybo/Test_sd_bsp/
+[Test_sd]: ./zybo/Test_sd/
+[boot.bin]: ./zybo/Test_sd/src/helloworld.c
