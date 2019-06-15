@@ -22,7 +22,7 @@ if __name__ == '__main__':
         measure = f_time.read(8)
         if not measure:
             break
-        timing.append(int.from_bytes(measure, byteorder='little',signed=False))
+        timing.append(int.from_bytes(measure, byteorder='little',signed=False)/10000)
 
     sigma = numpy.std(timing)
     mu = numpy.mean(timing)
