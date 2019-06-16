@@ -289,13 +289,13 @@ $ cd data
 $ ./graph.py newname_TIME.BIN
 ```
 It will appear the resulting distribution of samples versus the number of clock cycles.
-The following figure is one example of what you should obain:
+The following figure is most likely what you should obtain:
 
 <div align="center">
   <img style="padding:20px" src="./figures/100k_zybo.png" width="500"/>
 </div>
 
-and is generated from 100000 samples on a 128 bits key.
+and is generated from 100000 samples on a 128 bits key. It is a Gaussian distribution, which shows clearly that, even without the intervention of an operating system, on average the computations take a different time. If we don't consider the uncertainty related to the time measuring functions, this behavior is clearly due to algorithm data dependencies.
 
 ### OS acquisition
 
@@ -303,7 +303,7 @@ In the folder [source] we made also available a version capable of obtaining the
 * set the `VERSION` parameter in [cipher.h];
 * set the `INT_SIZE` parameter in [bigint.h];
 * set the `TESTNUM` parameter in [timing.c];
-* set the `MODE` parameter in [timing.c] to decide if the timing measurements will be done on the whole modular exponentation (`MODE = 0`) or only on the modulus squaring (`MODE = 1`).
+* set the `MODE` parameter in [timing.c] to decide if the timing measurements will be done on the whole modular exponentiation (`MODE = 0`) or only on the modulus squaring (`MODE = 1`).
 
 Have a look at the file:
 ```bash
@@ -336,6 +336,8 @@ The following figure was obtained for 20000 samples on a 128 bits key.
 <div align="center">
   <img style="padding:20px" src="./figures/20k_OS.png" width="500"/>
 </div>
+
+As before, a Gaussian distribution is obtained, plus some spare samples with really high execution time, probably related to time windows in which the operating system preempted the script execution. Those will be filtered away during the attack phase, in order to rely only on significant data.
 
 ## Attack
 
