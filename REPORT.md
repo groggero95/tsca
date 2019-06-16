@@ -35,13 +35,13 @@ $ cd tsca
 ### Side channel attack
 The name side channel attack refers to any attack based on a certain amount of information obtained from a computer system on which statistics could be computed. Relating those probabilistic statistics to the actual knowledge of the internal operation of the system, secrets related to the internal operations themselves could be disclosed.
 
-In our case, the attack will be a timing attack on an RSA crypto-computation (Montgomery modular algorithm based ). This meas that, basing on the knowledge of the actual algorithm used by the encryption and exploiting its timing weaknesses, the attacker could obtain timing measurements on a series of encryptions and could analyze them, disclosing the secret key. More on the Montagomery based RSA ecryption is explained in the section [Montgomery based RSA encryption](#montgomery-based-rsa-encryption), while for the attack algorithm employed refer to [Attack algorithm](#attack-algorithm).
+In our case, the attack will be a timing attack on an RSA crypto-computation (Montgomery modular algorithm based ). This meas that, basing on the knowledge of the actual algorithm used by the encryption and exploiting its timing weaknesses, the attacker could obtain timing measurements on a series of encryptions and could analyze them, disclosing the secret key. More on the Montgomery based RSA encryption is explained in the section [Montgomery based RSA encryption](#montgomery-based-rsa-encryption), while for the attack algorithm employed refer to [Attack algorithm](#attack-algorithm).
 
 ### Montgomery based RSA encryption
 The RSA ecryption algorithm involves two steps:
 
 * key pair generation
-* modular exponentation and multiplication based ecryption
+* modular exponentiation and multiplication based encryption
 
 For the key pair generation, first two distinct large prime number (`p`,`q`) have to be found. Then, the modulus `n` is computed as the product of the two prime numbers. The Eulero's totient `t` is successively computed as the product
 
@@ -101,7 +101,7 @@ where `n` is the modulus computed before.
 
 The starting point to get a working implementation for the Montgomery based RSA encryption is having a library capable of managing integers on a large number of bits (such as 1024 or 2048), since this will be most likely the size that will be used by most of the main core variables (private and public key, for instance). Usually, standard C libraries support numbers up to 128 bits (long double), which is the minimum key size for an admissible time side channel attack on RSA encryption. Thus, an extra library is needed.
 
-After such library is obtained, the pseudo-code presented above ([Theoretical references](#theoretical-references)) has to be ported into a real C implementation through the primary functions `Montgomery multiplication` and `Montgomery exponentation`.
+After such library is obtained, the pseudo-code presented above ([Theoretical references](#theoretical-references)) has to be ported into a real C implementation through the primary functions `Montgomery multiplication` and `Montgomery exponentiation`.
 
 Finally, both the library and the RSA encryption have to be checked against a reference and reliable implementation; in our case, it will be a Python one, since this programming language doesn't force any explicitly defined limit to a number object, which makes it an ideal candidate.
 
@@ -115,7 +115,7 @@ The latter, on the other side, requires more time to be implemented and tested, 
 
 The custom library is implemented through the files [bigint.h] and [bigint.c], which define:
 * the data type we will use to work on large integers
-* all the main operation needed to perform the Montgomery multiplication and exponentation.
+* all the main operation needed to perform the Montgomery multiplication and exponentiation.
 
 #### Data type
 
@@ -194,11 +194,11 @@ To check the actual implemetations of those functions, refer to the file [bigint
 
 ### RSA ecryption
 
-The Montgomery multiplication and exponentiation pseudo-codes (section [Montgomery based RSA encryption](#montgomery-based-rsa-encryption)) are ported instruction by instruction in C with the implemetations reported in the files pair [mm.h], [mm.c] and [me.h], [me.c]. More specifically, refer to the functions `MM_big` and `ME_big`.
+The Montgomery multiplication and exponentiation pseudo-codes (section [Montgomery based RSA encryption](#montgomery-based-rsa-encryption)) are ported instruction by instruction in C with the implementations reported in the files pair [mm.h], [mm.c] and [me.h], [me.c]. More specifically, refer to the functions `MM_big` and `ME_big`.
 
 ### Code validation
 
-The `bigint` library and the Montgomery exponentation are now ready to be tested. As previously mentioned, Python is the programming language chosen both to launch several times the test operation and to provided the reference implementation. To compile the code, issue the following commands:
+The `bigint` library and the Montgomery exponentiation are now ready to be tested. As previously mentioned, Python is the programming language chosen both to launch several times the test operation and to provided the reference implementation. To compile the code, issue the following commands:
 
 ```bash
 $ cd tsca
@@ -224,9 +224,9 @@ $ python3 shift.py <operation> <numberoftests> <bit>
 $ python3 arith.py <operation> <numberoftests> <bit>
 ```
 
-The chosen python script will check the custom implementation launching the executabe `main` aginst its intenal implementation. If `<numberoftest>` and `<bit>` are not defined, the program will automatically test for 10000 tests on 128 bits.
+The chosen python script will check the custom implementation launching the executable `main` against its internal implementation. If `<numberoftest>` and `<bit>` are not defined, the program will automatically test for 10000 tests on 128 bits.
 
-To run instead the test on the Montomery operations type:
+To run instead the test on the Montgomery operations type:
 
 ```bash
 # Multiplication
@@ -239,7 +239,7 @@ All the functions have been tested with the approach just shown for a number of 
 
 ## Data acquisition
 
-It's time now to intensively run many Montgomery exponentation encryption on a bunch of messages using different sets of private exponent `e`, modolus `m` and `k0` and obtain the timing measurements associated to each set, to be able afterwards to mount an attack on them.
+It's time now to intensively run many Montgomery exponentiation encryption on a bunch of messages using different sets of private exponent `e`, modulus `m` and `k0` and obtain the timing measurements associated to each set, to be able afterwards to mount an attack on them.
 
 The different predefined sets are declared in the file [cipher.c]:  the values for `VERSION` in [cipher.h] and having a predefined value for the key width (set in [bigint.h] with the parameter `INT_SIZE`) picks up a different set. The number of sets is limited since we don't have a code capable of generating them autonomously. Have a look at them and select one.
 
@@ -311,7 +311,7 @@ $ vim ./source/timing.c
 ```
 The `main()`function performs the following:
 * Initialize the data structure `pair`;
-* Creates/opens two data files (PLAIN.BIN and TIME.BIN) in the folder [data], which will be populated with a number of samples (plaintext ecrypted) according to `TESTNUM`;
+* Creates/opens two data files (PLAIN.BIN and TIME.BIN) in the folder [data], which will be populated with a number of samples (plaintext encrypted) according to `TESTNUM`;
 * For each plaintext, the timing measurements are taken `REPETITIONS` times (set to 10) and the minimum timing is chosen. In this way we try to reduce possible weird measurements due to OS scheduling policies, which may lead to clearly out-of-bound results. The functions on which the timings are taken (`ME_big()` and `MM_big()`) are the very same used in the zybo case.
 * The functions used for timing measurements are reported in [time_meas.h];
 * A live progress status is printed to screen (it doesn't influence the timing measurements): when the execution is done, the two files are ready to be attacked.
@@ -324,7 +324,7 @@ $ ./timing
 ```
 
 
-As for the zybo case, the time taken by this operation strongly depends on the width of the key chosen and the number of samples required. As a reference, on a single core running at 3.1 GHz, the time needed for 10000 measuremenets is around 4 minutes. The overhead with respect to the zybo is due to the factor 10 added when we look for the minimum.
+As for the zybo case, the time taken by this operation strongly depends on the width of the key chosen and the number of samples required. As a reference, on a single core running at 3.1 GHz, the time needed for 10000 measurements is around 4 minutes. The overhead with respect to the zybo is due to the factor 10 added when we look for the minimum.
 
 As before, visualize the results:
 ```bash
