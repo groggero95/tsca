@@ -13,27 +13,26 @@ ATTACK		= ./panda4x4
 OBJS = $(patsubst $(SOURCE_DIR)/%.c, $(BUILD_DIR)/%.o, $(wildcard $(SOURCE_DIR)/*.c))
 HEAD = $(wildcard $(INCLUDE_DIR)/*.h)
 
-all: main attack
+all: main attack timing test
 
 pres:
 	 $(MAKE) -C ./presentation/ all
 
-
 timing: dir $(filter-out ./build/main.o ./build/panda4x4.o, $(OBJS)) ${HEAD}
 	$(CC) $(CFLAGS) $(INCLUDES) $(filter-out ./build/main.o ./build/panda4x4.o, $(OBJS)) $(LDFLAGS) -o $(TIME)
 
-attack: dir $(filter-out ./build/timing.o ./build/main.o, $(OBJS)) ${HEAD}
-	$(CC) $(CFLAGS_ATT) $(INCLUDES) $(filter-out ./build/main.o ./build/timing.o, $(OBJS)) $(LDFLAGS) -o $(ATTACK)
+attack: dir $(filter-out ./build/timing.o ./build/cipher.o ./build/main.o, $(OBJS)) ${HEAD}
+	$(CC) $(CFLAGS_ATT) $(INCLUDES) $(filter-out ./build/main.o ./build/cipher.o ./build/timing.o, $(OBJS)) $(LDFLAGS) -o $(ATTACK)
 
 deb:
 	@echo ${OBJS}
 	@echo ${HEAD}
 
-main: dir $(filter-out ./build/timing.o ./build/panda4x4.o, $(OBJS)) ${HEAD}
-	$(CC) $(CFLAGS) $(INCLUDES) $(filter-out ./build/timing.o ./build/panda4x4.o, $(OBJS)) $(LDFLAGS) -o $(BIN)
+main: dir $(filter-out ./build/timing.o ./build/cipher.o ./build/panda4x4.o, $(OBJS)) ${HEAD}
+	$(CC) $(CFLAGS) $(INCLUDES) $(filter-out ./build/timing.o ./build/cipher.o ./build/panda4x4.o, $(OBJS)) $(LDFLAGS) -o $(BIN)
 
-test: dir $(filter-out ./build/timing.o ./build/panda4x4.o ./build/pcc.o ./build/utils.o, $(OBJS)) ${HEAD}
-	$(CC) $(CFLAGS) $(INCLUDES) $(filter-out ./build/timing.o ./build/panda4x4.o ./build/pcc.o ./build/utils.o, $(OBJS)) $(LDFLAGS) -o $(BIN)
+test: dir $(filter-out ./build/timing.o ./build/panda4x4.o ./build/cipher.o ./build/pcc.o ./build/utils.o, $(OBJS)) ${HEAD}
+	$(CC) $(CFLAGS) $(INCLUDES) $(filter-out ./build/timing.o ./build/panda4x4.o ./build/cipher.o ./build/pcc.o ./build/utils.o, $(OBJS)) $(LDFLAGS) -o $(BIN)
 
 dir:
 	mkdir -p $(BUILD_DIR)

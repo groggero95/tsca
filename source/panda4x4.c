@@ -24,10 +24,10 @@ void get_filter_param(uint64_t *a, int dim, double *mean, double *std){
 }
 
 
-int filter(uint64_t *T_in, msg_t *M_in, double mean, double std, double coeff, uint64_t *T_arr, msg_t *M_arr){
+int filter(uint64_t *T_in, msg_t *M_in, double mean, double std, uint64_t *T_arr, msg_t *M_arr){
 	int j = 0;
 	for(int i = 0; i < N_SAMPLES; i++){
-		if( fabs(T_in[i] - mean) > std*coeff ){
+		if( fabs(T_in[i] - mean) < std*(float)COEFF ){
 			memcpy(T_arr + j, T_in + i, sizeof(uint64_t));
 			memcpy(M_arr + j, M_in + i, sizeof(msg_t));
 			j++;
@@ -83,9 +83,9 @@ void read_plain(char *time_file, char * msg_file, int n_sample, uint64_t *T_arr,
 int main(int argc, char* argv[]) {
 
 	// Declaration of the key that we want to attack and other parameters needed for the attack
-	bigint_t n 		 = init("0xf16ea639730a5881f346ac3c065d11322b3be9c7def104269d88ed0c73bba1b05c84712bca9f0880916cab52ea3a88f04cbc2d45ee00647293b1a7c43e1acc3d");
-	bigint_t private = init("0x05ffea52c644ee4e589eef5d6ddaf173eeee2c1ee520e88af79b3e974c5ef1d5814ea45a531a7afa872f02990ced7ef59709e4aff18f0c6ed18724cb8e505ef1");
-	bigint_t k0 	 = init("0x3160493be94f6b0dac60adf43f295163782d4a53c9e811b6ccd10bb12c62f57cc3ff9aee5272bb775cf4aa1626ee023a1f90c86e3ffb3baa4ca499fd3e6e6cea");
+	bigint_t n 		 		= init("0xc8aed04da6c85dd4638add6c6fc04a59");
+	bigint_t private 	= init("0x2845ecc7a890cd4356ef00ff86e63f81");
+	bigint_t k0 	 		= init("0x64d8149d5c75b7137c099ce764ab8335");
 
 	// define the structure which holds timing and messages
 	uint64_t *T_arr, *T_in;
@@ -100,7 +100,6 @@ int main(int argc, char* argv[]) {
 	read_plain(TIME_FILE, MSG_FILE, n_sample, T_in, M_in, n, k0);
 
 	double mean, std;
-	double coeff = 2;
 
 	printf("Post read messages\n");
 
@@ -108,7 +107,7 @@ int main(int argc, char* argv[]) {
 		get_filter_param(T_in, n_sample, &mean, &std);
 
 		printf("Post mean and std\n");
-		n_sample = filter(T_in, M_in, mean, std, coeff, T_arr, M_arr);
+		n_sample = filter(T_in, M_in, mean, std, T_arr, M_arr);
 	#else
 		T_arr = T_in;
 		M_arr = M_in;

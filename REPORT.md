@@ -255,14 +255,14 @@ The folder [zybo] contains all the necessary files to define an hardware platfor
 
 To run acquisitions on a OS-less system, in our case the Zybo board, two preliminary steps are necessary:
 * set the `VERSION` parameter in [cipher.h];
-* set the `INT_SIZE` parameter in [bigint.h];
+* set the `INT_SIZE` parameter in [zybo bigint.h] (the make-able version in the zybo folder, not the original one);
 * set the `TESTNUM` parameter in [helloworld.c] (number of total acquisitions).
 
 As just mentioned, the actual acquisition code is contained in the file [helloworld.c]. Have a look at it:
 
 ```bash
 $ cd ..
-$ vi ./zybo/Test_sd/src/helloword.c
+$ vim ./zybo/Test_sd/src/helloword.c
 ```
 
 The `main()` function performs the following:
@@ -270,7 +270,7 @@ The `main()` function performs the following:
 * Initializes the data structure `pair`, which contains the set of private key, public key and modulus;
 * Initialize the configuration of one led (`MIO7` on the zybo board) that will be turned on when the acquisition is concluded;
 * Starts the acquisition loop a number of times equal to `TESTNUM`: the message to be encrypted is randomly generated run-time and feeds one Montomery exponentiation, whose execution time in terms of clock cycles is recorded thanks to the Xilinx built in function `XTime_GetTime`, included in the library `xtime_l.h`; finally, write the two data files;
-* When the acquisition loop is over, le led is turned on and the `main()` returns.
+* When the acquisition loop is over, the led is turned on and the `main()` returns.
 
 To run an acquisition campaign, plug and SD card in the laptop/pc and type the following commands:
 
@@ -281,10 +281,61 @@ $ cd ./zybo/Test_sd/Debug/
 $ source set.sh <path-to-SD>
 ```
 
-This will compile the whole bunch of files, create the [boot.bin] file, copy it to the SD card and unmount it. At this point, plug the SD card in the zybo board and power it on. When the `MIO7` led will turn on, the acquisition will be ended and the files ready to be read. Be careful, the zybo board is way less powerful than a PC microprocessor, setting a higher number of bits for the secret key and a higher number of acquisitions may need up to days! Setting 128 bits (`INT_SIZE`) and 10000 acquisitions (`TESTNUM`), the board should take around ?????????? to generate the two files.
+This will compile the whole bunch of files, create the [boot.bin] file, copy it to the SD card and unmount it. At this point, plug the SD card in the zybo board and power it on. When the `MIO7` led will turn on, the acquisition will be completed and the files ready to be read. Be careful, the zybo board is way less powerful than a PC microprocessor, setting a higher number of bits for the secret key and a higher number of acquisitions may need up to days! Setting 128 bits (`INT_SIZE`) and 10000 acquisitions (`TESTNUM`), the board should take around 3 minutes to generate the two files.
+
+To visualize the results, copy the files `PLAIN.BIN` and `TIME.BIN` in the folder [data] and give them a new name. Then, type:
+```bash
+$ cd data
+$ ./graph.py newname_TIME.BIN
+```
+It will appear the resulting distribution of samples versus the number of clock cycles.
+The following figure is one example of what you should obain:
+
+<div align="center">
+  <img style="padding:20px" src="./figures/100k_zybo.png" width="500"/>
+</div>
+
+and is generated from 100000 samples on a 128 bits key.
 
 ### OS acquisition
 
+In the folder [source] we made also available a version capable of obtaining the very same measurements but on a system running an operating system. The file is [timing.c], but before obtaining the acquisitions, the following parameters have to be set:
+* set the `VERSION` parameter in [cipher.h];
+* set the `INT_SIZE` parameter in [bigint.h];
+* set the `TESTNUM` parameter in [timing.c];
+* set the `MODE` parameter in [timing.c] to decide if the timing measurements will be done on the whole modular exponentation (`MODE = 0`) or only on the modulus squaring (`MODE = 1`).
+
+Have a look at the file:
+```bash
+$ vim ./source/timing.c
+```
+The `main()`function performs the following:
+* Initialize the data structure `pair`;
+* Creates/opens two data files (PLAIN.BIN and TIME.BIN) in the folder [data], which will be populated with a number of samples (plaintext ecrypted) according to `TESTNUM`;
+* For each plaintext, the timing measurements are taken `REPETITIONS` times (set to 10) and the minimum timing is chosen. In this way we try to reduce possible weird measurements due to OS scheduling policies, which may lead to clearly out-of-bound results. The functions on which the timings are taken (`ME_big()` and `MM_big()`) are the very same used in the zybo case.
+* The functions used for timing measurements are reported in [time_meas.h];
+* A live progress status is printed to screen (it doesn't influence the timing measurements): when the execution is done, the two files are ready to be attacked.
+
+To run the acquisition, type:
+```bash
+$ cd ..
+$ make timing
+$ ./timing
+```
+
+
+As for the zybo case, the time taken by this operation strongly depends on the width of the key chosen and the number of samples required. As a reference, on a single core running at 3.1 GHz, the time needed for 10000 measuremenets is around 4 minutes. The overhead with respect to the zybo is due to the factor 10 added when we look for the minimum.
+
+As before, visualize the results:
+```bash
+$ cd data
+$ ./graph.py newname_TIME.BIN
+```
+The following figure was obtained for 20000 samples on a 128 bits key.
+
+<div align="center">
+  <img style="padding:20px" src="./figures/20k_OS.png" width="500"/>
+</div>
 
 ## Attack
 
@@ -304,18 +355,26 @@ This will compile the whole bunch of files, create the [boot.bin] file, copy it 
 
 
 [Colin D. Walter paper]: ./docs/CDW_ELL_99.pdf
+
 [bigint.h]: ./include/bigint.h
 [mm.h]: ./include/mm.h
 [me.h]: ./include/me.h
+[cipher.h]: ./source/cipher.h
+[zybo bigint.h]: ./zybo/Test_sd_bsp/ps7_cortexa9_0/libsrc/bigint_v0_1/src/include/bigint.h
+[time_meas.h]: ./include/time_meas.h
+
 [bigint.c]: ./source/bigint.c
 [mm.c]: ./source/mm.c
 [me.c]: ./source/me.c
 [cipher.c]: ./source/cipher.c
-[cipher.h]: ./source/cipher.h
 [helloworld.c]: ./zybo/Test_sd/Debug
 [timing.c]: ./source/timing.c
+
 [zybo]: ./zybo/
 [ZC010_wrapper_hw_platform_0]: ./zybo/ZC010_wrapper_hw_platform_0/
 [Test_sd_bsp]: ./zybo/Test_sd_bsp/
 [Test_sd]: ./zybo/Test_sd/
+[source]: ./source/
+[data]: ./data/
+
 [boot.bin]: ./zybo/Test_sd/src/helloworld.c

@@ -1,12 +1,13 @@
 #ifndef PANDA
 #define PANDA
 
-#define N_SAMPLES 		300000
-#define MSG_FILE 		"./data/P1M_Ofast_key4_512.BIN"
-#define TIME_FILE 		"./data/T1M_Ofast_key4_512.BIN"
+#define N_SAMPLES 		15000
+#define MSG_FILE 		"./data/P20k_Ofast_key2_OS_128.BIN"
+#define TIME_FILE 		"./data/T20k_Ofast_key2_OS_128.BIN"
 #define B_CONSIDERED 	2
 #define B_GUESSED 		1
 #define FILTERING		1
+#define COEFF 1.5
 
 typedef struct msg_t
 {

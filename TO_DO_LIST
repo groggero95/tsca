@@ -2,4 +2,6 @@
 
 - La MM non simula python
 
-- fix the compilation of 
+- aggiungere blinding in versione pc (timing.c)
+
+- check the filtering function in panda4x4

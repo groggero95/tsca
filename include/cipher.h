@@ -5,7 +5,6 @@
 
 #define BITS INT_SIZE
 #define VERSION 0
-#define TESTNUM 10000
 #define BLINDING 0
 
 // Structure to be used for the operations

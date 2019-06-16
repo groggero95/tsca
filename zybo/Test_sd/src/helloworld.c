@@ -172,7 +172,7 @@ int main(void)
 	// added by simo instead of the manual selection: set the following parameters:
 	#define BITS INT_SIZE
 	#define VERSION 0
-	#define TESTNUM 10
+	#define TESTNUM 10000
 	#define BLINDING 0
 
 	// to get the following structure updated
