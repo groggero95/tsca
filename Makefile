@@ -10,15 +10,20 @@ BIN			= ./main
 TIME		= ./timing
 ATTACK		= ./panda4x4
 
+SOURCE_DOCS		= 	$(wildcard *.md)
+EXPORTED_DOCS 	=  	$(SOURCE_DOCS:.md=.pdf)
+
 OBJS = $(patsubst $(SOURCE_DIR)/%.c, $(BUILD_DIR)/%.o, $(wildcard $(SOURCE_DIR)/*.c))
 HEAD = $(wildcard $(INCLUDE_DIR)/*.h)
 
-all: main attack timing test
+.PHONY: all clean pres time attack deb main test rep
+
+all: main attack time test rep
 
 pres:
 	 $(MAKE) -C ./presentation/ all
 
-timing: dir $(filter-out ./build/main.o ./build/panda4x4.o, $(OBJS)) ${HEAD}
+time: dir $(filter-out ./build/main.o ./build/panda4x4.o, $(OBJS)) ${HEAD}
 	$(CC) $(CFLAGS) $(INCLUDES) $(filter-out ./build/main.o ./build/panda4x4.o, $(OBJS)) $(LDFLAGS) -o $(TIME)
 
 attack: dir $(filter-out ./build/timing.o ./build/cipher.o ./build/main.o, $(OBJS)) ${HEAD}
@@ -37,8 +42,13 @@ test: dir $(filter-out ./build/timing.o ./build/panda4x4.o ./build/cipher.o ./bu
 dir:
 	mkdir -p $(BUILD_DIR)
 
+rep: $(EXPORTED_DOCS)
+
 $(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.c ${HEAD}
 	$(CC) -c $(SOURCE_DIR)/$*.c $(INCLUDES) -o $(BUILD_DIR)/$*.o
+
+%.pdf: %.md
+	pandoc -o $@ $<
 
 clean:
 	@echo "Cleaning up this shit"
@@ -46,3 +56,4 @@ clean:
 	-rm -f ./main
 	-rm -f ./timing
 	-rm -f ./panda4x4
+	-rm $(EXPORTED_DOCS)

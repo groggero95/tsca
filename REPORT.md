@@ -69,7 +69,7 @@ This computation consists of two main operations: modular multiplication and exp
 
 ```text
 S = 0;
-for i = 0 to nb−1 do
+for i = 0 to nb-1 do
   qi  = (s0 + aib0 )(-m^-1 ) mod r;
   S   = (S + ai × b + qi × n) div r;
 end for;
@@ -81,7 +81,7 @@ where `nb` is the total number of bits of the secret key, `a` and `b` are the fi
 ```text
 c = MM(k0,1,n);
 s = MM(k0,m,n);
-for i = 0 to nb−1 do
+for i = 0 to nb-1 do
   if (ei = 1) then
     c = MM(c,s,n);  [multiply]
   end if;
