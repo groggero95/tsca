@@ -134,29 +134,44 @@
 \end{frame}
 
 \subsection{Algorithm}
+
 \begin{frame}[fragile]
     \frametitle{Algorithm}
-    \begin{block}{}
+    \begin{block}{Development}
+        \begin{enumerate}
+            \pause \item Started in Python to allow better flexibility and library support (infinite precion, \texttt{scipy.stats})
+            \pause \item At firt, attacking conditional Montgomery Mult., 1 bit at-a-time, using fixed threshold
+            \pause \item Move on to attack both MM to improve statistical relevance of 0 guesses
+            \pause \item Get rid of fixed threshold by using multi bit analysis and the max of the accumulated PCCs on a common path
+        \end{enumerate}
+    \end{block}
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+    \frametitle{Algorithm}
+    \begin{block}{Final implementation}
         \begin{itemize}
             \item Attack at the same time the two Montgomery moltiplications present in an RSA iteration
-            \item Timing estimate based on a dummy Montgomery moltiplication that evaluate the number of taken branches
+            \item Timing estimate based on a dummy Montgomery moltiplication which evaluates the number of taken branches
             \item Multi bit guessing
-            \item Error detection capabilities
+            \item Error-detection capabilities
         \end{itemize}
     \end{block}
     \hfill \includegraphics[width=2cm]{./graphics/algorithm}
 \end{frame}
 
 \begin{frame}[fragile]
-    \frametitle{Algorithm optimizations}
-    \begin{block}{}
+    \frametitle{Algorithm}
+    \begin{block}{Optimizations}
         \begin{itemize}
             \item Completely rewritten in C with +10x speedup over Python
             \item Fully customizable number of bits considered and guessed in one attack iteration
-            \item Tweakable filtering of input data with \#define parameters
+            \item Tweakable filtering of input data with \texttt{\#define} parameters
         \end{itemize}
     \end{block}
-    \hfill \includegraphics[width=2cm]{./graphics/control_panel}
+    \hfill \includegraphics[width=2cm]{./graphics/tweak}
 \end{frame}
 
 
