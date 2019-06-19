@@ -65,15 +65,42 @@
 
 \section{Introduction}
 
+\begin{frame}{Leaking informations}
+  \begin{alert}{Side-channel attacks}
+    \begin{enumerate}
+        \pause \item any attack based on information gained from the implementation of a computer system
+        \pause \item timing information, power consumption, electromagnetic leaks or even sound can provide an extra source of information
+        \pause \item such information are therefore exploitable by an attacker
+    \end{enumerate}
+  \end{alert}
+  \vfill
+  \begin{minipage}[t]{0.72\linewidth}
+    Therefore, our goal will consist in investigate such leaked information, trying to unveal secrets.
+  \end{minipage}
+  \hfill%
+  \begin{minipage}[c]{0.22\linewidth}
+    \vfill
+    \includegraphics[width=2cm]{./graphics/leak}
+  \end{minipage}
+\end{frame}
+
 \begin{frame}
 \frametitle{Introduction}
+\begin{minipage}[c]{0.22\linewidth}
+  \includegraphics[width=2.8cm]{./graphics/corr}
+\end{minipage}
+\hfill%
+\begin{minipage}[c]{0.7\linewidth}
+  \begin{itemize}
+    \pause \item in several algorithms used for security purposes some optimizations are introduced
+    \pause \item these optimizations lead to a linear dependency between time and the data encrypted
+    \pause \item knowing information regarding the time-data pair, it is possible to find a correlation
+    \pause \item this correlation can be used to unveal part of the secret
+  \end{itemize}
+\end{minipage}
 
-\begin{itemize}
-\pause \item in several algorithms used for security purposes some optimizations are introduced
-\pause \item these optimizations lead to a linear dependency between time and the data encrypted
-\pause \item knowing information regarding the time-data pair, it is possible to find a correlation
-\pause \item this correlation can be used to unveal part of the secret
-\end{itemize}
+
+
 \end{frame}
 
 \subsection{Hypothesis}
@@ -106,9 +133,18 @@
 \begin{frame}{Library testing}
   \begin{block}{Checking the correctness}
     As we wanted to check for formal correctness of the library, we proceed in the following way:
-
+    \begin{enumerate}
+      \pause \item design a function written in \textit{C} for our library
+      \pause \item emulate its behavior in \textit{Python}, using its infinite precision
+      \pause \item launched an intense series of tests to check the formal equality
+    \end{enumerate}
   \end{block}
 
+  \pause
+  \begin{alert}{An interesting discovery}
+
+    We have found out that the shift bt 32 bits (or multiples) does not produce an effect. This special case has to be handled in our library.
+  \end{alert}
 \end{frame}
 
 \subsection{Zybo Board}
