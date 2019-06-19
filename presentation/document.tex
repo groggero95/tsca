@@ -135,7 +135,7 @@
 \begin{frame}[fragile]
 	\frametitle{Finding correlations}
 	\begin{block}{PCC: our game changer}
-		In order to find the linerar contribution of each sample in the overall time, we have used the \textit{Pearson Correlation Coefficient} as an estimator. It has proved to be really effective for our needs, working on the realizations of a random variable.
+		In order to find the linear contribution of each sample in the overall time, we have used the \textit{Pearson Correlation Coefficient} as an estimator. It has proved to be really effective for our needs, working on the realizations of a random variable.
 	\end{block}
 	\begin{center}
 		\includegraphics[width=6cm]{./graphics/rand_distr}
@@ -147,12 +147,12 @@
 \begin{frame}[fragile]
     \frametitle{Algorithm}
     \begin{block}{Development}
-        \begin{enumerate}
+        \begin{itemize}
             \pause \item Started in Python to allow better flexibility and library support (infinite precion, \texttt{scipy.stats})
-            \pause \item At firt, attacking conditional Montgomery Mult., 1 bit at-a-time, using fixed threshold
+            \pause \item At first, attacking conditional Montgomery Mult., 1 bit at-a-time, using fixed threshold
             \pause \item Move on to attack both MM to improve statistical relevance of 0 guesses
-            \pause \item Get rid of fixed threshold by using multi bit analysis and the max of the accumulated PCCs on a common path
-        \end{enumerate}
+            \pause \item Get rid of fixed threshold by: using multi bit analysis and taking max between the accumulated PCCs on a common path
+        \end{itemize}
     \end{block}
 
 \end{frame}
@@ -163,7 +163,7 @@
     \begin{block}{Final implementation}
         \begin{itemize}
             \pause \item Attack at the same time the two Montgomery moltiplications present in an RSA iteration
-            \pause \item Timing estimate based on a dummy Montgomery moltiplication which evaluates the number of taken branches
+            \pause \item Timing estimate: dummy Montgomery moltiplication which evaluates the number of taken branches
             \pause \item Multi bit guessing
             \pause \item Error-detection capabilities
         \end{itemize}
@@ -177,14 +177,24 @@
         \begin{itemize}
             \pause \item Completely rewritten in C with +10x speedup over Python
             \pause \item Fully customizable number of bits considered and guessed in one attack iteration
-            \pause \item Tweakable filtering of input data with \texttt{\#define} parameters
+            \pause \item Tweakable filtering of input data with \texttt{\#define} parameters for noisy samples
         \end{itemize}
     \end{block}
     \hfill \includegraphics[width=2cm]{./graphics/tweak}
 \end{frame}
 
-
-
+\begin{frame}[fragile]
+    \frametitle{Algorithm}
+    \begin{block}{To have an idea...}
+        The C implementations, running on a machine with 2.4Ghz Intel i5:
+        \begin{itemize}
+            \pause \item cracks 128-bit RSA in 3m40sec
+            \pause \item using 10k plaintexts sampled on Zybo board
+            \pause \item considering 2 bits and guessing 1 per iteration of the attack
+        \end{itemize}
+    \end{block}
+    \hfill \includegraphics[width=3cm]{./graphics/hacker}
+\end{frame}
 
 \subsection{Extremely powerful}
 \begin{frame}{Just a simplification}
