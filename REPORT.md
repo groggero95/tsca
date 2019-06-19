@@ -15,6 +15,11 @@ This report shows the steps we have been through before getting to the final res
   * [OS acquisition](os-acquisition)
 * [Attack](#attack)
   * [Attack algorithm](#attack-algorithm)
+    * [First implementation attempt](#first-implementation-attempt)
+    * [Final implementation](#final-implementation)
+    * [Codes](#codes)
+      * [Python](#python)
+      * [C](#c)
   * [Attack results](#attack-results)
 * [Countermeasures](#countermeasures)
 * [Conclusions](#conclusions)
@@ -70,8 +75,8 @@ This computation consists of two main operations: modular multiplication and exp
 ```text
 S = 0;
 for i = 0 to nb-1 do
-  qi  = (s0 + aib0 )(-m^-1 ) mod r;
-  S   = (S + ai × b + qi × n) div r;
+  qi = (s0 + aib0) x (-m^-1) mod r;
+  S = (S + ai x b + qi x n) div r;
 end for;
 return S;
 ```
@@ -80,13 +85,13 @@ where `nb` is the total number of bits of the secret key, `a` and `b` are the fi
 
 ```text
 c = MM(k0,1,n);
-s = MM(k0,m,n);
+s = MM(k0,1,n);
 for i = 0 to nb-1 do
   if (ei = 1) then
-    c = MM(c,s,n);  [multiply]
+    c = MM(c,s,n);
   end if;
-  s = MM(s,s,n);    [square]
-end for;
+  s = MM(s,s,n);
+end if;
 c = MM(c,1,n);
 return c;
 ```
@@ -344,13 +349,22 @@ As before, a Gaussian distribution is obtained, plus some spare samples with rea
 
 ## Attack
 
-
+The basic starting point for a time side channel attack is to create statistics on a set of acquired data. At this stage, we have both bare-metal data and OS-dependent data, on which we can statistically work. Now we need an algorithm able to guess bit-a-bit the secret key exploiting the timing dependencies between the total time we measured and the single stage operation time. The hypothesis to carry on such an attack are:
+* knowledge of the algorithm: since we are attacking a working RSA implementation customized by ourselves, we have access to the implementation;
+* the time taken by each operation is data-depended (i.e. we have a way to correlate the total time and the time taken by each iteration): since our library is optimization-free, data dependencies should be ensured;
+* 
 
 ### Attack algorithm
 
-#### First implemetation attempt
+#### First implementation attempt
 
-#### Second final implementation
+#### Final implementation
+
+#### Codes
+
+##### Python
+
+##### C
 
 ### Attack results
 

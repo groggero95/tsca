@@ -2,10 +2,10 @@
 
 - La MM non simula python
 
-- aggiungere blinding in versione pc (timing.c)
+- aggiungere blinding in versione os (timing.c)
 
-- check the filtering function in panda4x4
+- check the filtering function in panda4x4, i have modified it but boh
 
 -REPORT ADD
 - problemi avuti con gli shift
-- montgomery data which we discovered they overflow
+- montgomery data which we discovered it overflows
