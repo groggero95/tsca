@@ -19,6 +19,7 @@
 \def\newblock{\beamer@newblock}
 \makeatother
 \usepackage{color}
+\usepackage{lipsum}
 \usepackage{graphicx}
 \usepackage{epstopdf}
 
@@ -102,6 +103,14 @@
 	\end{block}
 \end{frame}
 
+\begin{frame}{Library testing}
+  \begin{block}{Checking the correctness}
+    As we wanted to check for formal correctness of the library, we proceed in the following way:
+
+  \end{block}
+
+\end{frame}
+
 \subsection{Zybo Board}
 \begin{frame}{The least complex attack}
 	\begin{block}{Bare metal}
@@ -156,7 +165,7 @@
             \item Tweakable filtering of input data with \#define parameters
         \end{itemize}
     \end{block}
-    \hfill \includegraphics[width=2cm]{./graphics/control_panel}
+    \hfill \includegraphics[width=2cm]{./graphics/tweak}
 \end{frame}
 
 
@@ -311,10 +320,41 @@ recent slide belongs to is highlighted
     \begin{itemize}
       \item porting the attack in C++ to keep class structure and speedup w.r. to Python
       \item find an optimal filter and explain the strange behavior of the implemented filter
-
+      \item try to parallelize the estimation for all the messages, as every message is data-independent from each other
     \end{itemize}
-
   \end{block}
+\end{frame}
+
+\begin{frame}{Our team}
+  \noindent
+  \begin{minipage}[l][\dimexpr.45\textheight-2\fboxsep-2\fboxrule\relax][t]{\dimexpr .495\textwidth-2\fboxsep-2\fboxrule\relax}
+      \begin{center}
+        \includegraphics[height=2.7cm]{./graphics/anselmo}\\
+        ANSELMO, Alberto
+      \end{center}
+  \end{minipage}%
+  \hfill
+  \begin{minipage}[r][\dimexpr 0.45\textheight-2\fboxsep-2\fboxrule\relax][t]{\dimexpr .495\textwidth-2\fboxsep-2\fboxrule\relax}%
+      \begin{center}
+        \includegraphics[height=2.7cm]{./graphics/chiaberto}\\
+        CHIABERTO, Simone
+      \end{center}
+  \end{minipage}%
+  \vfill
+  \noindent
+  \begin{minipage}[l][\dimexpr 0.45\textheight-2\fboxsep-2\fboxrule\relax][t]{\dimexpr .495\textwidth-2\fboxsep-2\fboxrule\relax}%
+      \begin{center}
+        \includegraphics[height=2.7cm]{./graphics/chiatante}\\
+        CHIATANTE, Fausto
+      \end{center}
+  \end{minipage}%
+  \hfill
+  \begin{minipage}[r][\dimexpr 0.45\textheight-2\fboxsep-2\fboxrule\relax][t]{\dimexpr .495\textwidth-2\fboxsep-2\fboxrule\relax}%
+    \begin{center}
+      \includegraphics[height=2.7cm]{./graphics/roggero}\\
+      ROGGERO, Giulio
+    \end{center}
+  \end{minipage}%
 \end{frame}
 
 \begin{frame}[allowframebreaks]
