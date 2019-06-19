@@ -76,7 +76,7 @@ end for;
 return S;
 ```
 
-where `nb` is the total number of bits of the secret key, `a` and `b` are the first two operands which are determined according to the Montgomery exponentation function:
+where `nb` is the total number of bits of the secret key, `a` and `b` are the first two operands which are determined according to the Montgomery exponentiation function:
 
 ```text
 c = MM(k0,1,n);
@@ -234,7 +234,7 @@ To run instead the test on the Montomery operations type:
 ```bash
 # Multiplication
 $ python3 modular.py mm <numberoftests> <bit>
-# Exponentation
+# Exponentiation
 $ python3 modular.py me <numberoftests> <bit>
 ```
 
