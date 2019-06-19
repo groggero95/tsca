@@ -5,3 +5,7 @@
 - aggiungere blinding in versione pc (timing.c)
 
 - check the filtering function in panda4x4
+
+-REPORT ADD
+- problemi avuti con gli shift
+- montgomery data which we discovered they overflow
