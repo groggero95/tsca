@@ -13,6 +13,8 @@
 \usepackage{floatrow}
 \usepackage{wasysym}
 \usepackage{hyperref}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 \usepackage[absolute,overlay]{textpos}
 %\usepackage[version=4]{mhchem}
 \usepackage[long,nodayofweek,level,12hr]{datetime}
@@ -99,9 +101,33 @@
     \pause \item this correlation can be used to unveal part of the secret
   \end{itemize}
 \end{minipage}
+\end{frame}
 
-
-
+\begin{frame}
+\frametitle{RSA - our target}
+  \begin{center}
+    \scalebox{0.75}{
+      \begin{minipage}{0.95\linewidth}
+        \begin{algorithm}[H]
+          \begin{algorithmic}[1]
+            \Function{ME}{$D,M,N,NB$}
+              \State $C\gets 1*R\bmod N$\Comment{C in Montgomery domain}
+              \State $S\gets M*R\bmod N$\Comment{S in Montgomery domain}
+              \For{$i\gets 0, NB-1$}
+                \If{$D(i) = 1$}
+                  \State $C\gets C*S*inv(R)\bmod N$\Comment{Time dependency}
+                \EndIf
+                \State $S\gets S*S*inv(R)\bmod N$
+              \EndFor
+              \State $C\gets C*inv(R)\bmod N$\Comment{C back to normal domain}
+              \State \textbf{return} $C$
+            \EndFunction
+          \end{algorithmic}
+          \caption{Montgomery Exponentiation}\label{me}
+        \end{algorithm}
+      \end{minipage}
+    }
+  \end{center}
 \end{frame}
 
 \subsection{Hypothesis}
@@ -181,8 +207,7 @@
 
 \subsection{Algorithm}
 
-\begin{frame}[fragile]
-    \frametitle{Algorithm}
+\begin{frame}{Algorithm}
     \begin{block}{Development}
         \begin{itemize}
             \pause \item Started in Python to allow better flexibility and library support (infinite precion, \texttt{scipy.stats})
@@ -191,7 +216,6 @@
             \pause \item Get rid of fixed threshold by: using multi bit analysis and taking max between the accumulated PCCs on a common path
         \end{itemize}
     \end{block}
-
 \end{frame}
 
 
