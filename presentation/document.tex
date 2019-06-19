@@ -131,31 +131,36 @@
 	\begin{center}
 		\includegraphics[width=6cm]{./graphics/rand_distr}
 	\end{center}
+\end{frame}
 
 \subsection{Algorithm}
 \begin{frame}[fragile]
     \frametitle{Algorithm}
-    \begin{block}
+    \begin{block}{}
         \begin{itemize}
-            \item First prototyped in Python to explore different strategies
-            \item Attack at the same time the two Montgomery moltiplication present in an RSA iteration
+            \item Attack at the same time the two Montgomery moltiplications present in an RSA iteration
             \item Timing estimate based on a dummy Montgomery moltiplication that evaluate the number of taken branches
             \item Multi bit guessing
             \item Error detection capabilities
-        \end{itemize}}
+        \end{itemize}
     \end{block}
+    \hfill \includegraphics[width=2cm]{./graphics/algorithm}
 \end{frame}
 
 \begin{frame}[fragile]
     \frametitle{Algorithm optimizations}
-    \begin{block}
+    \begin{block}{}
         \begin{itemize}
-            \item FUlly costumizable number of bits considered and guessed in one attack iteration
-            \item Attack at the same time the two Montgomery moltiplication present in an RSA iteration
-            \item Timing estimate based on a dummy Montgomery moltiplication that evaluate the number of taken branches
-        \end{itemize}}
+            \item Completely rewritten in C with +10x speedup over Python
+            \item Fully customizable number of bits considered and guessed in one attack iteration
+            \item Tweakable filtering of input data with \#define parameters
+        \end{itemize}
     \end{block}
+    \hfill \includegraphics[width=2cm]{./graphics/control_panel}
 \end{frame}
+
+
+
 
 \subsection{Extremely powerful}
 \begin{frame}{Just a simplification}
