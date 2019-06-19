@@ -344,7 +344,13 @@ As before, a Gaussian distribution is obtained, plus some spare samples with rea
 
 ## Attack
 
+
+
 ### Attack algorithm
+
+#### First implemetation attempt
+
+#### Second final implementation
 
 ### Attack results
 
