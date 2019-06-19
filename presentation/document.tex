@@ -13,7 +13,7 @@
 \usepackage{floatrow}
 \usepackage{wasysym}
 \usepackage[absolute,overlay]{textpos}
-\usepackage[version=4]{mhchem}
+%\usepackage[version=4]{mhchem}
 \usepackage[long,nodayofweek,level,12hr]{datetime}
 \makeatletter
 \def\newblock{\beamer@newblock}
@@ -58,6 +58,9 @@
 \setbeamercolor{subsection in toc}{fg=gray}
 \tableofcontents
 \end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%% INTRODUCTION %%%%%%%%%%%%%%%%%%%%%%
 
 \section{Introduction}
 
@@ -115,8 +118,11 @@
 	\end{block}
 \end{frame}
 
+
+%%%%%%%%%%%%%%%%%% ATTACK SECTION %%%%%%%%%%%%%%%%%%%%
+
 \section{Attack}
-\subsection{Algorithm}
+\subsection{Statistical tool}
 \begin{frame}[fragile]
 	\frametitle{Finding correlations}
 	\begin{block}{PCC: our game changer}
@@ -125,6 +131,30 @@
 	\begin{center}
 		\includegraphics[width=6cm]{./graphics/rand_distr}
 	\end{center}
+
+\subsection{Algorithm}
+\begin{frame}[fragile]
+    \frametitle{Algorithm}
+    \begin{block}
+        \begin{itemize}
+            \item First prototyped in Python to explore different strategies
+            \item Attack at the same time the two Montgomery moltiplication present in an RSA iteration
+            \item Timing estimate based on a dummy Montgomery moltiplication that evaluate the number of taken branches
+            \item Multi bit guessing
+            \item Error detection capabilities
+        \end{itemize}}
+    \end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Algorithm optimizations}
+    \begin{block}
+        \begin{itemize}
+            \item FUlly costumizable number of bits considered and guessed in one attack iteration
+            \item Attack at the same time the two Montgomery moltiplication present in an RSA iteration
+            \item Timing estimate based on a dummy Montgomery moltiplication that evaluate the number of taken branches
+        \end{itemize}}
+    \end{block}
 \end{frame}
 
 \subsection{Extremely powerful}
@@ -250,6 +280,9 @@ recent slide belongs to is highlighted
 \nocite{*}
 
 
+
+%%%%%%%%%%%%%%%%%%%%%%%% COUNTERMEASURES %%%%%%%%%%%%%%%%%%%
+
 \section{Countermeasures}
 \begin{frame}{Possible solution}
     \begin{block}{Blinding}
@@ -259,6 +292,12 @@ recent slide belongs to is highlighted
 			v_i^e \cdot v_f mod\: N = 1
 		\end{equation*}
         This contermeasure, in all our tests, has proven to be really effective. Ciphers are completely masked, no correlation can be identified.
+    \end{block}
+\end{frame}
+
+\begin{frame}{Possible solution}
+    \begin{block}{Blinding}
+
     \end{block}
 \end{frame}
 
