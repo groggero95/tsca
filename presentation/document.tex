@@ -13,8 +13,10 @@
 \usepackage{floatrow}
 \usepackage{wasysym}
 \usepackage{hyperref}
+\usepackage{mathtools}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
+\usepackage{caption}
 \usepackage[absolute,overlay]{textpos}
 %\usepackage[version=4]{mhchem}
 \usepackage[long,nodayofweek,level,12hr]{datetime}
@@ -115,11 +117,11 @@
               \State $S\gets M*R\bmod N$\Comment{S in Montgomery domain}
               \For{$i\gets 0, NB-1$}
                 \If{$D(i) = 1$}
-                  \State $C\gets C*S*inv(R)\bmod N$\Comment{Time dependency}
+                  \State $C\gets C*S*R^{-1}\bmod N$\Comment{Time dependency}
                 \EndIf
-                \State $S\gets S*S*inv(R)\bmod N$
+                \State $S\gets S*S*R^{-1}\bmod N$
               \EndFor
-              \State $C\gets C*inv(R)\bmod N$\Comment{C back to normal domain}
+              \State $C\gets C*R^{-1}\bmod N$\Comment{C back to normal domain}
               \State \textbf{return} $C$
             \EndFunction
           \end{algorithmic}
@@ -237,30 +239,46 @@
     \hfill \includegraphics[width=2cm]{./graphics/algorithm}
 \end{frame}
 
-\begin{frame}
-\frametitle{Attack - Pseudocode}
+\begin{frame}[allowframebreaks]{Attack - Pseudocode}
+  \scriptsize
+  \rule{\textwidth}{0.5pt}
+  \captionof{algorithm}{Attack - Final version}%
+  \vspace*{-0.5cm}
+  \rule{\textwidth}{0.5pt}%
+  \vspace*{0.2cm}
   \begin{center}
-    \scalebox{0.75}{
-      \begin{minipage}{0.95\linewidth}
-        \begin{algorithm}[H]
+        %\begin{algorithm}[H]
           \begin{algorithmic}[1]
-            \Procedure{ME\_attack}{$D,M,N,NB$}
-              \State $C\gets 1*R\bmod N$\Comment{C in Montgomery domain}
-              \State $S\gets M*R\bmod N$\Comment{S in Montgomery domain}
-              \For{$i\gets 0, NB-1$}
-                \If{$D(i) = 1$}
-                  \State $C\gets C*S*inv(R)\bmod N$\Comment{Time dependency}
-                \EndIf
-                \State $S\gets S*S*inv(R)\bmod N$
-              \EndFor
-              \State $C\gets C*inv(R)\bmod N$\Comment{C back to normal domain}
-              \State \textbf{return} $C$
+            \Procedure{ME\_ATTACK}{$D,M,N,NB$}
+              \State $G\gets CONSIDERED/GUESSES$\Comment{Useful to group PCCs considered}
+              \While{$n\gets 0, < BITS$}
+                \For{$i\gets 0, < MSGS$}
+                  \For{$j\gets 0, < CONSIDERED$}
+                    \State $TM_g(j)(i)\gets ME\_estimate(bin(j))$\Comment{Get the estimate for all possible paths}
+                    \State $C(j)(i) = C_g(bin(j))(i)$
+                    \State $S(j)(i) = S_g(bin(j))(i)$
+                    \State
+                  \EndFor
+                \EndFor
+                \For{$j\gets 0, < CONSIDERED$}
+                  \State $PCC\_considered(j)\gets PCC(T\_tot, TM_g(j))$
+                \EndFor
+                \For{$bit\gets 0, < GUESSES$}
+                  %\State $$k \in \set {x: x \bmod  GUESSES = bit} $$
+                  \State $G = \{k \mid k \bmod GUESSES = bit\}$
+                  \State $$PCC\_guess(bit)\gets \sum_{k \in G} PCC\_considered(k)$$
+                \EndFor
+                \State $guess = max\_index(PCC\_guess)$\Comment{Assign correct guess}
+                \State $D(n:n+GUESSES) = guess$
+                \State $C = C_g(guess)$
+                \State $S = S_g(guess)$
+                \State $n = n + CONSIDERED$
+              \EndWhile
+              \State \textbf{return} $D$
             \EndProcedure
           \end{algorithmic}
-          \caption{Attack - Final implementation}\label{att}
-        \end{algorithm}
-      \end{minipage}
-    }
+          %\caption{Attack - Final implementation}\label{att}
+        %\end{algorithm}
   \end{center}
 \end{frame}
 
