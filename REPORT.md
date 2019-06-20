@@ -349,10 +349,15 @@ As before, a Gaussian distribution is obtained, plus some spare samples with rea
 
 ## Attack
 
-The basic starting point for a time side channel attack is to create statistics on a set of acquired data. At this stage, we have both bare-metal data and OS-dependent data, on which we can statistically work. Now we need an algorithm able to guess bit-a-bit the secret key exploiting the timing dependencies between the total time we measured and the single stage operation time. The hypothesis to carry on such an attack are:
-* knowledge of the algorithm: since we are attacking a working RSA implementation customized by ourselves, we have access to the implementation;
+The basic starting point for a time side channel attack is to create statistics on a set of acquired data. At this stage, we have both bare-metal data and OS-dependent data, on which we can statistically work. Now we need an algorithm able to guess bit-a-bit the secret key exploiting the timing dependencies between the total time we measured and the single RSA stage operation time, which we don't know but we have to estimate in some way. The hypothesis to carry on such an attack are:
+* timing for a sufficiently large number of plaintexts is known: we have an almost infinite number of samples we can obtain on our local software implementations; in the folder [data] we collected a set of file pairs `PLAIN.BIN` and `TIME.BIN` in the format:
+
+  `P<NumberOfSamples>_<OptimizationFlag>_<Key>_<NumberOfBits>.BIN`
+  `T<NumberOfSamples>_<OptimizationFlag>_<Key>_<NumberOfBits>.BIN`
+
+* knowledge of the algorithm to emulate it: since we are attacking a working RSA implementation customized by ourselves, we have access to the implementation;
 * the time taken by each operation is data-depended (i.e. we have a way to correlate the total time and the time taken by each iteration): since our library is optimization-free, data dependencies should be ensured;
-* 
+* access to enough measurements: we have an almost infinite number of samples we can have
 
 ### Attack algorithm
 
