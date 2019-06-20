@@ -18,8 +18,8 @@ This report shows the steps we have been through before getting to the final res
     * [First implementation attempt](#first-implementation-attempt)
     * [Final implementation](#final-implementation)
     * [Codes](#codes)
-      * [Python](#python)
       * [C](#c)
+      * [Python](#python)
   * [Attack results](#attack-results)
 * [Countermeasures](#countermeasures)
 * [Conclusions](#conclusions)
@@ -354,12 +354,25 @@ The basic starting point for a time side channel attack is to create statistics 
 
   `P<NumberOfSamples>_<OptimizationFlag>_<Key>_<NumberOfBits>.BIN`
   `T<NumberOfSamples>_<OptimizationFlag>_<Key>_<NumberOfBits>.BIN`
+* plaintexts used for measurements are known: the set of files pairs just shown includes a timing file and a plain text file, containing all the plaintext provided to the alorithm;
 
-* knowledge of the algorithm to emulate it: since we are attacking a working RSA implementation customized by ourselves, we have access to the implementation;
-* the time taken by each operation is data-depended (i.e. we have a way to correlate the total time and the time taken by each iteration): since our library is optimization-free, data dependencies should be ensured;
-* access to enough measurements: we have an almost infinite number of samples we can have
+* the secret key is always the same for all the encryptions under the same acquisition campaign: each files pair in [data] is obtained for one and the very same key;
+
+* the time taken by the operations in the algorithm is data-depended (i.e. we have a way to correlate the total time and the time taken by each iteration): since our library is optimization-free, data dependencies should be ensured;
+
+* knowledge of the algorithm to be able to emulate it: since we are attacking a working RSA implementation customized by ourselves, we have access to the implementation.
+
+Since all the main hypothesis are fulfilled, we can go on and start the attack.
 
 ### Attack algorithm
+
+The attack algorithm went under different stages of implementation ideas and improvements, to get to the [Final implementation](#final-implementation). In the following we reported the two main ideas we found, around which we worked on some enhancements; the first solution was dropped halfway to make room to the final, more reliable and powerful one.
+
+In any case, the main ideas around which the algorithm wraps are:
+* work guessing one or more bit for each bit in the key length;
+* for each plaintext (and thus total time sample),
+
+The attack algorithm was first implemented in Python to have an initial flexibility and finally (only for the [Final implementation](#final-implementation)) ported in C to allow faster execution time.
 
 #### First implementation attempt
 
@@ -367,9 +380,9 @@ The basic starting point for a time side channel attack is to create statistics 
 
 #### Codes
 
-##### Python
-
 ##### C
+
+##### Python
 
 ### Attack results
 
