@@ -208,6 +208,68 @@
 	\end{center}
 \end{frame}
 
+\subsection{Timing Models}
+
+\begin{frame}[allowframebreaks]{Timing Model - ME}
+  \scriptsize
+  \rule{\textwidth}{0.5pt}
+  \captionof{algorithm}{Timing ME Estimate}%
+  \vspace*{-0.2cm}
+  \rule{\textwidth}{0.5pt}%
+  \vspace*{0.2cm}
+  \begin{center}
+    \begin{algorithmic}[1]
+      \Procedure{ME\_ESTIMATE}{$B\_GUESS,M,N,STEP$}
+        \For{$i\gets 0, < STEP$}
+          \If{$bin(B\_GUESS)(i) = 1$}
+            \State $M->C\gets = MM\_estimate(M->C, M->S)$
+          \EndIf
+          \State $M->S\gets = MM\_estimate(M->S, M->S)$
+          \State $T = update\_timing(T)$
+        \EndFor
+        \State \textbf{return}
+      \EndProcedure
+    \end{algorithmic}
+  \end{center}
+\end{frame}
+
+\begin{frame}[allowframebreaks]{Timing Model - MM}
+  \scriptsize
+  \rule{\textwidth}{0.5pt}
+  \captionof{algorithm}{Timing MM Estimate}%
+  \vspace*{-0.2cm}
+  \rule{\textwidth}{0.5pt}%
+  \vspace*{0.2cm}
+  \begin{center}
+    \begin{algorithmic}[1]
+      \Procedure{MM\_ESTIMATE}{$A,B,N,NBIT$}
+        \State $RES \gets 0$
+        \State $cnt \gets 0$
+        \For{$i\gets 0, < NBIT$}
+          \State $TMP\gets RES + (A\&B)$
+          \If{$LSB(TMP) = 1$}
+            \State $Qi\gets 1$
+          \Else
+            \State $Qi\gets 0$
+          \EndIf
+          \If{$LSB(A) = 1$}
+            \State $RES \gets RES + b $
+            \State $cnt++$
+          \EndIf
+          \If{$Qi = 1$}
+            \State $RES \gets RES + N $
+            \State $cnt++$
+          \EndIf
+          \State $RES \: lsr \: 1$
+          \State $A \: lsr \: 1$
+        \EndFor
+        \State \textbf{return}
+      \EndProcedure
+    \end{algorithmic}
+  \end{center}
+\end{frame}
+
+
 \subsection{Algorithm}
 
 \begin{frame}{Algorithm}
@@ -243,7 +305,7 @@
   \scriptsize
   \rule{\textwidth}{0.5pt}
   \captionof{algorithm}{Attack - Final version}%
-  \vspace*{-0.5cm}
+  \vspace*{-0.2cm}
   \rule{\textwidth}{0.5pt}%
   \vspace*{0.2cm}
   \begin{center}
@@ -264,12 +326,11 @@
                   \State $PCC\_considered(j)\gets PCC(T\_tot, TM_g(j))$
                 \EndFor
                 \For{$bit\gets 0, < GUESSES$}
-                  %\State $$k \in \set {x: x \bmod  GUESSES = bit} $$
                   \State $G = \{k \mid k \bmod GUESSES = bit\}$
                   \State $$PCC\_guess(bit)\gets \sum_{k \in G} PCC\_considered(k)$$
                 \EndFor
                 \State $guess = max\_index(PCC\_guess)$\Comment{Assign correct guess}
-                \State $D(n:n+GUESSES) = guess$
+                \State $D(n:n+GUESSES) = bin(guess)$
                 \State $C = C_g(guess)$
                 \State $S = S_g(guess)$
                 \State $n = n + CONSIDERED$
