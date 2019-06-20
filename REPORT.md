@@ -21,6 +21,8 @@ This report shows the steps we have been through before getting to the final res
       * [Python](#python)
       * [C](#c)
   * [Attack results](#attack-results)
+    * [Launch the attack](#launch-the-attack)
+    * [Results](#results)
 * [Countermeasures](#countermeasures)
 * [Conclusions](#conclusions)
 * [Improvements](#improvements)
@@ -384,19 +386,69 @@ The attack algorithm was first implemented in Python to have an initial flexibil
 
 #### Final implementation
 
-##### C
 
 #### Codes
 
 ##### Python
 
+##### C
+
 ### Attack results
+
+#### Launch the attack
 
 We highly suggest to run the attack Using the C file, since it provides the same accuracy as the Python code but with at least a time reduction factor of 10. Before running the attack:
 
-* choose
+* choose the number of bits `INT_SIZE` in [bigint.h];
+* choose the number of sample `N_SAMPLES` in [panda4x4.h];
+* choose the plain text file name `MSG_FILE` and the time file `TIME_FILE` in [panda4x4.h];
+* select the corresponding key setting `VERSION` in [cipher.h];
+
+Then type:
+```bash
+$ cd ..
+$ make attack
+$ ./panda4x4
+```
+The attack will start and will stop only at the end of the full key. Even if an error is encountered, the code keeps going till the end, printing finally an error message.
+
+At each stage, the output printed to screen will look like:
+
+```text
+00 :0.379561
+01 :0.380113
+10 :0.384785
+11 :0.388451
+Guess: 1  PCC: 0.773236
+Step: 30
+101010111110101101110011010001
+101010111110101101110011010001
+```
+
+This is obtained for `B_CONSIDERED = 2` and `B_GUESSED = 1`. On the right the working bits are printed, with the respective correlation. The lines will be grouped according to the algorithm previously explained and the chosen bit(s) is(are) printed as `Guess:`. The value `PCC` is the cumulative Pearson correlation coefficient for the guessed bit(s). The current step is `Step:`, while the live update of the guessed key is printed in the first line and the correct expected bit of the secret key in the second one.
+
+If the attack has to be run on the samples acquired on the OS, it is very important to filter all the sample far from the mean value, since they correspond to situations in which most likely the operating system preempted the executable. Thus, go into the file [panda4x4.h] and set `FILTERING` to 1. It will filter all the sample whose time value is far from the mean value of a value grater than the standard deviation multiplied for a coefficient `COEFF`. It can be set in [panda4x4.h]; a suggested value is 3: in this way, only the samples really far will be removed.
+
+If the filtering is active, the program will print, at the beginning, the number of samples maintained for the attack:
+
+```text
+Prefilter 13000 messages, post-filter 12906 messages
+```
+
+#### Results
+
+Nominally, attacking 10000 samples is more than sufficient to successfully retrieve keys both on 128 and 256 bits. If attacking samples from the OS, 15000 samples could be needed (before filtering). We don't have samples for 512 or more bits, since a reasonable number of samples, i.e. 20000 or more (for more bits we need more samples to find the key), may take days. Theoretically, with the right number of samples, it should work also for larger keys.
+
+Talking about pure performances, the following results have been obtained (single core, 3.1 GHz):
+
+| Number of bits | Time [mm:ss] |
+|:--------------:|:------------:|
+|       128      |     4:10     |
+|       256      |    ??:??     |
 
 ## Countermeasures
+
+One of the possible countermeasures applicable on the RSA algorithm is `blinding`. It consist in ..
 
 ## Improvements
 
@@ -412,6 +464,7 @@ We highly suggest to run the attack Using the C file, since it provides the same
 [cipher.h]: ./source/cipher.h
 [zybo bigint.h]: ./zybo/Test_sd_bsp/ps7_cortexa9_0/libsrc/bigint_v0_1/src/include/bigint.h
 [time_meas.h]: ./include/time_meas.h
+[panda4x4.h]: ./include/panda4x4.h
 
 [bigint.c]: ./source/bigint.c
 [mm.c]: ./source/mm.c

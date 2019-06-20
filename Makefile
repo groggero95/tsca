@@ -26,8 +26,8 @@ pres:
 time: dir $(filter-out ./build/main.o ./build/panda4x4.o, $(OBJS)) ${HEAD}
 	$(CC) $(CFLAGS) $(INCLUDES) $(filter-out ./build/main.o ./build/panda4x4.o, $(OBJS)) $(LDFLAGS) -o $(TIME)
 
-attack: dir $(filter-out ./build/timing.o ./build/cipher.o ./build/main.o, $(OBJS)) ${HEAD}
-	$(CC) $(CFLAGS_ATT) $(INCLUDES) $(filter-out ./build/main.o ./build/cipher.o ./build/timing.o, $(OBJS)) $(LDFLAGS) -o $(ATTACK)
+attack: dir $(filter-out ./build/timing.o ./build/main.o, $(OBJS)) ${HEAD}
+	$(CC) $(CFLAGS_ATT) $(INCLUDES) $(filter-out ./build/main.o ./build/timing.o, $(OBJS)) $(LDFLAGS) -o $(ATTACK)
 
 deb:
 	@echo ${OBJS}
