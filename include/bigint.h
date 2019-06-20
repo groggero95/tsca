@@ -8,7 +8,7 @@
 #include <string.h>
 
 //Following number has to be a multiple of 32
-#define INT_SIZE 128
+#define INT_SIZE 256
 #define VAR_SIZE 32
 #define NUMB_SIZE INT_SIZE/VAR_SIZE + 1
 #define HEX_DIGIT VAR_SIZE/4

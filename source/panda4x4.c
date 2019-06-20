@@ -83,9 +83,9 @@ void read_plain(char *time_file, char * msg_file, int n_sample, uint64_t *T_arr,
 int main(int argc, char* argv[]) {
 
 	// Declaration of the key that we want to attack and other parameters needed for the attack
-	bigint_t n 		 		= init("0xc8aed04da6c85dd4638add6c6fc04a59");
-	bigint_t private 	= init("0x2845ecc7a890cd4356ef00ff86e63f81");
-	bigint_t k0 	 		= init("0x64d8149d5c75b7137c099ce764ab8335");
+	bigint_t n 		 		= init("0x8ae8fe509879989bb1314c5a1ac92506a95a284a336cfe29d9a60b5113eeb33b");
+	bigint_t private 	= init("0x1d8232d4f22da2e0705cac6d27a4d839149c23bd63746e9957bef4e85ae8f2b7");
+	bigint_t k0 	 		= init("0x2792adec387c47a694860bac38ca8ed7fb28e4c04f74695f7f35a915e3ed6b07");
 
 	// define the structure which holds timing and messages
 	uint64_t *T_arr, *T_in;

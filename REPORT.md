@@ -18,12 +18,12 @@ This report shows the steps we have been through before getting to the final res
     * [First implementation attempt](#first-implementation-attempt)
     * [Final implementation](#final-implementation)
     * [Codes](#codes)
-      * [C](#c)
       * [Python](#python)
+      * [C](#c)
   * [Attack results](#attack-results)
 * [Countermeasures](#countermeasures)
 * [Conclusions](#conclusions)
-* [Practical references](#practical-references)
+* [Improvements](#improvements)
 
 Before starting, clone the git repository and get into it:
 
@@ -366,34 +366,41 @@ Since all the main hypothesis are fulfilled, we can go on and start the attack.
 
 ### Attack algorithm
 
-The attack algorithm went under different stages of implementation ideas and improvements, to get to the [Final implementation](#final-implementation). In the following we reported the two main ideas we found, around which we worked on some enhancements; the first solution was dropped halfway to make room to the final, more reliable and powerful one.
+The attack algorithm went under different stages of implementation ideas and improvements, to get to the [Final implementation](#final-implementation). In the following we reported the two main ideas we found, around which we worked on some enhancements; the first solution was dropped halfway to make room to the final, more reliable and powerful one. They are described in the following sections.
 
-In any case, the main ideas around which the algorithm wraps are:
-* work guessing one or more bit for each bit in the key length;
-* for each plaintext (and thus total time sample),
+In any case, the main ideas around which the algorithm wraps around are:
+* work guessing one or more bit looping on each bit in the key length;
+* for each plain text (and thus total time sample) get a time estimate through the function `MM_big_estimate()` (refer to [Final implementation](#final-implementation) for details);
+* correlate through the Pearson Correlation Coefficient (called PCC from now on) the to total execution time for an encryption to the estimate itself;
+* choose the best correlating guess and move to the following bit(s);
+
+Accurate details are given in the following sections.
 
 The attack algorithm was first implemented in Python to have an initial flexibility and finally (only for the [Final implementation](#final-implementation)) ported in C to allow faster execution time.
 
 #### First implementation attempt
 
+
+
 #### Final implementation
 
-#### Codes
-
 ##### C
+
+#### Codes
 
 ##### Python
 
 ### Attack results
 
+We highly suggest to run the attack Using the C file, since it provides the same accuracy as the Python code but with at least a time reduction factor of 10. Before running the attack:
+
+* choose
 
 ## Countermeasures
 
+## Improvements
 
 ## Conclusions
-
-
-## Practical references
 
 
 
