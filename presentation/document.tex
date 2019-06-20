@@ -136,8 +136,9 @@
         In order to successfully extract the secret through the correlation, we have to make a list of assumptions:
         \begin{itemize}
             \pause \item timing for a sufficiently large number of cyphertexts is known
-            \pause \item cyphertexts are known
-            \pause \item secret is the same for all cyphertexts
+            \pause \item plaintexts are known
+            \pause \item secret is the same for all encryptions
+            \pause \item some operations are timing dependent on the secret and on the plaintext
             \pause \item the HW/SW implementation is known to the attacker
             \pause \item a timing model can be built
         \end{itemize}
