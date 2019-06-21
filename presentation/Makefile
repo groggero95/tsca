@@ -31,6 +31,8 @@ export TEXINPUTS := ./texinputs/:$(TEXINPUTS)
 
 all: $(TOP) view_doc
 
+pres: $(TOP)
+
 $(TOP) : $(NEEDED)
 
 %.pdf:%.tex
