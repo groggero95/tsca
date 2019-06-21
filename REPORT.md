@@ -443,12 +443,61 @@ Talking about pure performances, the following results have been obtained (singl
 
 | Number of bits | Time [mm:ss] |
 |:--------------:|:------------:|
-|       128      |     4:10     |
-|       256      |    ??:??     |
+|       128      |     4:05     |
+|       256      |    24:10     |
+
+The time is not simply doubled because, when switching from 128 to 256 bits, we have to take into account the following factors:
+
+* The attack estimates the internal Montgomery multiplication (the one executed when `ei = 1`), which is executed, on average, one every two iterations (assuming the hamming weight of the key around half of its digits). Thus, time is increased by 50%;
+
+* The attack always estimates the squaring Montgomery multiplication, which doubles the total time;
+
+* Finally, the previous number of computation is again doubled since the code has to loop over twice as much bits.
+
+Thus, the total time is increased by $`(1+2)*3 = 6`$ times. Following the same reasoning, every time we swap to the next highest number of key bits, the times is increased by a factor 6.
 
 ## Countermeasures
 
-One of the possible countermeasures applicable on the RSA algorithm is `blinding`. It consist in ..
+One of the possible countermeasures applicable on the RSA algorithm is `blinding`. We implemented the very same one proposed by Paul Cocher in his [paper]: the main purpose is to remove the data dependencies of the algorithm modifying the input plain text, such that the data used by the RSA algorithm are different than the one expected by the attacker. Thus, the timing measurements on the exponentiation will be completely uncorrelated with respect to the real data used in the algorithm as well as with respect to the timing estimates performed by the attacker. The mathematical footprint of the RSA makes easy to modify the input data, perform the exponentiation and re-modify the output cipher text to obtain the real expected cipher text, using just a couple of Montomery multiplication at the beginning and at the end of the algorithm.
+
+The proposed blinding technique works in the following way:
+* Before computing the modular exponentiation operation choose a random pair
+
+  $`(v_i,v_f)`$
+
+  such that
+
+ $`(v_f)^{-1} = v_i^{x} \; mod \; n`$.
+
+  Cocher suggests that "for RSA it is faster to choose a random `$`v_f`$` relatively prime to `n` then compute $`v_i = (v_f^{-1})^{e} \; mod \; n`$ where `e` is the public exponent".
+
+* Before the modular exponentiation, the input message is multiplied by
+
+  $`v_i \; mod \; n `$
+
+* After the modular multiplication, the result is corrected multiplying it by:
+
+  $`v_f \; mod \; n`$
+
+Moreover Cocher suggested that "computing inverses $`mod n`$ is slow, so it is often not practical to generate a new random $`(v_i;v_f)`$ pair for each new exponentiation. The $`v_f = (v_i^{-1})^{x} \; mod \; n`$ calculation itself might even be subject to timing attacks. However $`(v_i;v_f)`$ pairs should not be reused, since they themselves might be compromised by timing attacks, leaving the secret exponent vulnerable. An effcient solution to this problem is update $`v_i`$ and $`v_f`$ before each modular exponentiation step by computing $`vi^{1} = v_i^{2}`$ and $`v_f^{1} = v_f^{2}`$."
+
+This is exactly the approach we used. More specifically ..
+
+ADD ALBI PART FROM SLIDES...
+say what we added in the code.
+
+Practically, to run an acquisition campaign with blinding activated, modify:
+
+* for samples on the zybo board: go in the [zybo src] folder and set the parameter `BLINDING` to 1 in [helloworld.c].
+
+* for samples on a pc through the OS: go in the [include] folder and set the parameter `BLINDING` to 1 in [cipher.h].
+
+Once the parameters are set, compile the files and run the corresponding acquisition as explained in section [Data acquisition](#data-acquisition).
+
+Then, run the attack as explained in section [Launch the attack](#launch-the-attack) and wait for the results.
+
+FINISH..
+
 
 ## Improvements
 
@@ -457,6 +506,7 @@ One of the possible countermeasures applicable on the RSA algorithm is `blinding
 
 
 [Colin D. Walter paper]: ./docs/CDW_ELL_99.pdf
+[paper]: ./docs/TimingAttacks.pdf
 
 [bigint.h]: ./include/bigint.h
 [mm.h]: ./include/mm.h
@@ -479,5 +529,7 @@ One of the possible countermeasures applicable on the RSA algorithm is `blinding
 [Test_sd]: ./zybo/Test_sd/
 [source]: ./source/
 [data]: ./data/
+[zybo src]: ./zybo/Test_sd/src/
+[include]: ./include/
 
 [boot.bin]: ./zybo/Test_sd/src/helloworld.c
