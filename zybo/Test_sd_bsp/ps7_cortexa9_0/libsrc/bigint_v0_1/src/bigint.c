@@ -325,10 +325,10 @@ bigint_t init(const char *s) {
 bigint_t rand_b( void ) {
     int i;
     bigint_t data_res;
-    for (i = 0; i < NUMB_SIZE-1; i++) {
+    for (i = 0; i < NUMB_SIZE - 1; i++) {
         data_res.numb[i] = (var_t) rand();
     }
-    data_res.numb[NUMB_SIZE-1] = 0;
+    data_res.numb[NUMB_SIZE - 1] = 0;
     return data_res;
 }
 
@@ -338,7 +338,7 @@ bigint_t MM_big(bigint_t a, bigint_t b, bigint_t n, int nb) {
     bigint_t res = init(ZERO);
     var_t qi;
 
-    for (int i = 0; i < nb; i++) {
+    for (int i = 0; i < nb+2; i++) {
         qi = (res.numb[0] + (a.numb[0] & b.numb[0])) & 1;
 
         if (a.numb[0] & 1 ) {
@@ -349,7 +349,7 @@ bigint_t MM_big(bigint_t a, bigint_t b, bigint_t n, int nb) {
         }
 
         res = lsr(res, 1);
-        a = lsr(a,1);
+        a = lsr(a, 1);
 
     }
     return res;
@@ -358,23 +358,45 @@ bigint_t MM_big(bigint_t a, bigint_t b, bigint_t n, int nb) {
 bigint_t ME_big(bigint_t e, bigint_t m, bigint_t n, bigint_t k0, int nb) {
     bigint_t c;
     bigint_t s;
-    bigint_t mask = init(ONE);
-    bigint_t zero = init(ZERO);
     bigint_t one = init(ONE);
-    bigint_t bit_and;
 
     c = MM_big(k0, one, n, nb);
     s = MM_big(k0, m, n, nb);
 
     for (int i = 0; i < nb; i++) {
-        bit_and = and (mask, e);
-        if (df(zero, bit_and)) {
+        if (e.numb[0] & 1) {
             c = MM_big(c, s, n, nb);
         }
         s = MM_big(s, s, n, nb);
-        mask = lsl(mask, 1);
+        e = lsr(e, 1);
 
     }
     c = MM_big(c, one, n, nb);
+    return c;
+}
+
+bigint_t ME_big_blind(bigint_t e, bigint_t m, bigint_t n, bigint_t k0, int nb) {
+    bigint_t c;
+    bigint_t s;
+    static bigint_t vi = { .numb = VI_INIT };
+    static bigint_t vf = { .numb = VF_INIT };
+    bigint_t one = init(ONE);   
+
+    c = MM_big(k0, one, n, nb);
+    s = MM_big(k0, m, n, nb);
+    s = MM_big(s, vi, n, nb);
+
+    for (int i = 0; i < nb; i++) {
+        if (e.numb[0] & 1) {
+            c = MM_big(c, s, n, nb);
+        }
+        s = MM_big(s, s, n, nb);
+        e = lsr(e, 1);
+
+    }
+    c = MM_big(c, vf, n, nb);
+    c = MM_big(c, one, n, nb);
+    vi = MM_big(vi, vi, n, nb);
+    vf = MM_big(vf, vf, n, nb);
     return c;
 }

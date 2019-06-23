@@ -11,6 +11,14 @@
 #define MODE 0
 #define TESTNUM 10000
 
+const key_p pair = { .public 	= { .numb = PUBLIC_INIT},
+					 .modulus 	= { .numb = MODULUS_INIT},
+					 .private 	= { .numb = PRIVATE_INIT},
+					 .k0 		= { .numb = K0_INIT},
+					 .vi 		= { .numb = VI_INIT},
+					 .vf 		= { .numb = VF_INIT}
+					};
+
 int main(int argc, char **argv){
 
 	int nb, n_rnd, n_rep;
@@ -18,12 +26,12 @@ int main(int argc, char **argv){
 	time_stats_t *timer = (time_stats_t*) malloc(sizeof(time_stats_t));
 	FILE *f_time, *f_plain;
 
-	init_pair(); // init the key according to the settings in cipher.h
+	// init_pair(); // init the key according to the settings in cipher.h
 
 	f_time = fopen("data/TIME.BIN","w");
 	f_plain = fopen("data/PLAIN.BIN","w");
 
-	nb = INT_SIZE+2;
+	nb = INT_SIZE;
 	reset_meas(timer);
 
 	printf("Starting sample acquisitions\n");
@@ -34,8 +42,8 @@ int main(int argc, char **argv){
 			for (int i = 0; i < REPETITIONS; ++i)
 			{
 				start_meas(timer);
-				res = ME_big(pair.private,b,pair.modulus,pair.k0,nb);
-			  stop_meas(timer);
+				res = ME_big(pair.private, b, pair.modulus, pair.k0, nb);
+			  	stop_meas(timer);
 			}
 			fwrite(&(timer->min),1,sizeof(timer->min),f_time);
 			fwrite(b.numb,1,INT_SIZE/8,f_plain);

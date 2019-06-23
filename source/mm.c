@@ -23,7 +23,7 @@ bigint_t MM_big(bigint_t a, bigint_t b, bigint_t n, int nb) {
 	bigint_t res = init(ZERO);
 	var_t qi;
 
-	for (int i = 0; i < nb; i++) {
+	for (int i = 0; i < nb+2; i++) {
 		qi = (res.numb[0] + (a.numb[0] & b.numb[0])) & 1;
 
 		if (a.numb[0] & 1 ) {
@@ -46,7 +46,7 @@ bigint_t MM_big_estimate(bigint_t a, bigint_t b, bigint_t n, int nb, uint32_t *c
 	bigint_t res = init(ZERO);
 	var_t qi;
 
-	for (int i = 0; i < nb; i++) {
+	for (int i = 0; i < nb+2; i++) {
 		qi = (res.numb[0] + (a.numb[0] & b.numb[0])) & 1;
 
 		if (a.numb[0] & 1) {

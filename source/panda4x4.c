@@ -10,7 +10,14 @@
 #include "cipher.h"
 
 #define NB INT_SIZE
-#define NB_EFF NB+2
+
+const key_p pair = { .public 	= { .numb = PUBLIC_INIT},
+					 .modulus 	= { .numb = MODULUS_INIT},
+					 .private 	= { .numb = PRIVATE_INIT},
+					 .k0 		= { .numb = K0_INIT},
+					 .vi 		= { .numb = VI_INIT},
+					 .vf 		= { .numb = VF_INIT}
+					};
 
 void get_filter_param(uint64_t *a, int dim, double *mean, double *std){
 	double sum = 0;
@@ -70,8 +77,8 @@ void read_plain(char *time_file, char * msg_file, int n_sample, uint64_t *T_arr,
 	for (int i = 0; i < n_sample; i++) {
 		fread(T_arr + i, 8, 1, t_f);
 		fread(m.numb, VAR_SIZE / 8, NUMB_SIZE - 1, p_f);
-		M_arr[i].c = MM_big(k0, one, n, NB_EFF);
-		M_arr[i].s = MM_big(k0, m, n, NB_EFF);
+		M_arr[i].c = MM_big(k0, one, n, INT_SIZE);
+		M_arr[i].s = MM_big(k0, m, n, INT_SIZE);
 		M_arr[i].tot_est = 0;
 		// print_to_stdout(&M_arr[i].s);
 		// printf("\n");
@@ -88,11 +95,11 @@ int main(int argc, char* argv[]) {
 	// bigint_t private 	= init("0x1d8232d4f22da2e0705cac6d27a4d839149c23bd63746e9957bef4e85ae8f2b7");
 	// bigint_t k0 	 		= init("0x2792adec387c47a694860bac38ca8ed7fb28e4c04f74695f7f35a915e3ed6b07");
 
-	init_pair();
+	// init_pair();
 
-	bigint_t n				= pair.modulus;
+	bigint_t n			= pair.modulus;
 	bigint_t private	= pair.private;
-	bigint_t k0				= pair.k0;
+	bigint_t k0			= pair.k0;
 
 	// define the structure which holds timing and messages
 	uint64_t *T_arr, *T_in;
@@ -108,19 +115,17 @@ int main(int argc, char* argv[]) {
 
 	double mean, std;
 
-	printf("Post read messages\n");
-
 	#if FILTERING == 1
 		get_filter_param(T_in, n_sample, &mean, &std);
 
-		printf("Post mean and std\n");
 		n_sample = filter(T_in, M_in, mean, std, T_arr, M_arr);
+		printf("Prefilter %d messages, post-filter %d messages\n", N_SAMPLES, n_sample);
 	#else
+		printf("Starting the attack with %d messages\n", N_SAMPLES);
 		T_arr = T_in;
 		M_arr = M_in;
 	#endif
 
-	printf("Prefilter %d messages, post-filter %d messages\n", N_SAMPLES, n_sample);
 	uint32_t key_guessed[INT_SIZE] = {1};
 	uint32_t bits_considered = B_CONSIDERED;
 	uint32_t bits_guessed  = B_GUESSED;

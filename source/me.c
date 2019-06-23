@@ -4,6 +4,9 @@
 #include "bigint.h"
 #include "me.h"
 #include "mm.h"
+#include "panda4x4.h"
+#include "cipher.h"
+
 
 /*  e  = exponent
     m  = message
@@ -30,26 +33,47 @@ int ME(int e, int m, int n, int c0, int s0, int nb) {
 bigint_t ME_big(bigint_t e, bigint_t m, bigint_t n, bigint_t k0, int nb) {
     bigint_t c;
     bigint_t s;
-    bigint_t mask = init(ONE);
-    bigint_t zero = init(ZERO);
     bigint_t one = init(ONE);
-    bigint_t bit_and;
-
 
     c = MM_big(k0, one, n, nb);
-    // Here is the error in this function somewhere
     s = MM_big(k0, m, n, nb);
 
     for (int i = 0; i < nb; i++) {
-        bit_and = and (mask, e);
-        if (df(zero, bit_and)) {
+        if (e.numb[0] & 1) {
             c = MM_big(c, s, n, nb);
         }
         s = MM_big(s, s, n, nb);
-        mask = lsl(mask, 1);
+        e = lsr(e, 1);
+
     }
     c = MM_big(c, one, n, nb);
+    return c;
+}
 
+
+bigint_t ME_big_blind(bigint_t e, bigint_t m, bigint_t n, bigint_t k0, int nb) {
+    bigint_t c;
+    bigint_t s;
+    static bigint_t vi = { .numb = VI_INIT };
+    static bigint_t vf = { .numb = VF_INIT };
+    bigint_t one = init(ONE);   
+
+    c = MM_big(k0, one, n, nb);
+    s = MM_big(k0, m, n, nb);
+    s = MM_big(s, vi, n, nb);
+
+    for (int i = 0; i < nb; i++) {
+        if (e.numb[0] & 1) {
+            c = MM_big(c, s, n, nb);
+        }
+        s = MM_big(s, s, n, nb);
+        e = lsr(e, 1);
+
+    }
+    c = MM_big(c, vf, n, nb);
+    c = MM_big(c, one, n, nb);
+    vi = MM_big(vi, vi, n, nb);
+    vf = MM_big(vf, vf, n, nb);
     return c;
 }
 
@@ -60,9 +84,17 @@ void ME_big_estimate(uint32_t bits, msg_t *m, bigint_t n, int bits_step) {
     for (int i = 0; i < bits_step; i++)
     {
         if (bits & mask) {
-            m->c = MM_big_estimate(m->c, m->s, n, INT_SIZE+2, &(m->tot_est));
+            #if ATTACK_MUL == 1
+            m->c = MM_big_estimate(m->c, m->s, n, INT_SIZE, &(m->tot_est));
+            #else
+            m->c = MM_big(m->c, m->s, n, INT_SIZE);            
+            #endif
         }
-        m->s = MM_big_estimate(m->s, m->s, n, INT_SIZE+2, &(m->tot_est));  
+        #if ATTACK_SQUARE == 1
+        m->s = MM_big_estimate(m->s, m->s, n, INT_SIZE, &(m->tot_est));
+        #else
+        m->s = MM_big(m->s, m->s, n, INT_SIZE);
+        #endif          
         mask >>= 1;
     }
 
