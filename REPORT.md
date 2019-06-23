@@ -24,6 +24,8 @@ This report shows the steps we have been through before getting to the final res
     * [Launch the attack](#launch-the-attack)
     * [Results](#results)
 * [Countermeasures](#countermeasures)
+  * [Theory](#theory)
+  * [Results](#results)
 * [Conclusions](#conclusions)
 * [Improvements](#improvements)
 
@@ -443,7 +445,7 @@ Talking about pure performances, the following results have been obtained (singl
 
 | Number of bits | Time [mm:ss] |
 |:--------------:|:------------:|
-|       128      |     4:05     |
+|       128      |     3:50     |
 |       256      |    24:10     |
 
 The time is not simply doubled because, when switching from 128 to 256 bits, we have to take into account the following factors:
@@ -457,6 +459,8 @@ The time is not simply doubled because, when switching from 128 to 256 bits, we 
 Thus, the total time is increased by $`(1+2)*3 = 6`$ times. Following the same reasoning, every time we swap to the next highest number of key bits, the times is increased by a factor 6.
 
 ## Countermeasures
+
+### Theory
 
 One of the possible countermeasures applicable on the RSA algorithm is `blinding`. We implemented the very same one proposed by Paul Cocher in his [paper]: the main purpose is to remove the data dependencies of the algorithm modifying the input plain text, such that the data used by the RSA algorithm are different than the one expected by the attacker. Thus, the timing measurements on the exponentiation will be completely uncorrelated with respect to the real data used in the algorithm as well as with respect to the timing estimates performed by the attacker. The mathematical footprint of the RSA makes easy to modify the input data, perform the exponentiation and re-modify the output cipher text to obtain the real expected cipher text, using just a couple of Montomery multiplication at the beginning and at the end of the algorithm.
 
@@ -486,6 +490,8 @@ This is exactly the approach we used. More specifically ..
 ADD ALBI PART FROM SLIDES...
 say what we added in the code.
 
+### Results
+
 Practically, to run an acquisition campaign with blinding activated, modify:
 
 * for samples on the zybo board: go in the [zybo src] folder and set the parameter `BLINDING` to 1 in [helloworld.c].
@@ -496,10 +502,17 @@ Once the parameters are set, compile the files and run the corresponding acquisi
 
 Then, run the attack as explained in section [Launch the attack](#launch-the-attack) and wait for the results.
 
-FINISH..
-
+With the available C code for the attack and the samples pair `T100k_Ofast_key0_blind_128.BIN` and `T100k_Ofast_key0_blind_128.BIN` in the folder [data] (100000 samples on the Zybo board), on average the attacking code can just guess half of the bits. Since guessing a bit is a 50-50 choice, it means that the implemented blinding technique made the attack we mounted completely unsuccessful, completely uncorrelating the timing measurements and our timing model.
 
 ## Improvements
+
+Some future improvements could be implemented to improve both the attack code and the attack algorithm efficiency:
+
+* Use C++ instead of C and implement a class-like backtracking as in the Python version: implementing backtracking may help in case of a series of wrong guessing, being able to go back to where the guesses started to be wrong and changing them;
+* Implement some standard filtering techniques to filter the most useful timing samples, to extract more information using less samples in the real computation and thus less time;
+* Implement the path considered exploration (2 to the power of the number of bit considered) as parallel thread, since each estimation is completely independent from the others;
+* Employ a better estimator, to reduce more the number of samples needed for a successful attack, dealing with better correlation during the choice phase.
+
 
 ## Conclusions
 

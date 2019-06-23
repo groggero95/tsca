@@ -7,5 +7,5 @@
 - check the filtering function in panda4x4, i have modified it but boh
 
 -REPORT ADD
-- problemi avuti con gli shift
-- montgomery data which we discovered it overflows
+- [DONE] problemi avuti con gli shift
+- [DONE] montgomery data which we discovered it overflows
