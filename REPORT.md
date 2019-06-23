@@ -513,9 +513,9 @@ Some future improvements could be implemented to improve both the attack code an
 * Implement the path considered exploration (2 to the power of the number of bit considered) as parallel thread, since each estimation is completely independent from the others;
 * Employ a better estimator, to reduce more the number of samples needed for a successful attack, dealing with better correlation during the choice phase.
 
-
 ## Conclusions
 
+We showed that it is actually possible to attack an RSA implementation, with the needed hypothesis, using timing information and mounting an attack based on correlation using the Pearson correlation coefficient tool. It is possible to retrieve the entire key on 128 and 256 bits in a reasonable amount of time and with a reasonable number of timing samples. With a faster code implementation and more refined timing models, also higher ranged keys could be retrieved in a reasonable amount of time. What's more, the attack capabilities are not restricted on samples on bare metal systems, but it works also on systems running an operating system.
 
 
 [Colin D. Walter paper]: ./docs/CDW_ELL_99.pdf
