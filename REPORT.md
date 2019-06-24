@@ -399,14 +399,42 @@ To start, the conditional Montgomery multiplication is used together with the su
 The estimate is performed in the functions `ME_big_estimate()` and `MM_big_estimate()`. The first one attack the entire multiplication in the following way:
 
 ```text
-
+for i = 0 to bits_guessed do
+  if bit is set then  // bit set of the index of the maximum pcc
+    if ATTACK_MUL is set then
+      MM_estimate(c,s,n);
+    else
+      MM(c,s,n);
+    end if;
+  end if;
+  if ATTACK_SQUARE is set then
+    MM_estimate(s,s,n);
+  else
+    MM(s,s,n);
+  end if;
+end for;    
 ```
 
 thus, it makes use of the Montgomery multiplication estimates, which works in the following way:
 
 ```text
-
+for i = 0 in nb+2 do
+  qi = s0 + aib0;
+  if ai is set then
+    S = S + b0;
+    increase estimate;
+  end if;
+  if qi is set then
+    S = S + n;
+    increase estimate;
+  end if;
+  shift S;
+  shift a;
+end for;
+return S;
 ```
+
+Which is basically the same pseudo-code shown in section [Montgomery based RSA encryption](#montgomery-based-rsa-encryption), adapted to compute and estimate at the same time.
 
 Additionally, it is possible to guess multiple bits at a time, in order to better recognize wrong choices (which will immediately give uncorrelated results in the following iterations). Finally it is implemented a way to make accumulated estimates on `B_CONSIDERED` number of bits, and guess only the first `B_GUESSED`.  
 
@@ -429,15 +457,39 @@ groups
 1 --> PCC_grouped = PCC(10) + PCC(11)
 ```
 
-This is a step by step schematic pseudo code interpretation of the attack algorithm:
+This is a step by step schematic pseudo-code interpretation of the attack algorithm:
 
 ```text
-
+for step = 0 to NB-1 do
+  for i = 0 to samples-1 do
+    pcc_insert_x(T_sample);
+    for branch = 0 to bits_considered-1 do
+      ME_estimate(bits_considered);  // advance ME of bits_considered steps
+      pcc_insert_y(estimate);
+    end for;
+  end for;
+  pcc_consolidate();
+  for i = 0 to bits_considered do
+    sum pcc grouping branches for common bitss_guessed
+  end for;
+  index = max(pccs);
+  for i = 0 in samples-1 do
+    ME_estimate(bits_guessed);   // advance ME of bits_guessed steps
+  end for;
+  for i = 0 in bits_guessed & step + 1 < NB do
+    select bits guessed;
+  end for;
+step = step + nb_guessed;
+end for;
 ```
 
 Once the Python implementation was working correctly and consistently on different data set, the the attack was ported to C to increase the performances.
 
 #### Codes
+
+Two equal code versions are provided:
+* Python
+* C
 
 ##### Python
 
@@ -445,13 +497,16 @@ ALBI LO VOLEVI CORREGGERE?
 
 ##### C
 
-The c attack code is composed by:
+The C attack code is composed by:
 * header file [panda4x4.h]: it's where the main attack parameters are set (see [Launch the attack](#launch-the-attack) section);
 * source file [panda4x4.c]: include the attack algorithm is the `main()`, but nothing has to be modified.
 
-The C code has the following features:
-* aa
-* bb
+The C code has the following characteristics:
+* reads the time and the plaintext files;
+* applies a filter on the read data (if set, only for OS samples);
+* goes through the attack algorithm explained before;
+* prints to screen live updates on the status of the attack, step by step;
+* does not implement backtracking. If the attack is unsuccessful, just notifies it at the end.
 
 ### Attack results
 

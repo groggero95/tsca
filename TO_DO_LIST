@@ -4,8 +4,10 @@
 
 - aggiungere blinding in versione os (timing.c)
 
-- check the filtering function in panda4x4, i have modified it but boh
+- [DONE] check the filtering function in panda4x4, i have modified it but boh
 
 -REPORT ADD
 - [DONE] problemi avuti con gli shift
 - [DONE] montgomery data which we discovered it overflows
+- write code part on Python
+- write the blinding improvement we introduced
