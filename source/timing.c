@@ -42,7 +42,11 @@ int main(int argc, char **argv){
 			for (int i = 0; i < REPETITIONS; ++i)
 			{
 				start_meas(timer);
+				#if BLINDING == 0
 				res = ME_big(pair.private, b, pair.modulus, pair.k0, nb);
+				#else
+				res = ME_big_blind(pair.private, b, pair.modulus, pair.k0, nb);
+				#endif
 			  	stop_meas(timer);
 			}
 			fwrite(&(timer->min),1,sizeof(timer->min),f_time);

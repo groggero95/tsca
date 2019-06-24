@@ -1,6 +1,6 @@
 - Eliminare Makefile in test folder
 
-- La MM non simula python
+- [DONE] La MM non simula python
 
 - aggiungere blinding in versione os (timing.c)
 

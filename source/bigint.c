@@ -7,7 +7,7 @@ void print_to_stdout(bigint_t *a){
 #if VAR_SIZE == 32
     printf("%08x",a->numb[i]);
 #else
-    printf("%08lx",a->numb[i]);
+    printf("%016lx",a->numb[i]);
 #endif
   }
 //  printf("\n");

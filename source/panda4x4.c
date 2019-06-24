@@ -199,7 +199,7 @@ int main(int argc, char* argv[]) {
 
 		for (int i = 0; i < n_sample; i++)
 		{
-			ME_big_estimate(guess,M_arr + i,n,bits_guessed);
+			ME_big_estimate(guess,M_arr + i, n, bits_guessed);
 		}
 
 		// Advance the refernece messaged of our guess

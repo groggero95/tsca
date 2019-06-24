@@ -26,14 +26,14 @@ int main(int argc, char **argv){
     a = init(argv[2]);
     b = init(argv[3]);
     n = init(argv[4]);
-    nb = INT_SIZE+2;
+    nb = INT_SIZE;
   } else if ((!strcmp(argv[1],"me"))) {
     one = init(ONE);
     a = init(argv[2]); // exponent
     b = init(argv[3]); // plain text
     n = init(argv[4]); // modulus
     k0 = init(argv[5]); // (1<<2nb) % n
-    nb = INT_SIZE+2;
+    nb = INT_SIZE;
   } else if (!strcmp(argv[1],"lsl") || !strcmp(argv[1],"lsr")
             || !strcmp(argv[1],"mm") || !strcmp(argv[1],"me")) {
     a = init(argv[2]);
