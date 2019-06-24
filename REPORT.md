@@ -384,10 +384,35 @@ The attack algorithm was first implemented in Python to have an initial flexibil
 
 #### First implementation attempt
 
-
+At first the code was developed in Python to explore more easily different solutions and to have the support of the `scipy` library for PCC computation.  
+Initially the attack was proceeding one bit at-a-time, making estimates only on the conditional Montgomery multiplication. The program would always guess the current bit of the secret exponent as 1, estimate the timing of the multiplication for every plaintext, and correlate these estimates with the array of total timings. If the resulting PCC was above a certain threshold the guess was considered correct, otherwise it was changed to 0. The described actions were executed iteratively for every bit of the secret exponent.  
+This implementation was rather inconsistent. It was not easy to set a threshold value that could work on different data sets, or for all the iteration of the same data set. Also, the value 0 has estimate 0 using this timing implementation, not allowing to compare its PCC with the one obtained guessing 1.  
+Some changes had to be made to make the attack more reliable.
 
 #### Final implementation
 
+To start, the conditional Montgomery multiplication is used together with the subsequent "squaring" when computing estimates, giving statistical relevance even to 0-guesses. Additionally, it is possible to guess multiple bit at a time, in order to better recognize wrong choices (which will immediately give uncorrelated results in the following iterations). Finally it is implemented a way to make accumulated estimates on `B_CONSIDERED` number of bits, and guess only the first `B_GUESSED`.  
+
+In order to make multi-bit guessing, the PCC is accumulated along each possible path in the window of choices.  
+For example, for `B_CONSIDERED = 2`:
+
+```text
+possible paths
+00 --> PCC = estimate(0), PCC += estimate(0)
+01 --> PCC = estimate(0), PCC += estimate(1)
+10 --> PCC = estimate(1), PCC += estimate(0)
+11 --> PCC = estimate(1), PCC += estimate(1)
+```
+
+Then the accumulated PCCs are grouped in 2^B_GUESSED groups, the one with the highest total score is chosen and the relative B_GUESSED number of bits are set in the private key.  
+For example for `B_CONSIDERED = 2` and `B_GUESSED = 1`:
+```text
+groups
+0 --> PCC_grouped = PCC(00) + PCC(01)
+1 --> PCC_grouped = PCC(10) + PCC(11)
+```
+
+Once the Python implementation was working correctly and consistently on different data set, the the attack was ported to C to increase the performances.
 
 #### Codes
 
