@@ -384,14 +384,31 @@ The attack algorithm was first implemented in Python to have an initial flexibil
 
 #### First implementation attempt
 
-At first the code was developed in Python to explore more easily different solutions and to have the support of the `scipy` library for PCC computation.  
+At first the code was developed in Python to explore more easily different solutions and to have the support of the `scipy` library for PCC computation.
+
+
 Initially the attack was proceeding one bit at-a-time, making estimates only on the conditional Montgomery multiplication. The program would always guess the current bit of the secret exponent as 1, estimate the timing of the multiplication for every plaintext, and correlate these estimates with the array of total timings. If the resulting PCC was above a certain threshold the guess was considered correct, otherwise it was changed to 0. The described actions were executed iteratively for every bit of the secret exponent.  
+
 This implementation was rather inconsistent. It was not easy to set a threshold value that could work on different data sets, or for all the iteration of the same data set. Also, the value 0 has estimate 0 using this timing implementation, not allowing to compare its PCC with the one obtained guessing 1.  
 Some changes had to be made to make the attack more reliable.
 
 #### Final implementation
 
-To start, the conditional Montgomery multiplication is used together with the subsequent "squaring" when computing estimates, giving statistical relevance even to 0-guesses. Additionally, it is possible to guess multiple bit at a time, in order to better recognize wrong choices (which will immediately give uncorrelated results in the following iterations). Finally it is implemented a way to make accumulated estimates on `B_CONSIDERED` number of bits, and guess only the first `B_GUESSED`.  
+To start, the conditional Montgomery multiplication is used together with the subsequent "squaring" when computing estimates, giving statistical relevance even to 0-guesses.
+
+The estimate is performed in the functions `ME_big_estimate()` and `MM_big_estimate()`. The first one attack the entire multiplication in the following way:
+
+```text
+
+```
+
+thus, it makes use of the Montgomery multiplication estimates, which works in the following way:
+
+```text
+
+```
+
+Additionally, it is possible to guess multiple bits at a time, in order to better recognize wrong choices (which will immediately give uncorrelated results in the following iterations). Finally it is implemented a way to make accumulated estimates on `B_CONSIDERED` number of bits, and guess only the first `B_GUESSED`.  
 
 In order to make multi-bit guessing, the PCC is accumulated along each possible path in the window of choices.  
 For example, for `B_CONSIDERED = 2`:
@@ -412,13 +429,29 @@ groups
 1 --> PCC_grouped = PCC(10) + PCC(11)
 ```
 
+This is a step by step schematic pseudo code interpretation of the attack algorithm:
+
+```text
+
+```
+
 Once the Python implementation was working correctly and consistently on different data set, the the attack was ported to C to increase the performances.
 
 #### Codes
 
 ##### Python
 
+ALBI LO VOLEVI CORREGGERE?
+
 ##### C
+
+The c attack code is composed by:
+* header file [panda4x4.h]: it's where the main attack parameters are set (see [Launch the attack](#launch-the-attack) section);
+* source file [panda4x4.c]: include the attack algorithm is the `main()`, but nothing has to be modified.
+
+The C code has the following features:
+* aa
+* bb
 
 ### Attack results
 
@@ -430,6 +463,7 @@ We highly suggest to run the attack Using the C file, since it provides the same
 * choose the number of sample `N_SAMPLES` in [panda4x4.h];
 * choose the plain text file name `MSG_FILE` and the time file `TIME_FILE` in [panda4x4.h];
 * select the corresponding key setting `VERSION` in [cipher.h];
+* set if attacking only the conditional Montgomery multiplication, the squaring one of both setting the parameters `ATTACK_MUL` and `ATTACK_SQUARE` in [panda4x4.h]: it is highly suggested to attack both to be sure to have a successful attack;
 
 Then type:
 ```bash
@@ -560,6 +594,7 @@ We showed that it is actually possible to attack an RSA implementation, with the
 [cipher.c]: ./source/cipher.c
 [helloworld.c]: ./zybo/Test_sd/Debug
 [timing.c]: ./source/timing.c
+[panda4x4.c]: ./source/panda4x4.c
 
 [zybo]: ./zybo/
 [ZC010_wrapper_hw_platform_0]: ./zybo/ZC010_wrapper_hw_platform_0/
