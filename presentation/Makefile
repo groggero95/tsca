@@ -14,7 +14,8 @@ EPS_PDF		= $(patsubst %.eps, %.pdf, $(EPS))
 #ODGS_PDF   = $(patsubst %.odg,%.pdf,$(ODGS))
 
 #NEEDED = $(FIGS_PDF) $(FIGS_PDF_T) $(SVGS_PDF) $(ODGS_PDF)
-NEEDED 		= $(PNG_EPS) $(EPS_PDF)
+#NEEDED 		= $(PNG_EPS) $(EPS_PDF)
+NEEDED		= $(EPS_PDF)
 
 TOP_NAME 	= $(patsubst %.pdf,%,$(TOP))
 EXT 		= pdf log aux out bbl blg toc snm nav fdb_latexmk fls dvi vrb
@@ -62,9 +63,6 @@ tmp_clean:
 
 view_doc:
 	xdg-open $(TOP) && evince $(TOP) &
-
-%.eps:%.png
-	convert $< $@
 
 %.pdf:%.eps
 	inkscape -z -f $< --export-pdf=$@ -z
