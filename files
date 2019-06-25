@@ -1,6 +1,3 @@
-./README.md
-./REPORT.md
-
 ./attack/buffer.py
 ./attack/msg_class.py
 ./attack/attack.py

@@ -1,5 +1,3 @@
-// MASTER-ONLY: DO NOT MODIFY THIS FILE
-
 /*
  * Copyright (C) Telecom ParisTech
  * 
