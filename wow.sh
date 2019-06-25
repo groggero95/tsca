@@ -8,6 +8,9 @@ for f in $(cat files)
 	if [ $ext = "py" ]
 	then
 		cat ./preamble/py_preamble.txt $f > tmp && mv tmp $f && echo "$f appended"
+	elif [ $ext = "sh" ]
+	then
+		cat ./preamble/py_preamble.txt $f > tmp && mv tmp $f && echo "$f appended"
 	elif [ $ext = "c" ]
 	then
 		cat ./preamble/c_preamble.txt $f > tmp && mv tmp $f && echo "$f appended"
