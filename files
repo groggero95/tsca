@@ -27,7 +27,6 @@
 ./include/mm.h
 ./include/me.h
 ./include/cipher.h
-./include/utils.h
 
 ./zybo/Test_sd_bsp/ps7_cortexa9_0/libsrc/bigint_v0_1/src/include/bigint.h
 ./zybo/Test_sd_bsp/ps7_cortexa9_0/include/bigint.h
@@ -36,7 +35,6 @@
 
 ./source/main.c
 ./source/me.c
-./source/utils.c
 ./source/panda4x4.c
 ./source/mm.c
 ./source/timing.c
