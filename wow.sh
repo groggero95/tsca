@@ -17,5 +17,8 @@ for f in $(cat files)
 	elif [ $ext = "tex" ]
 	then
 		cat ./preamble/tex_preamble.txt $f > tmp && mv tmp $f && echo "$f apppended"
+	elif echo $f | grep -q "Makefile"
+	then
+		cat ./preamble/py_preamble.txt $f > tmp && mv tmp $f && echo "$f appended"
 	fi;
 done
