@@ -487,13 +487,27 @@ Once the Python implementation was working correctly and consistently on differe
 
 #### Codes
 
-Two equal code versions are provided:
+Two similar code versions are provided:
 * Python
 * C
 
 ##### Python
 
-ALBI LO VOLEVI CORREGGERE?
+The python code is available in the folder [attack], under the name [panda4x4.py].
+
+It receives as parameters from the user:
+* number of bits of the key;
+* the version of the key to be used with that number of bits, which will be chosen from the available versions in [cipher.py];
+* the plaintext `BIN` file name with the path from the tsca root folder (i.e. `./data/P..`);
+* the timing `BIN` file name with the path from the tsca root folder (i.e. `./data/T..`);
+* the number of samples to use, which has to be less or equal to the number of samples in the files used above.
+
+The form to use is thus the following (example):
+```text
+panda4x4.py 128 0 ./data/P1M_Ofast_key0_128.BIN ./data/T1M_Ofast_key0_128.BIN 10000
+```
+
+DESCRIVERE RAPIDAMENTE
 
 ##### C
 
@@ -603,11 +617,11 @@ The $`v_f = (v_i^{-1})^{x} \; mod \; n`$ calculation itself might even be subjec
 In our case since we need to pass into the montgomery domain before any computation we can incorporate the blinding into this step by multiplying
 
   $`\; s \; = \; m*v_i*R \; mod \; n`$
-  
+
 the same process can be repeated at the end since we need to return to the normal domain, thus we can compute
 
   $`\; c \; = \; c*v_f*R^{-1} \; mod \; n`$
-  
+
 the only price we pay in this case is the suqaring since the blinding can be seamesly integreted.
 
 Due to the limit of our library we could not go with the following solution. Since the only tool available was the montgomery multiplication we had to separate the steps for blinding and goning back and forth in the montgomery domain. Moreover we do not use directly the pair $`(v_i,v_f)`$ but a montgomery version of it, i.e. $`(v_i*R,v_f*R) \; mod \; n`$, in this way we can just rely on the multiplication that we developed.
@@ -659,6 +673,9 @@ We showed that it is actually possible to attack an RSA implementation, with the
 [timing.c]: ./source/timing.c
 [panda4x4.c]: ./source/panda4x4.c
 
+[panda4x4.py]: ./attack/panda4x4.py
+[cipher.py]: ./attack/cipher.py
+
 [zybo]: ./zybo/
 [ZC010_wrapper_hw_platform_0]: ./zybo/ZC010_wrapper_hw_platform_0/
 [Test_sd_bsp]: ./zybo/Test_sd_bsp/
@@ -667,5 +684,6 @@ We showed that it is actually possible to attack an RSA implementation, with the
 [data]: ./data/
 [zybo src]: ./zybo/Test_sd/src/
 [include]: ./include/
+[attack]: ./attack/
 
 [boot.bin]: ./zybo/Test_sd/src/helloworld.c
