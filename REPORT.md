@@ -579,30 +579,33 @@ Thus, the total time is increased by $`(1+2)*3 = 6`$ times. Following the same r
 One of the possible countermeasures applicable on the RSA algorithm is `blinding`. We implemented the very same one proposed by Paul Cocher in his [paper]: the main purpose is to remove the data dependencies of the algorithm modifying the input plain text, such that the data used by the RSA algorithm are different than the one expected by the attacker. Thus, the timing measurements on the exponentiation will be completely uncorrelated with respect to the real data used in the algorithm as well as with respect to the timing estimates performed by the attacker. The mathematical footprint of the RSA makes easy to modify the input data, perform the exponentiation and re-modify the output cipher text to obtain the real expected cipher text, using just a couple of Montomery multiplication at the beginning and at the end of the algorithm.
 
 The proposed blinding technique works in the following way:
-* Before computing the modular exponentiation operation choose a random pair
+* For each public, secret keypair we choose a random pair
 
   $`(v_i,v_f)`$
 
-  such that
+  before the exponentiation, such that
 
  $`(v_f)^{-1} = v_i^{x} \; mod \; n`$.
 
-  Cocher suggests that "for RSA it is faster to choose a random `$`v_f`$` relatively prime to `n` then compute $`v_i = (v_f^{-1})^{e} \; mod \; n`$ where `e` is the public exponent".
+  Cocher suggests that "for RSA it is faster to choose a random `$`v_f`$` relatively prime to `n` then compute $`v_i = (v_f^{-1})^{e} \; mod \; n`$ where `e` is the private exponent", but as we will see later all these operation can be done 'offline', i.e. at the creation of keypair.
 
-* Before the modular exponentiation, the input message is multiplied by
+* Before computing the modular exponentiation, we obtain the blindend version of the message with the following operation
 
-  $`v_i \; mod \; n `$
+  $`v_i*m\; mod \; n `$
 
-* After the modular multiplication, the result is corrected multiplying it by:
+* After the modular exponentiation, we can recover the ciphertext using the othre factor `$`v_f`$`:
 
-  $`v_f \; mod \; n`$
+  $`v_f*c \; mod \; n`$
 
-Moreover Cocher suggested that "computing inverses $`mod n`$ is slow, so it is often not practical to generate a new random $`(v_i;v_f)`$ pair for each new exponentiation. The $`v_f = (v_i^{-1})^{x} \; mod \; n`$ calculation itself might even be subject to timing attacks. However $`(v_i;v_f)`$ pairs should not be reused, since they themselves might be compromised by timing attacks, leaving the secret exponent vulnerable. An effcient solution to this problem is update $`v_i`$ and $`v_f`$ before each modular exponentiation step by computing $`vi^{1} = v_i^{2}`$ and $`v_f^{1} = v_f^{2}`$."
+Moreover Cocher suggested that "computing inverses $`mod n`$ is slow, so it is often not practical to generate a new random $`(v_i;v_f)`$ pair for each new exponentiation. The $`v_f = (v_i^{-1})^{x} \; mod \; n`$ calculation itself might even be subject to timing attacks. However $`(v_i;v_f)`$ pairs should not be reused, since they themselves might be compromised by timing attacks, leaving the secret exponent vulnerable. An effcient solution to this problem is update $`v_i`$ and $`v_f`$ before each modular exponentiation, by simply squaring them both we can mantain the same property and thus we have only four modular multipliction with respect of a normal case.
 
-This is exactly the approach we used. More specifically ..
+In our case since we need to pass into the montgomery domain before any computation we can incorporate the blinding into this step by multiplying 
+  $`s \; = \; m*v_i*R^{2} \; mod \; n`$
+the same process can be repeated at the end since we need to return to the normal domain, thus we can compute
+  $`c \; = \; c*v_f*R^{-1} \; mod \; n`$
+the only price we pay in our case is the suqaring since the blinding can be seamesly integreted.
 
-ADD ALBI PART FROM SLIDES...
-say what we added in the code.
+Due to the limit of our library we could not go with the following solution. Since the only tool available was the montgomery multiplication we had to separate the steps for blinding and goning back and forth in the montgomery domain. Moreover we do not use directly the pair $`(v_i,v_f)`$ but a montgomery version of it, i.e. $`(v_i*R,v_f*R) \; mod \; n`$, in this way we can just rely on the multiplication thta we developed.
 
 ### Results
 
