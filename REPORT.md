@@ -597,7 +597,8 @@ The proposed blinding technique works in the following way:
 
   $`v_f*c \; mod \; n`$
 
-Moreover Cocher suggested that "computing inverses $`mod \; n`$ is slow, so it is often not practical to generate a new random $`(v_i,v_f)`$ pair for each new exponentiation. The $`v_f = (v_i^{-1})^{x} \; mod \; n`$ calculation itself might even be subject to timing attacks. However $`(v_i,v_f)`$ pairs should not be reused, since they themselves might be compromised by timing attacks, leaving the secret exponent vulnerable. An effcient solution to this problem is update $`v_i`$ and $`v_f`$ before each modular exponentiation, by simply squaring them both we can mantain the same property and thus we have only four modular multipliction with respect of a normal case.
+Moreover Cocher suggested that "computing inverses $`mod \; n`$ is slow, so it is often not practical to generate a new random $`(v_i,v_f)`$ pair for each new exponentiation. 
+The $`v_f = (v_i^{-1})^{x} \; mod \; n`$ calculation itself might even be subject to timing attacks. However $`(v_i,v_f)`$ pairs should not be reused, since they themselves might be compromised by timing attacks, leaving the secret exponent vulnerable. An effcient solution to this problem is update $`v_i`$ and $`v_f`$ before each modular exponentiation, by simply squaring them both we can mantain the same property and thus we have only four modular multipliction with respect of a normal case.
 
 In our case since we need to pass into the montgomery domain before any computation we can incorporate the blinding into this step by multiplying
 
