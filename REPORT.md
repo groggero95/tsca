@@ -601,11 +601,11 @@ Moreover Cocher suggested that "computing inverses $`mod \; n`$ is slow, so it i
 
 In our case since we need to pass into the montgomery domain before any computation we can incorporate the blinding into this step by multiplying
 
-    $`s \; = \; m*v_i*R \; mod \; n`$
+  $`\; s \; = \; m*v_i*R \; mod \; n`$
   
 the same process can be repeated at the end since we need to return to the normal domain, thus we can compute
 
-    $`c \; = \; c*v_f*R^{-1} \; mod \; n`$
+  $`\; c \; = \; c*v_f*R^{-1} \; mod \; n`$
   
 the only price we pay in this case is the suqaring since the blinding can be seamesly integreted.
 
