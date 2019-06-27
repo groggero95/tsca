@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 #
 # Copyright (C) EURECOM, Telecom Paris
 #
@@ -14,7 +16,6 @@
 # http://www.cecill.info/licences/Licence_CeCILL_V1.1-US.txt 
 #
 
-#!/usr/bin/python3
 import os
 import sys
 import numpy as np
@@ -22,6 +23,8 @@ import scipy.stats as stat
 import copy
 import requests
 from msg_class import guess_test
+import cipher
+import re
 
 
 def telegram_bot_sendtext(bot_message, bot_chatID):
@@ -83,25 +86,37 @@ def get_tails(messages, times, percentage=0.1):
     return m_cp, t_cp
 
 
-def main_attack():
+def main_attack(bits=128,version=0,plain='./data/P10k_Ofast_key0_128.BIN',time='./data/T10k_Ofast_key0_128.BIN', N_msg=10000):
 
-    # known informations
-    n = 0xc26e8d2105e3454baf122700611e915d
-    private = 0x0745812bb1ffacf0b5d6200be2ced7d5
-    k0 = 0x8354f24c98cfac7a6ec8719a1b11ba4f
-    nb = 128
+    print(bits, version, plain, time, N_msg)
+
+    if not (bits in cipher.size) or bits > 256:
+        print("Unsupported bit size")
+
+    curDir = os.getcwd()
+
+    x = re.search("/tsca/?",curDir)
+    if x:
+        os.chdir(curDir[:x.end()])
+    else:
+        print("Must be inside the repository to launch the test")
+        sys.exit(-1)
+
+    print(os.getcwd())
+
+    bits_index = cipher.size.index(bits)
+    n = int(cipher.n[bits_index][version],16)
+    private = int(cipher.keys[bits_index][version],16)
+    k0 = int(cipher.k0[bits_index][version],16)
+    nb = bits
     nb_key = nb + 2
-    n_msg = 10000
+    n_msg = N_msg
 
     chat_on, chat_id = check_bot()
 
     # Read messages from file
-    # m_in, T_in = read_plain(n=n, nb=nb_key, file_msg='../data/P1M_Ofast_key3_256.BIN', file_time='../data/T1M_Ofast_key3_256.BIN', max_messages=10000000)
-    m_in, T_in = read_plain(n=n, k0=k0, nb=nb_key, file_msg='../data/P10k_Ofast_key0_128.BIN', file_time='../data/T10k_Ofast_key0_128.BIN', max_messages=n_msg)
+    m_in, T_in = read_plain(n=n, k0=k0, nb=nb_key, file_msg=plain, file_time=time, max_messages=n_msg)
 
-    #for m in m_in:
-    #    print(hex(m.s))
-    # Evaluate the round mean and box mean, without
     t_mean = np.mean(T_in)
     t_variance = np.std(T_in)
     coeff = 0.25
@@ -111,22 +126,22 @@ def main_attack():
     bits_considered = 2
     bits_guessed = 1
 
+    # Function used to try some wierd filtering, a bit inconclusive though
     # messages, T_arr = get_tails(m_in, T_in, percentage=ratio)
     messages = m_in
     T_arr = T_in
 
     print("Read messages: {} samples; -- After filtering {} samples".format(len(T_in),len(T_arr)), flush=True)
     if chat_on:
-        sms_in = "{}, starting your test.\nRead messages: {} samples\nAfter filtering {} samples".format(chat_id[1], len(T_in),len(T_arr))
+        sms_in = "{}, starting your test.\nRreead messages: {} samples\nAfter filtering {} samples".format(chat_id[1], len(T_in),len(T_arr))
         telegram_bot_sendtext(sms_in, chat_id[0])
+        
     # Final to revert the key, as we start from LSB, just for testing with one bit at a time
     private_key_bit = padbin(private, nb)[::-1]
-    #public_key_bit = padbin(public)[::-1]
 
     for m in messages:
         m.me_estimate(1)
         m.me_step(1)
-        # print(hex(m.c))
 
     key_guessed = ['1']
     step = 1
@@ -148,13 +163,11 @@ def main_attack():
                 # To shift and pass the next LSB
                 numb_t >>= 1
 
-        # time_est = [[sum([h[4] for h in msg.hist[-bits_considered::]]) for msg in branch] for branch in init_coll]
         time_est = [[msg.tot_est for msg in branch] for branch in init_coll]
 
-        # print(time_est)
 
-        #pcc_tot = [stat.pearsonr(T_arr, t_arr)[0] if (not(numpy.isnan(stat.pearsonr(T_arr, t_arr)[0]))) else 0 for t_arr in time_est]
         pcc_tot = [stat.pearsonr(T_arr, t_arr)[0] for t_arr in time_est]
+        # Tried a bunch of other bilt in function for correlation testing but it does not change mutch
         # pcc_tot = [stat.spearmanr(T_arr, t_arr)[0] for t_arr in time_est]
         # pcc_tot = [stat.pointbiserialr(T_arr, t_arr)[0] for t_arr in time_est]
         # pcc_tot = [stat.kendalltau(T_arr, t_arr)[0] for t_arr in time_est]
@@ -213,4 +226,8 @@ def main_attack():
 
 
 if __name__ == '__main__':
-    main_attack()
+    if len(sys.argv) == 6:
+        main_attack(bits=int(sys.argv[1],10), version=int(sys.argv[2],10), plain=sys.argv[3], time=sys.argv[4], N_msg=int(sys.argv[5],10))
+    else:
+        print("Wrong arguments expected: ./panda4x4.py KeySize Version PlainFile TimeFile")
+        print("KeySize above 256 is not currently available")

@@ -51,7 +51,7 @@ def pretty(string,n):
 	return s
 
 
-def me_test(testnum=1000, nbit=128, varSize = 32):
+def me_test(testnum=10000, nbit=128, varSize = 32):
 	"""Perform the needed tests, taking as arguments the operation (MM, ME), number of bits, number of tests, scaling coefficient for struct bits """
 
 	path = './main'
@@ -88,15 +88,16 @@ def me_test(testnum=1000, nbit=128, varSize = 32):
 	if (not ('main' in os.listdir())) or flag_bit or flag_size:
 		subprocess.run(["make", "main"], stdout=subprocess.PIPE)
 
+	public, private, k0, blindpair, montBlindpair = rsa.generateKey_silent(nbit)
+	os.system('sed -ri ' + r"'s/(static bigint_t vi =) .*/\1 {};/g'".format(pretty(padhex(montBlindpair[0],effBit,var_size),var_size//4)) + " ./source/me.c")
+	os.system('sed -ri ' + r"'s/(static bigint_t vf =) .*/\1 {};/g'".format(pretty(padhex(montBlindpair[1],effBit,var_size),var_size//4)) + " ./source/me.c")
+	subprocess.run(["make", "main"], stdout=subprocess.PIPE)		
+
+
 	pad = effBit + var_size
 
 	for i in range(testnum):
-		public, private, k0, blindpair, montBlindpair = rsa.generateKey_silent(nbit)
 		b = random.getrandbits(nbit)
-
-		os.system('sed -ri ' + r"'s/(static bigint_t vi =) .*/\1 {};/g'".format(pretty(padhex(montBlindpair[0],effBit,var_size),var_size//4)) + " ./source/me.c")
-		os.system('sed -ri ' + r"'s/(static bigint_t vf =) .*/\1 {};/g'".format(pretty(padhex(montBlindpair[1],effBit,var_size),var_size//4)) + " ./source/me.c")
-		subprocess.run(["make", "main"], stdout=subprocess.PIPE)		
 
 		c = subprocess.run([path, sel, padhex(private[1],effBit,var_size), padhex(b,effBit,var_size), padhex(private[0],effBit,var_size), padhex(k0,effBit,var_size)], stdout=subprocess.PIPE)
 
