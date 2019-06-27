@@ -74,6 +74,8 @@ bigint_t ME_big_blind(bigint_t e, bigint_t m, bigint_t n, bigint_t k0, int nb) {
     static bigint_t vf = { .numb = VF_INIT };
     bigint_t one = init(ONE);   
 
+
+
     c = MM_big(k0, one, n, nb);
     s = MM_big(k0, m, n, nb);
     s = MM_big(s, vi, n, nb);

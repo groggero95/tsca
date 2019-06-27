@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 #
 # Copyright (C) EURECOM, Telecom Paris
 #
@@ -14,7 +16,6 @@
 # http://www.cecill.info/licences/Licence_CeCILL_V1.1-US.txt 
 #
 
-#!/usr/bin/python3
 import os, sys
 import subprocess
 import math

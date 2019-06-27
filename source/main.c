@@ -43,17 +43,12 @@ int main(int argc, char **argv){
     b = init(argv[3]);
     n = init(argv[4]);
     nb = INT_SIZE;
-  } else if ((!strcmp(argv[1],"me"))) {
-    one = init(ONE);
+  } else if ((!strcmp(argv[1],"me")) || (!strcmp(argv[1],"meb"))) {
     a = init(argv[2]); // exponent
     b = init(argv[3]); // plain text
     n = init(argv[4]); // modulus
     k0 = init(argv[5]); // (1<<2nb) % n
     nb = INT_SIZE;
-  } else if (!strcmp(argv[1],"lsl") || !strcmp(argv[1],"lsr")
-            || !strcmp(argv[1],"mm") || !strcmp(argv[1],"me")) {
-    a = init(argv[2]);
-    b = init(argv[3]);
    } else {
     a = init_full(argv[2]);
     b = init_full(argv[3]);
@@ -109,6 +104,9 @@ int main(int argc, char **argv){
     print_to_stdout(&res);
   } else if (!strcmp(argv[1],"me")) {
     res = ME_big(a,b,n,k0,nb);
+    print_to_stdout(&res);
+  } else if (!strcmp(argv[1],"meb")) {
+    res = ME_big_blind(a,b,n,k0,nb);
     print_to_stdout(&res);
   } else {
     printf("No operation available");
