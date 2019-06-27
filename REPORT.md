@@ -507,7 +507,8 @@ The form to use is thus the following (example):
 panda4x4.py 128 0 ./data/P1M_Ofast_key0_128.BIN ./data/T1M_Ofast_key0_128.BIN 10000
 ```
 
-DESCRIVERE RAPIDAMENTE
+The python code has the same characteristics listed in the next section since the attack was first developed in python and then ported in C. \
+The only difference is that this version has the necessary function to implement backtracking.
 
 ##### C
 
