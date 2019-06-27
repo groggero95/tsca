@@ -585,9 +585,9 @@ The proposed blinding technique works in the following way:
 
   before the exponentiation, such that
 
- $`(v_f)^{-1} = v_i^{x} \; mod \; n`$.
+  $`(v_f)^{-1} = v_i^{x} \; mod \; n`$.
 
-  Cocher suggests that "for RSA it is faster to choose a random `$`v_f`$` relatively prime to `n` then compute $`v_i = (v_f^{-1})^{e} \; mod \; n`$ where `e` is the private exponent", but as we will see later all these operation can be done 'offline', i.e. at the creation of keypair.
+  Cocher suggests that "for RSA it is faster to choose a random $`v_f`$ relatively prime to `n` then compute $`v_i \; = \; (v_f^{-1})^{e} \; mod \; n`$ where `e` is the private exponent", but as we will see later all these operation can be done 'offline', i.e. at the creation of the keypair.
 
 * Before computing the modular exponentiation, we obtain the blindend version of the message with the following operation
 
@@ -599,13 +599,17 @@ The proposed blinding technique works in the following way:
 
 Moreover Cocher suggested that "computing inverses $`mod n`$ is slow, so it is often not practical to generate a new random $`(v_i;v_f)`$ pair for each new exponentiation. The $`v_f = (v_i^{-1})^{x} \; mod \; n`$ calculation itself might even be subject to timing attacks. However $`(v_i;v_f)`$ pairs should not be reused, since they themselves might be compromised by timing attacks, leaving the secret exponent vulnerable. An effcient solution to this problem is update $`v_i`$ and $`v_f`$ before each modular exponentiation, by simply squaring them both we can mantain the same property and thus we have only four modular multipliction with respect of a normal case.
 
-In our case since we need to pass into the montgomery domain before any computation we can incorporate the blinding into this step by multiplying 
-  $`s \; = \; m*v_i*R^{2} \; mod \; n`$
-the same process can be repeated at the end since we need to return to the normal domain, thus we can compute
-  $`c \; = \; c*v_f*R^{-1} \; mod \; n`$
-the only price we pay in our case is the suqaring since the blinding can be seamesly integreted.
+In our case since we need to pass into the montgomery domain before any computation we can incorporate the blinding into this step by multiplying
 
-Due to the limit of our library we could not go with the following solution. Since the only tool available was the montgomery multiplication we had to separate the steps for blinding and goning back and forth in the montgomery domain. Moreover we do not use directly the pair $`(v_i,v_f)`$ but a montgomery version of it, i.e. $`(v_i*R,v_f*R) \; mod \; n`$, in this way we can just rely on the multiplication thta we developed.
+  $`s \; = \; m*v_i*R \; mod \; n`$
+  
+the same process can be repeated at the end since we need to return to the normal domain, thus we can compute
+
+  $`c \; = \; c*v_f*R^{-1} \; mod \; n`$
+  
+the only price we pay in this case is the suqaring since the blinding can be seamesly integreted.
+
+Due to the limit of our library we could not go with the following solution. Since the only tool available was the montgomery multiplication we had to separate the steps for blinding and goning back and forth in the montgomery domain. Moreover we do not use directly the pair $`(v_i,v_f)`$ but a montgomery version of it, i.e. $`(v_i*R,v_f*R) \; mod \; n`$, in this way we can just rely on the multiplication that we developed.
 
 ### Results
 
