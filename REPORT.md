@@ -287,7 +287,7 @@ The `main()` function performs the following:
 * Creates two data file (`PLAIN.BIN` and `TIME.BIN`) that will be written on the same SD card we will plug in the zybo; the first contains the actual value of the message it has been encrypted, the second one the timing measurement related to that encryption;
 * Initializes the data structure `pair`, which contains the set of private key, public key and modulus;
 * Initialize the configuration of one led (`MIO7` on the zybo board) that will be turned on when the acquisition is concluded;
-* Starts the acquisition loop a number of times equal to `TESTNUM`: the message to be encrypted is randomly generated run-time and feeds one Montomery exponentiation, whose execution time in terms of clock cycles is recorded thanks to the Xilinx built in function `XTime_GetTime`, included in the library `xtime_l.h`; finally, write the two data files;
+* Starts the acquisition loop a number of times equal to `TESTNUM`: the message to be encrypted is randomly generated run-time and feeds one Montgomery exponentiation, whose execution time in terms of clock cycles is recorded thanks to the Xilinx built in function `XTime_GetTime`, included in the library `xtime_l.h`; finally, write the two data files;
 * When the acquisition loop is over, the led is turned on and the `main()` returns.
 
 To run an acquisition campaign, plug and SD card in the laptop/pc and type the following commands:
@@ -329,7 +329,7 @@ $ vim ./source/timing.c
 ```
 The `main()`function performs the following:
 * Initialize the data structure `pair`;
-* Creates/opens two data files (PLAIN.BIN and TIME.BIN) in the folder [data], which will be populated with a number of samples (plaintext ecrypted) according to `TESTNUM`;
+* Creates/opens two data files (PLAIN.BIN and TIME.BIN) in the folder [data], which will be populated with a number of samples (plaintext encrypted) according to `TESTNUM`;
 * For each plaintext, the timing measurements are taken `REPETITIONS` times (set to 10) and the minimum timing is chosen. In this way we try to reduce possible weird measurements due to OS scheduling policies, which may lead to clearly out-of-bound results. The functions on which the timings are taken (`ME_big()` and `MM_big()`) are the very same used in the zybo case.
 * The functions used for timing measurements are reported in [time_meas.h];
 * A live progress status is printed to screen (it doesn't influence the timing measurements): when the execution is done, the two files are ready to be attacked.
@@ -364,7 +364,7 @@ The basic starting point for a time side channel attack is to create statistics 
 
   `P<NumberOfSamples>_<OptimizationFlag>_<Key>_<NumberOfBits>.BIN`
   `T<NumberOfSamples>_<OptimizationFlag>_<Key>_<NumberOfBits>.BIN`
-* plaintexts used for measurements are known: the set of files pairs just shown includes a timing file and a plain text file, containing all the plaintext provided to the alorithm;
+* plaintexts used for measurements are known: the set of files pairs just shown includes a timing file and a plain text file, containing all the plaintext provided to the algorithm;
 
 * the secret key is always the same for all the encryptions under the same acquisition campaign: each files pair in [data] is obtained for one and the very same key;
 
@@ -476,7 +476,7 @@ for step = 0 to NB-1 do
   end for;
   pcc_consolidate();
   for i = 0 to bits_considered do
-    sum pcc grouping branches for common bitss_guessed
+    sum pcc grouping branches for common bits_guessed
   end for;
   index = max(pccs);
   for i = 0 in samples-1 do
@@ -494,7 +494,9 @@ Once the Python implementation was working correctly and consistently on differe
 #### Codes
 
 Two similar code versions are provided:
+
 * Python
+
 * C
 
 ##### Python
@@ -533,7 +535,7 @@ The C code has the following characteristics:
 
 #### Launch the attack
 
-We highly suggest to run the attack Using the C file, since it provides the same accuracy as the Python code but with at least a time reduction factor of 10. Before running the attack:
+We highly suggest to run the attack using the C file, since it provides the same accuracy as the Python code but with at least a time reduction factor of 10. Before running the attack:
 
 * choose the number of bits `INT_SIZE` in [bigint.h];
 * choose the number of sample `N_SAMPLES` in [panda4x4.h];
@@ -597,7 +599,7 @@ Thus, the total time is increased by $`(1+2)*3 = 6`$ times. Following the same r
 
 ### Theory
 
-One of the possible countermeasures applicable on the RSA algorithm is `blinding`. We implemented the very same one proposed by Paul Cocher in his [paper]: the main purpose is to remove the data dependencies of the algorithm modifying the input plain text, such that the data used by the RSA algorithm are different than the one expected by the attacker. Thus, the timing measurements on the exponentiation will be completely uncorrelated with respect to the real data used in the algorithm as well as with respect to the timing estimates performed by the attacker. The mathematical footprint of the RSA makes easy to modify the input data, perform the exponentiation and re-modify the output cipher text to obtain the real expected cipher text, using just a couple of Montomery multiplication at the beginning and at the end of the algorithm.
+One of the possible countermeasures applicable on the RSA algorithm is `blinding`. We implemented the very same one proposed by Paul Kocher in his [paper]: the main purpose is to remove the data dependencies of the algorithm modifying the input plain text, such that the data used by the RSA algorithm are different than the one expected by the attacker. Thus, the timing measurements on the exponentiation will be completely uncorrelated with respect to the real data used in the algorithm as well as with respect to the timing estimates performed by the attacker. The mathematical footprint of the RSA makes easy to modify the input data, perform the exponentiation and re-modify the output cipher text to obtain the real expected cipher text, using just a couple of Montomery multiplication at the beginning and at the end of the algorithm.
 
 The proposed blinding technique works in the following way:
 * For each public, secret keypair we choose a random pair
@@ -608,20 +610,20 @@ The proposed blinding technique works in the following way:
 
   $`(v_f)^{-1} = v_i^{x} \; mod \; n`$.
 
-  Cocher suggests that "for RSA it is faster to choose a random $`v_f`$ relatively prime to `n` then compute $`v_i \; = \; (v_f^{-1})^{e} \; mod \; n`$ where `e` is the private exponent", but as we will see later all these operation can be done 'offline', i.e. at the creation of the keypair.
+  Kocher suggests that "for RSA it is faster to choose a random $`v_f`$ relatively prime to `n` then compute $`v_i \; = \; (v_f^{-1})^{e} \; mod \; n`$ where `e` is the private exponent", but as we will see later all these operation can be done 'offline', i.e. at the creation of the keypair.
 
-* Before computing the modular exponentiation, we obtain the blindend version of the message with the following operation
+* Before computing the modular exponentiation, we obtain the blinded version of the message with the following operation
 
   $`v_i*m\; mod \; n `$
 
-* After the modular exponentiation, we can recover the ciphertext using the othre factor $`v_f`$:
+* After the modular exponentiation, we can recover the ciphertext using the other factor $`v_f`$:
 
   $`v_f*c \; mod \; n`$
 
-Moreover Cocher suggested that "computing inverses $`mod \; n`$ is slow, so it is often not practical to generate a new random $`(v_i,v_f)`$ pair for each new exponentiation.\
-The $`v_f = (v_i^{-1})^{x} \; mod \; n`$ calculation itself might even be subject to timing attacks. However $`(v_i,v_f)`$ pairs should not be reused, since they themselves might be compromised by timing attacks, leaving the secret exponent vulnerable. An effcient solution to this problem is update $`v_i`$ and $`v_f`$ before each modular exponentiation, by simply squaring them both we can mantain the same property and thus we have only four modular multipliction with respect of a normal case.
+Moreover Kocher suggested that "computing inverses $`mod \; n`$ is slow, so it is often not practical to generate a new random $`(v_i,v_f)`$ pair for each new exponentiation.\
+The $`v_f = (v_i^{-1})^{x} \; mod \; n`$ calculation itself might even be subject to timing attacks. However $`(v_i,v_f)`$ pairs should not be reused, since they themselves might be compromised by timing attacks, leaving the secret exponent vulnerable. An efficient solution to this problem is update $`v_i`$ and $`v_f`$ before each modular exponentiation, by simply squaring them both we can maintain the same property and thus we have only four modular multiplication with respect of a normal case.
 
-In our case since we need to pass into the montgomery domain before any computation we can incorporate the blinding into this step by multiplying
+In our case since we need to pass into the Montgomery domain before any computation we can incorporate the blinding into this step by multiplying
 
   $`\; s \; = \; m*v_i*R \; mod \; n`$
 
@@ -629,9 +631,9 @@ the same process can be repeated at the end since we need to return to the norma
 
   $`\; c \; = \; c*v_f*R^{-1} \; mod \; n`$
 
-the only price we pay in this case is the suqaring since the blinding can be seamesly integreted.
+the only price we pay in this case is the squaring since the blinding can be seamlessly integrated.
 
-Due to the limit of our library we could not go with the following solution. Since the only tool available was the montgomery multiplication we had to separate the steps for blinding and goning back and forth in the montgomery domain. Moreover we do not use directly the pair $`(v_i,v_f)`$ but a montgomery version of it, i.e. $`(v_i*R,v_f*R) \; mod \; n`$, in this way we can just rely on the multiplication that we developed.
+Due to the limit of our library we could not go with the following solution. Since the only tool available was the Montgomery multiplication we had to separate the steps for blinding and going back and forth in the Montgomery domain. Moreover we do not use directly the pair $`(v_i,v_f)`$ but a Montgomery version of it, i.e. $`(v_i*R,v_f*R) \; mod \; n`$, in this way we can just rely on the multiplication that we developed.
 
 ### Results
 
