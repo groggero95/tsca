@@ -13,7 +13,7 @@
 # file is licensed as described in the file COPYING, which you should
 # have received as part of this distribution. The terms are also
 # available at:
-# http://www.cecill.info/licences/Licence_CeCILL_V1.1-US.txt 
+# http://www.cecill.info/licences/Licence_CeCILL_V1.1-US.txt
 #
 
 import os, sys
@@ -32,7 +32,7 @@ def padhex(m, nb=32, var_size = 32):
 def shift_test(sel='lsl', testnum=10000, nbit=128, varSize=32):
 
 	nbit_shift = 7
-	path = './main'
+	path = './test_main'
 	operation = ['lsl', 'lsr']
 	toterr = 0
 
@@ -63,8 +63,8 @@ def shift_test(sel='lsl', testnum=10000, nbit=128, varSize=32):
 	if flag_bit:
 		os.system('sed -ri ' + r"'s/(^#\w+ INT\w+) [0-9]+/\1 {}/g'".format(effBit) + " ./include/bigint.h")
 
-	if (not ('main' in os.listdir())) or flag_bit or flag_size:
-		subprocess.run(["make", "main"], stdout=subprocess.PIPE)
+	if (not ('test_main' in os.listdir())) or flag_bit or flag_size:
+		subprocess.run(["make", "test"], stdout=subprocess.PIPE)
 
 	pad = effBit + var_size
 

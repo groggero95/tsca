@@ -13,7 +13,7 @@
 # file is licensed as described in the file COPYING, which you should
 # have received as part of this distribution. The terms are also
 # available at:
-# http://www.cecill.info/licences/Licence_CeCILL_V1.1-US.txt 
+# http://www.cecill.info/licences/Licence_CeCILL_V1.1-US.txt
 #
 
 import os, sys
@@ -31,7 +31,7 @@ def padhex(m, nb=32, var_size = 32):
 
 def arith_test(sel='sum', testnum=10000, nbit=128, varSize = 32):
 	# nbit = nbit + 32
-	path = './main'
+	path = './test_main'
 	operation = ['sum', 'sub', 'mul']
 	toterr = 0
 
@@ -62,8 +62,8 @@ def arith_test(sel='sum', testnum=10000, nbit=128, varSize = 32):
 	if flag_bit:
 		os.system('sed -ri ' + r"'s/(^#\w+ INT\w+) [0-9]+/\1 {}/g'".format(effBit) + " ./include/bigint.h")
 
-	if (not ('main' in os.listdir())) or flag_bit or flag_size:
-		subprocess.run(["make", "main"], stdout=subprocess.PIPE)
+	if (not ('test_main' in os.listdir())) or flag_bit or flag_size:
+		subprocess.run(["make", "test"], stdout=subprocess.PIPE)
 
 	pad = effBit + var_size
 
@@ -114,4 +114,3 @@ if __name__ == '__main__':
 	args = parser.parse_args()
 
 	arith_test(args.operation, args.ntest, args.bits, args.varsize)
-

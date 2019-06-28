@@ -50,6 +50,7 @@ In our case, the attack will be a timing attack on an RSA crypto-computation (Mo
 The RSA ecryption algorithm involves two steps:
 
 * key pair generation
+
 * modular exponentation and multiplication based ecryption
 
 For the key pair generation, first two distinct large prime number (`p`,`q`) have to be found. Then, the modulus `n` is computed as the product of the two prime numbers. The Eulero's totient `t` is successively computed as the product
@@ -124,7 +125,7 @@ The latter, on the other side, requires more time to be implemented and tested, 
 
 The custom library is implemented through the files [bigint.h] and [bigint.c], which define:
 * the data type we will use to work on large integers
-* all the main operation needed to perform the Montgomery multiplication and exponentation.
+* all the main operation needed to perform the Montgomery multiplication and exponentiation.
 
 #### Data type
 
@@ -203,21 +204,21 @@ To check the actual implemetations of those functions, refer to the file [bigint
 
 ### RSA ecryption
 
-The Montgomery multiplication and exponentiation pseudo-codes (section [Montgomery based RSA encryption](#montgomery-based-rsa-encryption)) are ported instruction by instruction in C with the implemetations reported in the files pair [mm.h], [mm.c] and [me.h], [me.c]. More specifically, refer to the functions `MM_big` and `ME_big`.
+The Montgomery multiplication and exponentiation pseudo-codes (section [Montgomery based RSA encryption](#montgomery-based-rsa-encryption)) are ported instruction by instruction in C with the implementations reported in the files pair [mm.h], [mm.c] and [me.h], [me.c]. More specifically, refer to the functions `MM_big` and `ME_big`.
 
 During the implementation, one main flaw was discovered in the Montgomery exponentiation function: calling a Montgomery multiplication multiple times may generate results which doesn't fit in the same number of bits of the operands (i.e. a Montgomery multiplication on 128 bits doesn't necessary produce a result on 128 bits). This is due to the implementation of the multiplication itself. As a countermeasure, since we have the possibility to add, as explained in the section [Data type](#data-type), one additional chunk of data (i.e 8, 16, etc.. bits), every time a `MM_big` or a `ME_big` is referenced, it is forced to work on `INT_SIZE` bits plus 2. Those 2 bits are the first taken from the extra data chunk. In this way, the critical overflow flaw should be prevented.
 
 In the acquisition file [helloworld.c] (mentioned and explained later in [Data acquisition](#data-acquisition)), you can find an example of `ME_big` functions which receive, as one of the parameters, `INT_SIZE + 2`. As a consequence, also the internal `MM_big` multiplication used to complete the exponentiation receive as number of bits `INT_SIZE + 2`.
 
 ### Code validation
-The `bigint` library and the Montgomery exponentation are now ready to be tested. As previously mentioned, Python is the programming language chosen both to launch several times the test operation and to provided the reference implementation. To compile the code, issue the following commands:
+The `bigint` library and the Montgomery exponentiation are now ready to be tested. As previously mentioned, Python is the programming language chosen both to launch several times the test operation and to provided the reference implementation. To compile the code, issue the following commands:
 
 ```bash
 $ cd tsca
 $ make test
 ```
 
-It will generate a file called `main` in the same folder. Enter then the folder `test`:
+It will generate a file called `test_main` in the same folder. Enter then the folder `test`:
 
 ```bash
 $ cd test
@@ -236,9 +237,9 @@ $ python3 shift.py <operation> <numberoftests> <bit>
 $ python3 arith.py <operation> <numberoftests> <bit>
 ```
 
-The chosen python script will check the custom implementation launching the executabe `main` aginst its intenal implementation. If `<numberoftest>` and `<bit>` are not defined, the program will automatically test for 10000 tests on 128 bits.
+The chosen python script will check the custom implementation launching the executable `test_main` against its internal implementation. If `<numberoftest>` and `<bit>` are not defined, the program will automatically test for 10000 tests on 128 bits.
 
-To run instead the test on the Montomery operations type:
+To run instead the test on the Montgomery operations type:
 
 ```bash
 # Multiplication

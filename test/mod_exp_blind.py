@@ -13,7 +13,7 @@
 # file is licensed as described in the file COPYING, which you should
 # have received as part of this distribution. The terms are also
 # available at:
-# http://www.cecill.info/licences/Licence_CeCILL_V1.1-US.txt 
+# http://www.cecill.info/licences/Licence_CeCILL_V1.1-US.txt
 #
 
 import os
@@ -55,7 +55,7 @@ def pretty(string,n):
 def meb_test(testnum=10000, nbit=128, varSize = 32):
 	"""Perform the needed tests, taking as arguments the operation (MM, ME), number of bits, number of tests, scaling coefficient for struct bits """
 
-	path = './main'
+	path = './test_main'
 	toterr = 0
 	sel = 'meb'
 
@@ -92,7 +92,7 @@ def meb_test(testnum=10000, nbit=128, varSize = 32):
 	public, private, k0, blindpair, montBlindpair = rsa.generateKey_silent(nbit)
 	os.system('sed -ri ' + r"'s/(static bigint_t vi =) .*/\1 {};/g'".format(pretty(padhex(montBlindpair[0],effBit,var_size),var_size//4)) + " ./source/me.c")
 	os.system('sed -ri ' + r"'s/(static bigint_t vf =) .*/\1 {};/g'".format(pretty(padhex(montBlindpair[1],effBit,var_size),var_size//4)) + " ./source/me.c")
-	subprocess.run(["make", "main"], stdout=subprocess.PIPE)		
+	subprocess.run(["make", "test"], stdout=subprocess.PIPE)
 
 
 	pad = effBit + var_size
@@ -124,7 +124,7 @@ def meb_test(testnum=10000, nbit=128, varSize = 32):
 
 	os.system('sed -ri ' + r"'s/(static bigint_t vi =) .*/\1 { .numb = VI_INIT };/g'" + " ./source/me.c")
 	os.system('sed -ri ' + r"'s/(static bigint_t vf =) .*/\1 { .numb = VF_INIT };/g'" + " ./source/me.c")
-	subprocess.run(["make", "main"], stdout=subprocess.PIPE)		
+	subprocess.run(["make", "main"], stdout=subprocess.PIPE)
 
 
 if __name__ == '__main__':
@@ -138,4 +138,3 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     meb_test(args.ntest, args.bits, args.varsize)
-
