@@ -24,6 +24,7 @@ import random
 import gmpy2
 import re
 import rsa
+import argparse
 
 def padhex(m, nb=32, var_size = 32):
 	"""Trasform number m into hexadecimal form, spproximating to the next 32 bit chunk.
@@ -51,7 +52,7 @@ def pretty(string,n):
 	return s
 
 
-def me_test(testnum=10000, nbit=128, varSize = 32):
+def meb_test(testnum=10000, nbit=128, varSize = 32):
 	"""Perform the needed tests, taking as arguments the operation (MM, ME), number of bits, number of tests, scaling coefficient for struct bits """
 
 	path = './main'
@@ -127,14 +128,14 @@ def me_test(testnum=10000, nbit=128, varSize = 32):
 
 
 if __name__ == '__main__':
-	if len(sys.argv) == 1:
-		me_test()
-	elif len(sys.argv) == 2:
-		me_test(int(sys.argv[1],10))
-	elif len(sys.argv) == 3:
-		me_test(int(sys.argv[1], 10), int(sys.argv[2], 10))
-	elif len(sys.argv) == 4:
-		me_test(int(sys.argv[1], 10), int(sys.argv[2], 10), int(sys.argv[3], 10))        
-	else:
-		print("Wrong arguments expected: ./mod_exp_blind.py N-Tests N-bits Var-Size")
+
+    parser = argparse.ArgumentParser(description='Test modular exponentiation operation of the bigint library.')
+
+    parser.add_argument("-b","--bits", help="Number of bits", type=int,default=128)
+    parser.add_argument("-v","--varsize", help="Size of the limb variable", type=int, choices=[32,64],default=32)
+    parser.add_argument("-n","--ntest", help="Number of test performed", type=int, default=10000)
+
+    args = parser.parse_args()
+
+    meb_test(args.ntest, args.bits, args.varsize)
 

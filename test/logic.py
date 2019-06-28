@@ -21,6 +21,7 @@ import subprocess
 import math
 import random
 import re
+import argparse
 
 def padhex(m, nb=32, var_size = 32):
 	"""Trasform number m into hexadecimal form, spproximating to the next 32 bit chunk.
@@ -102,15 +103,15 @@ def logic_test(sel='and', testnum=10000, nbit=128, varSize=32):
 		print(operation)
 
 if __name__ == '__main__':
-	if len(sys.argv) == 1:
-		logic_test()
-	elif len(sys.argv) == 2:
-		logic_test(sys.argv[1])
-	elif len(sys.argv) == 3:
-		logic_test(sys.argv[1], int(sys.argv[2], 10))
-	elif len(sys.argv) == 4:
-		logic_test(sys.argv[1], int(sys.argv[2], 10), int(sys.argv[3], 10))
-	elif len(sys.argv) == 5:
-		logic_test(sys.argv[1], int(sys.argv[2], 10), int(sys.argv[3], 10), int(sys.argv[4], 10))
-	else:
-		print("Wrong arguments expected: ./logic.py Test-Type N-Tests N-bits Var-Size")
+
+	parser = argparse.ArgumentParser(description='Test logic operations of the bigint library.')
+
+	parser.add_argument("operation", help="Operation under test", type=str, choices=['and', 'or', 'not', 'xor'])
+
+	parser.add_argument("-b","--bits", help="Number of bits", type=int,default=128)
+	parser.add_argument("-v","--varsize", help="Size of the limb variable", type=int, choices=[32,64],default=32)
+	parser.add_argument("-n","--ntest", help="Number of test performed", type=int, default=10000)
+
+	args = parser.parse_args()
+
+	logic_test(args.operation, args.ntest, args.bits, args.varsize)
