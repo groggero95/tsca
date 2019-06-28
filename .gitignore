@@ -12,6 +12,7 @@ test/main
 main
 timing
 panda4x4
+test_main
 attack/__pycache__/*
 attack/chat.txt
 
