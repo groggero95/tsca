@@ -257,17 +257,22 @@ The different predefined sets are declared in the file [cipher.c]:  the values f
 
 Two different codes are available to obtain timing measurements:
 
-* [helloworld.c]: to get measurements on the zybo board without the intervention of an OS;
-* [timing.c]: to get measurement on a pc/laptop running an OS.
+* [helloworld.c] : to get measurements on the zybo board without the intervention of an OS;
+
+* [timing.c] : to get measurement on a pc/laptop running an OS.
 
 
 ### Bare metal Zybo Board acquisition
 
 The folder [zybo] contains all the necessary files to define an hardware platform which is capable of running a custom code. Inside, the folder [ZC010_wrapper_hw_platform_0] specifies a set of information useful to the first stage boot loader to initialize the hardware platform on which our code will run. The folder [Test_sd_bsp] contains the Xilinx libraries with a set of built-in functions for the board. Finally, the folder [Test_sd] contains the actual acquisition code ([helloworld.c]), together with the [boot.bin] and a set of other configuration files.
+The folder [zybo] contains all the necessary files to define an hardware platform which is capable of running a custom code. Inside, the folder [ZC010_wrapper_hw_platform_0] specifies a set of information useful to the first stage boot loader to initialize the hardware platform on which our code will run. The folder [Test_sd_bsp] contains the Xilinx libraries with a set of built-in functions for the board. Finally, the folder [Test_sd] contains the actual acquisition code [helloworld.c], together with the [boot.bin] and a set of other configuration files.
 
 To run acquisitions on a OS-less system, in our case the Zybo board, two preliminary steps are necessary:
+
 * set the `VERSION` parameter in [cipher.h];
+
 * set the `INT_SIZE` parameter in [zybo bigint.h] (the make-able version in the zybo folder, not the original one);
+
 * set the `TESTNUM` parameter in [helloworld.c] (number of total acquisitions).
 
 As just mentioned, the actual acquisition code is contained in the file [helloworld.c]. Have a look at it:
