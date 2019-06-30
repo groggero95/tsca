@@ -44,7 +44,7 @@ $ cd tsca
 ### Side channel attack
 The name side channel attack refers to any attack based on a certain amount of information obtained from a computer system on which statistics could be computed. Relating those probabilistic statistics to the actual knowledge of the internal operation of the system, secrets related to the internal operations themselves could be disclosed.
 
-In our case, the attack will be a timing attack on an RSA crypto-computation (Montgomery modular algorithm based ). This meas that, basing on the knowledge of the actual algorithm used by the encryption and exploiting its timing weaknesses, the attacker could obtain timing measurements on a series of encryptions and could analyze them, disclosing the secret key. More on the Montagomery based RSA ecryption is explained in the section [Montgomery based RSA encryption](#montgomery-based-rsa-encryption), while for the attack algorithm employed refer to [Attack algorithm](#attack-algorithm).
+In our case, the attack will be a timing attack on an RSA crypto-computation (Montgomery modular algorithm based ). This means that, basing on the knowledge of the actual algorithm used by the encryption and exploiting its timing weaknesses, the attacker could obtain timing measurements on a series of encryptions and could analyze them, disclosing the secret key. More on the Montagomery based RSA ecryption is explained in the section [Montgomery based RSA encryption](#montgomery-based-rsa-encryption), while for the attack algorithm employed refer to [Attack algorithm](#attack-algorithm).
 
 ### Montgomery based RSA encryption
 The RSA ecryption algorithm involves two steps:
@@ -78,34 +78,43 @@ $`c = m^e \; mod \; n`$ .
 This computation consists of two main operations: modular multiplication and exponentiation. The implementation we adopted takes advantage instead of the Montgomery multiplication: the multiplier digits are consumed in the reverse order and no full length comparisons are required for the modular reductions (refer to [Colin D. Walter paper] on the topic). The basic pseudo-code it defines for the Montgomery modular multiplication is:
 
 ```text
-S = 0;
+s = 0;
 for i = 0 to nb-1 do
-  qi = (s0 + aib0) x (-m^-1) mod r;
-  S = (S + ai x b + qi x n) div r;
+  qi = (s0 + aib0) x (-n0^-1) mod r;
+  s = (s + ai x b + qi x n) div r;
 end for;
-return S;
+return s;
 ```
 
-where `nb` is the total number of bits of the secret key, `a` and `b` are the first two operands which are determined according to the Montgomery exponentiation function:
+where:
+* `s` is the multiplication result (`s0` is LSB of `s`);
+* `nb` is the total number of bits of the secret key (more precisely, it should be "an upper bound on the number of digits needed for any number encountered": as underlined later, we discovered that nb+2 is a reliable upper bound);
+* `n` is the modulus (`n0` is LSB of `n`);
+* `r` is the radix (power of 2);
+* `a` and `a` are the two exponentiation operands (`ai` is the i-th bit of `a` and `b0` is the LSB of `a`) which are passed by the Montgomery exponentiation function, where they are used:
 
-```text
-c = MM(k0,1,n);
-s = MM(k0,1,n);
-for i = 0 to nb-1 do
-  if (ei = 1) then
-    c = MM(c,s,n);
+  ```text
+  c = MM(k0,1,n);
+  s = MM(k0,1,n);
+  for i = 0 to nb-1 do
+    if (ei = 1) then
+      c = MM(c,s,n);
+    end if;
+    s = MM(s,s,n);
   end if;
-  s = MM(s,s,n);
-end if;
-c = MM(c,1,n);
-return c;
-```
+  c = MM(c,1,n);
+  return c;
+  ```
 
-where `MM()` is the Montgomery multiplication defined by the previous algorithm and `k0` is
+  where:
 
-$`k_0 = 2^n`$
+  * `MM(a,b,n)` is the Montgomery multiplication defined by the previous algorithm;
+  * `k0` is
 
-where `n` is the modulus computed before.
+    $`k_0 = 2^n`$
+
+    where `n` is the modulus computed before.
+
 
 ## Code development
 
@@ -509,8 +518,8 @@ It receives as parameters from the user:
 * the number of samples to use, which has to be less or equal to the number of samples in the files used above.
 
 The form to use is thus the following (example):
-```text
-panda4x4.py 128 0 ./data/P1M_Ofast_key0_128.BIN ./data/T1M_Ofast_key0_128.BIN 10000
+```bash
+$ python3 panda4x4.py 128 0 ./data/P1M_Ofast_key0_128.BIN ./data/T1M_Ofast_key0_128.BIN 10000
 ```
 
 The python code has the same characteristics listed in the next section since the attack was first developed in python and then ported in C. \
@@ -536,17 +545,26 @@ The C code has the following characteristics:
 We highly suggest to run the attack Using the C file, since it provides the same accuracy as the Python code but with at least a time reduction factor of 10. Before running the attack:
 
 * choose the number of bits `INT_SIZE` in [bigint.h];
-* choose the number of sample `N_SAMPLES` in [panda4x4.h];
-* choose the plain text file name `MSG_FILE` and the time file `TIME_FILE` in [panda4x4.h];
 * select the corresponding key setting `VERSION` in [cipher.h];
-* set if attacking only the conditional Montgomery multiplication, the squaring one of both setting the parameters `ATTACK_MUL` and `ATTACK_SQUARE` in [panda4x4.h]: it is highly suggested to attack both to be sure to have a successful attack;
+* set if attacking only the conditional Montgomery multiplication, the squaring one of both setting the parameters `ATTACK_MUL` and `ATTACK_SQUARE` in [panda4x4.h]: it is highly suggested to attack both to be sure to have a successful attack, setting thus only`ATTACK_MUL` to 1;
 
-Then type:
+The attack receives, as parameters from command line:
+* the plaintext `BIN` file name with the path from the tsca root folder (i.e. `./data/P..`);
+* the timing `BIN` file name with the path from the tsca root folder (i.e. `./data/T..`);
+* the number of samples to use, which has to be less or equal to the number of samples in the files used above.
+
+To run the attack, type:
 ```bash
 $ cd ..
 $ make attack
-$ ./panda4x4
+$ ./panda4x4 [-f] <./data/P..> <./data/T..> <NumberOfSamples>
 ```
+
+for example:
+```bash
+$ ./panda4x4 -f ./data/T1M_Ofast_key0_128.BIN ./data/P1M_Ofast_key0_128.BIN 10000
+```
+
 The attack will start and will stop only at the end of the full key. Even if an error is encountered, the code keeps going till the end, printing finally an error message.
 
 At each stage, the output printed to screen will look like:
