@@ -25,7 +25,7 @@
 
 #define REPETITIONS 10
 #define MODE 0
-#define TESTNUM 10000
+#define TESTNUM 1000
 
 const key_p pair = { .public 	= { .numb = PUBLIC_INIT},
 					 .modulus 	= { .numb = MODULUS_INIT},

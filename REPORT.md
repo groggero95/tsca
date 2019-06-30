@@ -355,10 +355,10 @@ $ source set.sh <path-to-SD>
 
 This will compile the whole bunch of files, create the [boot.bin] file, copy it to the SD card and unmount it. At this point, plug the SD card in the zybo board and power it on. When the `MIO7` led will turn on, the acquisition will be completed and the files ready to be read. Be careful, the zybo board is way less powerful than a PC microprocessor, setting a higher number of bits for the secret key and a higher number of acquisitions may need up to days! Setting 128 bits (`INT_SIZE`) and 10000 acquisitions (`TESTNUM`), the board should take around 3 minutes to generate the two files.
 
-To visualize the results, copy the files `PLAIN.BIN` and `TIME.BIN` in the folder [data] and give them a new name. Then, type:
+To visualize the results, copy the files `PLAIN.BIN` and `TIME.BIN` in the folder [data] and give them new names `TIME_your_name.BIN` and `PLAIN_your_name.BIN`. Then, type:
 ```bash
 $ cd data
-$ ./graph.py newname_TIME.BIN
+$ ./graph.py TIME_your_name.BIN
 ```
 It will appear the resulting distribution of samples versus the number of clock cycles.
 The following figure is most likely what you should obtain:
@@ -391,7 +391,7 @@ The `main()`function performs the following:
 To run the acquisition, type:
 ```bash
 $ cd ..
-$ make timing
+$ make time
 $ ./timing
 ```
 
@@ -564,7 +564,9 @@ It receives as parameters from the user:
 
 The form to use is thus the following (example):
 ```bash
-$ python3 panda4x4.py 128 0 ./data/P1M_Ofast_key0_128.BIN ./data/T1M_Ofast_key0_128.BIN 10000
+$ cd ..
+$ cd attack
+$ ./panda4x4.py 128 0 ./data/P1M_Ofast_key0_128.BIN ./data/T1M_Ofast_key0_128.BIN 10000
 ```
 
 The python code has the same characteristics listed in the next section since the attack was first developed in python and then ported in C. \

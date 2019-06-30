@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 #
 # Copyright (C) EURECOM, Telecom Paris
 #
@@ -11,10 +13,8 @@
 # file is licensed as described in the file COPYING, which you should
 # have received as part of this distribution. The terms are also
 # available at:
-# http://www.cecill.info/licences/Licence_CeCILL_V1.1-US.txt 
+# http://www.cecill.info/licences/Licence_CeCILL_V1.1-US.txt
 #
-
-#!/usr/bin/python3
 
 import os
 import sys
@@ -45,7 +45,7 @@ if __name__ == '__main__':
     print(len(timing))
     print(sigma)
     print(mu)
-    plt.hist(timing,bins=1000)
+    plt.hist(timing,bins=100)
     plt.ylabel("Frequency")
     plt.xlabel("Clock cycles")
     plt.show()
