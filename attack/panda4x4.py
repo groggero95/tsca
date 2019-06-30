@@ -13,7 +13,7 @@
 # file is licensed as described in the file COPYING, which you should
 # have received as part of this distribution. The terms are also
 # available at:
-# http://www.cecill.info/licences/Licence_CeCILL_V1.1-US.txt 
+# http://www.cecill.info/licences/Licence_CeCILL_V1.1-US.txt
 #
 
 import os
@@ -135,7 +135,7 @@ def main_attack(bits=128,version=0,plain='./data/P10k_Ofast_key0_128.BIN',time='
     if chat_on:
         sms_in = "{}, starting your test.\nRreead messages: {} samples\nAfter filtering {} samples".format(chat_id[1], len(T_in),len(T_arr))
         telegram_bot_sendtext(sms_in, chat_id[0])
-        
+
     # Final to revert the key, as we start from LSB, just for testing with one bit at a time
     private_key_bit = padbin(private, nb)[::-1]
 
@@ -229,5 +229,5 @@ if __name__ == '__main__':
     if len(sys.argv) == 6:
         main_attack(bits=int(sys.argv[1],10), version=int(sys.argv[2],10), plain=sys.argv[3], time=sys.argv[4], N_msg=int(sys.argv[5],10))
     else:
-        print("Wrong arguments expected: ./panda4x4.py KeySize Version PlainFile TimeFile")
+        print("Wrong arguments, expected: ./panda4x4.py KeySize Version PlainFile TimeFile")
         print("KeySize above 256 is not currently available")

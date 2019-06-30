@@ -24,6 +24,7 @@
 #include "panda4x4.h"
 #include "pcc.h"
 #include "cipher.h"
+#include "string.h"
 
 #define NB INT_SIZE
 
@@ -38,7 +39,7 @@ const key_p pair = { .public 	= { .numb = PUBLIC_INIT},
 void get_filter_param(uint64_t *a, int dim, double *mean, double *std){
 	double sum = 0;
 	double sq_sum = 0;
-	for(int i; i < dim; i++){
+	for(int i=0; i < dim; i++){
 		sum += a[i];
 		sq_sum += a[i]*a[i];
 	}
@@ -48,9 +49,9 @@ void get_filter_param(uint64_t *a, int dim, double *mean, double *std){
 }
 
 
-int filter(uint64_t *T_in, msg_t *M_in, double mean, double std, uint64_t *T_arr, msg_t *M_arr){
+int filter(uint64_t *T_in, msg_t *M_in, double mean, double std, uint64_t *T_arr, msg_t *M_arr, int n_sample){
 	int j = 0;
-	for(int i = 0; i < N_SAMPLES; i++){
+	for(int i = 0; i < n_sample; i++){
 		if( fabs(T_in[i] - mean) < std*(float)COEFF ){
 			memcpy(T_arr + j, T_in + i, sizeof(uint64_t));
 			memcpy(M_arr + j, M_in + i, sizeof(msg_t));
@@ -120,27 +121,49 @@ int main(int argc, char* argv[]) {
 	// define the structure which holds timing and messages
 	uint64_t *T_arr, *T_in;
 	msg_t *M_arr, *M_in;
-	uint32_t n_sample = N_SAMPLES;
+	uint32_t n_sample, n_filtered, filtering;
+	char *tim_file, *msg_file;
+
+	if (argc != 4 && argc != 5){
+		printf("Expected: ./panda4x4 [-f] <MESSAGES FILE> <TIMING FILE> <NUMBER OF SAMPLES> <VERSION>\n");
+		return -1;
+	}
+
+	if (argc == 4){
+		msg_file = argv[1];
+		tim_file = argv[2];
+		n_sample = atoi(argv[3]);
+		filtering = 0;
+	} else if (argc == 5 && strcmp(argv[1], "-f") == 0){
+		msg_file = argv[2];
+		tim_file = argv[3];
+		n_sample = atoi(argv[4]);
+		filtering = 1;
+	} else {
+		printf("Expected: ./panda4x4 [-f] <MESSAGES FILE> <TIMING FILE> <NUMBER OF SAMPLES> <VERSION>\n");
+		return -1;
+	}
 
 	T_arr = (uint64_t *) malloc(sizeof(uint64_t) * n_sample);
 	T_in = (uint64_t *) malloc(sizeof(uint64_t) * n_sample);
 	M_arr = (msg_t *) malloc(sizeof(msg_t) * n_sample);
 	M_in = (msg_t *) malloc(sizeof(msg_t) * n_sample);
 
-	read_plain(TIME_FILE, MSG_FILE, n_sample, T_in, M_in, n, k0);
+	read_plain(tim_file, msg_file, n_sample, T_in, M_in, n, k0);
 
 	double mean, std;
 
-	#if FILTERING == 1
+	if (filtering == 1){
 		get_filter_param(T_in, n_sample, &mean, &std);
 
-		n_sample = filter(T_in, M_in, mean, std, T_arr, M_arr);
-		printf("Prefilter %d messages, post-filter %d messages\n", N_SAMPLES, n_sample);
-	#else
-		printf("Starting the attack with %d messages\n", N_SAMPLES);
+		n_filtered = filter(T_in, M_in, mean, std, T_arr, M_arr, n_sample);
+		printf("Prefilter %d messages, post-filter %d messages\n", n_sample, n_filtered);
+		n_sample = n_filtered;
+	} else {
+		printf("Starting the attack with %d messages\n", n_sample);
 		T_arr = T_in;
 		M_arr = M_in;
-	#endif
+	}
 
 	uint32_t key_guessed[INT_SIZE] = {1};
 	uint32_t bits_considered = B_CONSIDERED;
