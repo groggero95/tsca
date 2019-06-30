@@ -45,7 +45,7 @@ if __name__ == '__main__':
     print(len(timing))
     print(sigma)
     print(mu)
-    plt.hist(timing,bins=100)
+    plt.hist(timing,bins=1000)
     plt.ylabel("Frequency")
     plt.xlabel("Clock cycles")
     plt.show()

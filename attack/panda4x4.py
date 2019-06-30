@@ -133,7 +133,7 @@ def main_attack(bits=128,version=0,plain='./data/P10k_Ofast_key0_128.BIN',time='
 
     print("Read messages: {} samples; -- After filtering {} samples".format(len(T_in),len(T_arr)), flush=True)
     if chat_on:
-        sms_in = "{}, starting your test.\nRreead messages: {} samples\nAfter filtering {} samples".format(chat_id[1], len(T_in),len(T_arr))
+        sms_in = "{}, starting your test.\nRead messages: {} samples\nAfter filtering {} samples".format(chat_id[1], len(T_in),len(T_arr))
         telegram_bot_sendtext(sms_in, chat_id[0])
 
     # Final to revert the key, as we start from LSB, just for testing with one bit at a time

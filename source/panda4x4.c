@@ -125,7 +125,7 @@ int main(int argc, char* argv[]) {
 	char *tim_file, *msg_file;
 
 	if (argc != 4 && argc != 5){
-		printf("Expected: ./panda4x4 [-f] <MESSAGES FILE> <TIMING FILE> <NUMBER OF SAMPLES> <VERSION>\n");
+		printf("Expected: ./panda4x4 [-f] <MESSAGES FILE> <TIMING FILE> <NUMBER OF SAMPLES>\n");
 		return -1;
 	}
 
@@ -140,7 +140,7 @@ int main(int argc, char* argv[]) {
 		n_sample = atoi(argv[4]);
 		filtering = 1;
 	} else {
-		printf("Expected: ./panda4x4 [-f] <MESSAGES FILE> <TIMING FILE> <NUMBER OF SAMPLES> <VERSION>\n");
+		printf("Expected: ./panda4x4 [-f] <MESSAGES FILE> <TIMING FILE> <NUMBER OF SAMPLES>\n");
 		return -1;
 	}
 
