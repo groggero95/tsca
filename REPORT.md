@@ -357,6 +357,7 @@ This will compile the whole bunch of files, create the [boot.bin] file, copy it 
 
 To visualize the results, copy the files `PLAIN.BIN` and `TIME.BIN` in the folder [data] and give them new names `TIME_your_name.BIN` and `PLAIN_your_name.BIN`. Then, type:
 ```bash
+$ cd ../../..
 $ cd data
 $ ./graph.py TIME_your_name.BIN
 ```
@@ -373,9 +374,7 @@ and is generated from 100000 samples on a 128 bits key. It is a Gaussian distrib
 
 In the folder [source] we made also available a version capable of obtaining the very same measurements but on a system running an operating system. The file is [timing.c], but before obtaining the acquisitions, the following parameters have to be set:
 * set the `VERSION` parameter in [cipher.h];
-* set the `INT_SIZE` parameter in [bigint.h];
-* set the `TESTNUM` parameter in [timing.c];
-* set the `MODE` parameter in [timing.c] to decide if the timing measurements will be done on the whole modular exponentiation (`MODE = 0`) or only on the modulus squaring (`MODE = 1`).
+* set the `INT_SIZE` parameter in [bigint.h].
 
 Have a look at the file:
 ```bash
@@ -383,8 +382,8 @@ $ vim ./source/timing.c
 ```
 The `main()`function performs the following:
 * Initialize the data structure `pair`;
-* Creates/opens two data files (PLAIN.BIN and TIME.BIN) in the folder [data], which will be populated with a number of samples (plaintext encrypted) according to `TESTNUM`;
-* For each plaintext, the timing measurements are taken `REPETITIONS` times (set to 10) and the minimum timing is chosen. In this way we try to reduce possible weird measurements due to OS scheduling policies, which may lead to clearly out-of-bound results. The functions on which the timings are taken (`ME_big()` and `MM_big()`) are the very same used in the zybo case.
+* Creates/opens two data files (PLAIN.BIN and TIME.BIN) in the folder [data], which will be populated with a number of samples (plaintext encrypted) according to the parameter passed by command line;
+* For each plaintext, the timing measurements are taken `REPETITIONS` times (set to 10 by default in [timing.c]) and the minimum timing is chosen. In this way we try to reduce possible weird measurements due to OS schedulinvg policies, which may lead to clearly out-of-bound results. The functions on which the timings are taken (`ME_big()` and `MM_big()`) are the very same used in the zybo case.
 * The functions used for timing measurements are reported in [time_meas.h];
 * A live progress status is printed to screen (it doesn't influence the timing measurements): when the execution is done, the two files are ready to be attacked.
 
@@ -392,9 +391,17 @@ To run the acquisition, type:
 ```bash
 $ cd ..
 $ make time
-$ ./timing
+$ ./timing [NumberOfAcquisitions] [-e/-m]
 ```
 
+Where `NumberOfAcquisitions` is the number of timing samples acquired and is set to 1000 if not specified. `-e/-m` defines if the acquisition is performed on the whole modular exponentiation (`-e`) or only on the final squaring (`-m`) (whole modular exponentiation is chosen if not specified).
+
+For example:
+```bash
+$ ./timing
+$ ./timing 100000
+$ ./timing 100000 -m
+```
 
 As for the zybo case, the time taken by this operation strongly depends on the width of the key chosen and the number of samples required. As a reference, on a single core running at 3.1 GHz, the time needed for 10000 measurements on a 128 bit key is around 4 minutes. The overhead with respect to the zybo is due to the factor 10 added when we look for the minimum.
 
@@ -562,10 +569,16 @@ It receives as parameters from the user:
 * the timing `BIN` file name with the path from the tsca root folder (i.e. `./data/T..`);
 * the number of samples to use, which has to be less or equal to the number of samples in the files used above.
 
-The form to use is thus the following (example):
+To run the attack thus type:
 ```bash
 $ cd ..
 $ cd attack
+$ ./panda4x4.py <NumberOfBits> <version> <./data/P..> <./data/T..> <NumberOfSamples>
+```
+
+as an example:
+
+```bash
 $ ./panda4x4.py 128 0 ./data/P1M_Ofast_key0_128.BIN ./data/T1M_Ofast_key0_128.BIN 10000
 ```
 
@@ -585,17 +598,20 @@ The C code has the following characteristics:
 * prints to screen live updates on the status of the attack, step by step;
 * does not implement backtracking. If the attack is unsuccessful, just notifies it at the end.
 
+To run the C attack, refer to the following section.
+
 ### Attack results
 
 #### Launch the attack
 
-We highly suggest to run the attack Using the C file, since it provides the same accuracy as the Python code but with at least a time reduction factor of 10. Before running the attack:
+We highly suggest to run the attack Using the C file, since it provides the same accuracy as the Python code but with at least a time reduction factor of 10 (Python attack in section [Python](#python)). Before running the attack:
 
 * choose the number of bits `INT_SIZE` in [bigint.h];
 * select the corresponding key setting `VERSION` in [cipher.h];
 * set if attacking only the conditional Montgomery multiplication, the squaring one of both setting the parameters `ATTACK_MUL` and `ATTACK_SQUARE` in [panda4x4.h]: it is highly suggested to attack both to be sure to have a successful attack, setting thus only`ATTACK_MUL` to 1;
 
 The attack receives, as parameters from command line:
+* optional argument `-f` to apply filtering of samples far from the expected value (see later in this chapter);
 * the plaintext `BIN` file name with the path from the tsca root folder (i.e. `./data/P..`);
 * the timing `BIN` file name with the path from the tsca root folder (i.e. `./data/T..`);
 * the number of samples to use, which has to be less or equal to the number of samples in the files used above.
@@ -629,7 +645,7 @@ Step: 30
 
 This is obtained for `B_CONSIDERED = 2` and `B_GUESSED = 1`. On the right the working bits are printed, with the respective correlation. The lines will be grouped according to the algorithm previously explained and the chosen bit(s) is(are) printed as `Guess:`. The value `PCC` is the cumulative Pearson correlation coefficient for the guessed bit(s). The current step is `Step:`, while the live update of the guessed key is printed in the first line and the correct expected bit of the secret key in the second one.
 
-If the attack has to be run on the samples acquired on the OS, it is very important to filter all the sample far from the mean value, since they correspond to situations in which most likely the operating system preempted the executable. Thus, go into the file [panda4x4.h] and set `FILTERING` to 1. It will filter all the sample whose time value is far from the mean value of a value grater than the standard deviation multiplied for a coefficient `COEFF`. It can be set in [panda4x4.h]; a suggested value is 3: in this way, only the samples really far will be removed.
+If the attack has to be run on the samples acquired on the OS, it is very important to filter all the sample far from the mean value, since they correspond to situations in which most likely the operating system preempted the executable. Thus, run the attack with the optional `-f` parameter. It will filter all the sample whose time value is far from the mean value of a value grater than the standard deviation multiplied for a coefficient `COEFF`. This coefficient can be set in [panda4x4.h]; a suggested value is 3: in this way, only the samples really far will be removed.
 
 If the filtering is active, the program will print, at the beginning, the number of samples maintained for the attack:
 
