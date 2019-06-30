@@ -238,28 +238,68 @@ It will generate a file called `test_main` in the same folder. Enter then the fo
 $ cd test
 ```
 
-It contains a set of python test programs which implement reliable versions of the very same C functions listed in C (section [Operations](#operations)). To run the tests on the `bigint` library, type:
+It contains a set of python test programs which implement reliable versions of the very same C functions listed in C (section [Operations](#operations)). To run the tests on the `bigint` library, type first the command with the `-h` flag, to access the help window:
 
 ```bash
 # Comparisons:
-$ python3 comp.py <operation> <numberoftests> <bit>
+$ ./comp.py -h
 # Logicals:
-$ python3 logic.py <operation> <numberoftests> <bit>
+$ ./logic.py -h
 # Shifts:
-$ python3 shift.py <operation> <numberoftests> <bit>
+$ ./shift.py -h
 # Arithmetics:
-$ python3 arith.py <operation> <numberoftests> <bit>
+$ ./arith.py -h
 ```
 
-The chosen python script will check the custom implementation launching the executable `test_main` against its internal implementation. If `<numberoftest>` and `<bit>` are not defined, the program will automatically test for 10000 tests on 128 bits.
+This will print the instruction to run the relative test function. For example:
 
-To run instead the test on the Montgomery operations type:
+```bash
+$ ./comp.py -h
+usage: comp.py [-h] [-b BITS] [-v {32,64}] [-n NTEST] {eq,df,ge,gt,le,lt}
+
+Test comparison operations of the bigint library.
+
+positional arguments:
+  {eq,df,ge,gt,le,lt}   Operation under test
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -b BITS, --bits BITS  Number of bits
+  -v {32,64}, --varsize {32,64}
+                        Size of the limb variable
+  -n NTEST, --ntest NTEST
+                        Number of test performed
+```
+
+Run one of the possible tests:
+
+```bash
+$ ./comp.py -b 128 -v 32 -n 1000 eq
+Test eq: 1000/1000
+Total tested: 1000
+Total errors: 0
+```
+
+The chosen python script will check the custom implementation launching the executable `test_main` against its internal implementation.
+
+To run instead the tests on the Montgomery operations type:
 
 ```bash
 # Multiplication
-$ python3 modular.py mm <numberoftests> <bit>
+$ ./mod_mul.py -h
 # Exponentiation
-$ python3 modular.py me <numberoftests> <bit>
+$ ./mod_exp.py -h
+# Blinded exponentiation
+$ ./mod_exp_blind.py -h
+```
+
+Analogous instructions will be printed: follow them and run one of the possible attack (for example):
+
+```bash
+$ ./mod_exp_blind.py -b 128 -v 32 -n 1000
+Test meb: 1000/1000
+Total tested: 1000
+Total errors: 0
 ```
 
 All the functions have been tested with the approach just shown for a number of tests between 10 millions and 100 millions each. Each iteration of any of the Python scripts uses random numbers generated runtime. Since at the time this report is written no error is detected, the library are supposed to be reliable from now on.
