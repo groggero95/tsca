@@ -44,14 +44,14 @@ $ cd tsca
 ### Side channel attack
 The name side channel attack refers to any attack based on a certain amount of information obtained from a computer system on which statistics could be computed. Relating those probabilistic statistics to the actual knowledge of the internal operation of the system, secrets related to the internal operations themselves could be disclosed.
 
-In our case, the attack will be a timing attack on an RSA crypto-computation (Montgomery modular algorithm based ). This means that, basing on the knowledge of the actual algorithm used by the encryption and exploiting its timing weaknesses, the attacker could obtain timing measurements on a series of encryptions and could analyze them, disclosing the secret key. More on the Montagomery based RSA ecryption is explained in the section [Montgomery based RSA encryption](#montgomery-based-rsa-encryption), while for the attack algorithm employed refer to [Attack algorithm](#attack-algorithm).
+In our case, the attack will be a timing attack on an RSA crypto-computation (Montgomery modular algorithm based ). This means that, basing on the knowledge of the actual algorithm used by the encryption and exploiting its timing weaknesses, the attacker could obtain timing measurements on a series of encryptions and could analyze them, disclosing the secret key. More on the Montgomery based RSA encryption is explained in the section [Montgomery based RSA encryption](#montgomery-based-rsa-encryption), while for the attack algorithm employed refer to [Attack algorithm](#attack-algorithm).
 
 ### Montgomery based RSA encryption
 The RSA ecryption algorithm involves two steps:
 
 * key pair generation
 
-* modular exponentation and multiplication based ecryption
+* modular exponentiation and multiplication based encryption
 
 For the key pair generation, first two distinct large prime number (`p`,`q`) have to be found. Then, the modulus `n` is computed as the product of the two prime numbers. The Eulero's totient `t` is successively computed as the product
 
@@ -71,7 +71,7 @@ $`d \cdot e = 1 \; mod \; t`$ .
 
 The pair `(n,e)` constitutes the public key, while the pair `(n,d)` the secret one.
 
-To perform the encryption of a message `m` to obtain the ciphertext `c`, the following operation is performed:
+To perform the encryption of a message `m` to obtain the chiphertext `c`, the following operation is performed:
 
 $`c = m^e \; mod \; n`$ .
 
@@ -95,13 +95,14 @@ where:
 
   ```text
   c = MM(k0,1,n);
-  s = MM(k0,1,n);
+  s = MM(k0,m,n);
   for i = 0 to nb-1 do
     if (ei = 1) then
       c = MM(c,s,n);
     end if;
     s = MM(s,s,n);
   end if;
+  e = lsr(e,1);
   c = MM(c,1,n);
   return c;
   ```
@@ -109,6 +110,10 @@ where:
   where:
 
   * `MM(a,b,n)` is the Montgomery multiplication defined by the previous algorithm;
+  * `c` is the chiphertext;
+  * `s` is squaring variable, updated at each iteration;
+  * `m` is the message;
+  * `e` is the public exponent (`ei` is bit i-th of `e`);
   * `k0` is
 
     $`k_0 = 2^n`$
@@ -120,7 +125,7 @@ where:
 
 The starting point to get a working implementation for the Montgomery based RSA encryption is having a library capable of managing integers on a large number of bits (such as 1024 or 2048), since this will be most likely the size that will be used by most of the main core variables (private and public key, for instance). Usually, standard C libraries support numbers up to 128 bits (long double), which is the minimum key size for an admissible time side channel attack on RSA encryption. Thus, an extra library is needed.
 
-After such library is obtained, the pseudo-code presented above ([Theoretical references](#theoretical-references)) has to be ported into a real C implementation through the primary functions `Montgomery multiplication` and `Montgomery exponentation`.
+After such library is obtained, the pseudo-code presented above ([Theoretical references](#theoretical-references)) has to be ported into a real C implementation through the primary functions `Montgomery multiplication` and `Montgomery exponentiation`.
 
 Finally, both the library and the RSA encryption have to be checked against a reference and reliable implementation; in our case, it will be a Python one, since this programming language doesn't force any explicitly defined limit to a number object, which makes it an ideal candidate.
 
@@ -209,7 +214,7 @@ All the operations use parameter passed by value (no pointer usage). The library
   * rand_b: return a random `bigint_t` number:
     * bigint_t rand_b( void );
 
-To check the actual implemetations of those functions, refer to the file [bigint.c].
+To check the actual implementations of those functions, refer to the file [bigint.c].
 
 ### RSA ecryption
 
@@ -261,7 +266,7 @@ All the functions have been tested with the approach just shown for a number of 
 
 ## Data acquisition
 
-It's time now to intensively run many Montgomery exponentation encryption on a bunch of messages using different sets of private exponent `e`, modolus `m` and `k0` and obtain the timing measurements associated to each set, to be able afterwards to mount an attack on them.
+It's time now to intensively run many Montgomery exponentiation encryption on a bunch of messages using different sets of private exponent `e`, modulus `m` and `k0` and obtain the timing measurements associated to each set, to be able afterwards to mount an attack on them.
 
 The different predefined sets are declared in the file [cipher.c]:  the values for `VERSION` in [cipher.h] and having a predefined value for the key width (set in [bigint.h] with the parameter `INT_SIZE`) picks up a different set. The number of sets is limited since we don't have a code capable of generating them autonomously. Have a look at them and select one.
 
@@ -338,7 +343,7 @@ $ vim ./source/timing.c
 ```
 The `main()`function performs the following:
 * Initialize the data structure `pair`;
-* Creates/opens two data files (PLAIN.BIN and TIME.BIN) in the folder [data], which will be populated with a number of samples (plaintext ecrypted) according to `TESTNUM`;
+* Creates/opens two data files (PLAIN.BIN and TIME.BIN) in the folder [data], which will be populated with a number of samples (plaintext encrypted) according to `TESTNUM`;
 * For each plaintext, the timing measurements are taken `REPETITIONS` times (set to 10) and the minimum timing is chosen. In this way we try to reduce possible weird measurements due to OS scheduling policies, which may lead to clearly out-of-bound results. The functions on which the timings are taken (`ME_big()` and `MM_big()`) are the very same used in the zybo case.
 * The functions used for timing measurements are reported in [time_meas.h];
 * A live progress status is printed to screen (it doesn't influence the timing measurements): when the execution is done, the two files are ready to be attacked.
@@ -373,7 +378,7 @@ The basic starting point for a time side channel attack is to create statistics 
 
   `P<NumberOfSamples>_<OptimizationFlag>_<Key>_<NumberOfBits>.BIN`
   `T<NumberOfSamples>_<OptimizationFlag>_<Key>_<NumberOfBits>.BIN`
-* plaintexts used for measurements are known: the set of files pairs just shown includes a timing file and a plain text file, containing all the plaintext provided to the alorithm;
+* plaintexts used for measurements are known: the set of files pairs just shown includes a timing file and a plaintext file, containing all the plaintext provided to the algorithm;
 
 * the secret key is always the same for all the encryptions under the same acquisition campaign: each files pair in [data] is obtained for one and the very same key;
 
@@ -389,7 +394,7 @@ The attack algorithm went under different stages of implementation ideas and imp
 
 In any case, the main ideas around which the algorithm wraps around are:
 * work guessing one or more bit looping on each bit in the key length;
-* for each plain text (and thus total time sample) get a time estimate through the function `MM_big_estimate()` (refer to [Final implementation](#final-implementation) for details);
+* for each plaintext (and thus total time sample) get a time estimate through the function `MM_big_estimate()` (refer to [Final implementation](#final-implementation) for details);
 * correlate through the Pearson Correlation Coefficient (called PCC from now on) the to total execution time for an encryption to the estimate itself;
 * choose the best correlating guess and move to the following bit(s);
 
@@ -615,10 +620,10 @@ Thus, the total time is increased by $`(1+2)*3 = 6`$ times. Following the same r
 
 ### Theory
 
-One of the possible countermeasures applicable on the RSA algorithm is `blinding`. We implemented the very same one proposed by Paul Cocher in his [paper]: the main purpose is to remove the data dependencies of the algorithm modifying the input plain text, such that the data used by the RSA algorithm are different than the one expected by the attacker. Thus, the timing measurements on the exponentiation will be completely uncorrelated with respect to the real data used in the algorithm as well as with respect to the timing estimates performed by the attacker. The mathematical footprint of the RSA makes easy to modify the input data, perform the exponentiation and re-modify the output cipher text to obtain the real expected cipher text, using just a couple of Montomery multiplication at the beginning and at the end of the algorithm.
+One of the possible countermeasures applicable on the RSA algorithm is `blinding`. We implemented the very same one proposed by Paul Cocher in his [paper]: the main purpose is to remove the data dependencies of the algorithm modifying the input plaintext, such that the data used by the RSA algorithm are different than the one expected by the attacker. Thus, the timing measurements on the exponentiation will be completely uncorrelated with respect to the real data used in the algorithm as well as with respect to the timing estimates performed by the attacker. The mathematical footprint of the RSA makes easy to modify the input data, perform the exponentiation and re-modify the output chiphertext to obtain the real expected chiphertext, using just a couple of Montgomery multiplication at the beginning and at the end of the algorithm.
 
 The proposed blinding technique works in the following way:
-* For each public, secret keypair we choose a random pair
+* For each public, secret key pair we choose a random pair
 
   $`(v_i,v_f)`$
 
@@ -628,18 +633,18 @@ The proposed blinding technique works in the following way:
 
   Cocher suggests that "for RSA it is faster to choose a random $`v_f`$ relatively prime to `n` then compute $`v_i \; = \; (v_f^{-1})^{e} \; mod \; n`$ where `e` is the private exponent", but as we will see later all these operation can be done 'offline', i.e. at the creation of the keypair.
 
-* Before computing the modular exponentiation, we obtain the blindend version of the message with the following operation
+* Before computing the modular exponentiation, we obtain the blinded version of the message with the following operation
 
   $`v_i*m\; mod \; n `$
 
-* After the modular exponentiation, we can recover the ciphertext using the othre factor $`v_f`$:
+* After the modular exponentiation, we can recover the chiphertext using the other factor $`v_f`$:
 
   $`v_f*c \; mod \; n`$
 
 Moreover Cocher suggested that "computing inverses $`mod \; n`$ is slow, so it is often not practical to generate a new random $`(v_i,v_f)`$ pair for each new exponentiation.\
-The $`v_f = (v_i^{-1})^{x} \; mod \; n`$ calculation itself might even be subject to timing attacks. However $`(v_i,v_f)`$ pairs should not be reused, since they themselves might be compromised by timing attacks, leaving the secret exponent vulnerable. An effcient solution to this problem is update $`v_i`$ and $`v_f`$ before each modular exponentiation, by simply squaring them both we can mantain the same property and thus we have only four modular multipliction with respect of a normal case.
+The $`v_f = (v_i^{-1})^{x} \; mod \; n`$ calculation itself might even be subject to timing attacks. However $`(v_i,v_f)`$ pairs should not be reused, since they themselves might be compromised by timing attacks, leaving the secret exponent vulnerable. An efficient solution to this problem is update $`v_i`$ and $`v_f`$ before each modular exponentiation, by simply squaring them both we can maintain the same property and thus we have only four modular multiplication with respect of a normal case.
 
-In our case since we need to pass into the montgomery domain before any computation we can incorporate the blinding into this step by multiplying
+In our case since we need to pass into the Montgomery domain before any computation we can incorporate the blinding into this step by multiplying
 
   $`\; s \; = \; m*v_i*R \; mod \; n`$
 
@@ -647,9 +652,9 @@ the same process can be repeated at the end since we need to return to the norma
 
   $`\; c \; = \; c*v_f*R^{-1} \; mod \; n`$
 
-the only price we pay in this case is the suqaring since the blinding can be seamesly integreted.
+the only price we pay in this case is the squaring since the blinding can be easly integrated.
 
-Due to the limit of our library we could not go with the following solution. Since the only tool available was the montgomery multiplication we had to separate the steps for blinding and goning back and forth in the montgomery domain. Moreover we do not use directly the pair $`(v_i,v_f)`$ but a montgomery version of it, i.e. $`(v_i*R,v_f*R) \; mod \; n`$, in this way we can just rely on the multiplication that we developed.
+Due to the limit of our library we could not go with the following solution. Since the only tool available was the Montgomery multiplication we had to separate the steps for blinding and going back and forth in the Montgomery domain. Moreover we do not use directly the pair $`(v_i,v_f)`$ but a Montgomery version of it, i.e. $`(v_i*R,v_f*R) \; mod \; n`$, in this way we can just rely on the multiplication that we developed.
 
 ### Results
 
