@@ -437,7 +437,7 @@ Since all the main hypothesis are fulfilled, we can go on and start the attack.
 
 ### Attack algorithm
 
-The attack algorithm went through different stages of maturity, thanks to new ideas and improvements that arose during development, to finally get to the [Final implementation](#final-implementation). In the following sections we report the two main stages of development. The first solution was dropped halfway through to make room for the final, more reliable and powerful, one.
+The attack algorithm went through different stages of maturity, thanks to new ideas and improvements that arose during development, getting at the end to the [Final implementation](#final-implementation). In the following sections we report the two main stages of development. The first solution was dropped halfway through to make room for the final, more reliable and powerful, one.
 
 The main ideas around which the algorithm wraps around are:
 * guess one or more bit looping on each bit in the key length;
@@ -463,7 +463,7 @@ Some changes had to be made to make the attack more reliable.
 
 To start, the conditional Montgomery multiplication is used together with the subsequent "squaring" when computing estimates, giving statistical relevance even to 0-guesses.
 
-The full estimate is performed through the functions `ME_big_estimate()` and `MM_big_estimate()`. The first one attacks the entire iteration(s) of the exponentiation in the following way:
+The full estimate is performed through the functions `ME_estimate()` and `MM_estimate()`. The first one attacks the entire iteration(s) of the exponentiation in the following way:
 
 ```text
 for i = 0 to bits_guessed do
@@ -482,7 +482,13 @@ for i = 0 to bits_guessed do
 end for;    
 ```
 
-It makes use of the Montgomery multiplication estimate `MM_big_estimate()`, which works in the following way:
+where:
+* `bit_i` is the i-th bit of the guess on the secret key
+* `MM_estimate(a,b,n)` is the Montgomery multiplication function that also generate an estimate, shown below;
+* `MM(a,b,n)` is the standard Montgomery multiplication function;
+* `ATTACK_MUL` and `ATTACK_SQUARE` are two `#define` parameter that allow to tweak which operation are targeted;
+
+It makes use of the Montgomery multiplication estimate `MM_estimate()`, which works in the following way:
 
 ```text
 for i = 0 in nb+2 do
@@ -501,9 +507,9 @@ end for;
 return S;
 ```
 
-Which is basically the same pseudo-code shown in section [Montgomery based RSA encryption](#montgomery-based-rsa-encryption), adapted to compute and estimate at the same time.
+Which is basically the same pseudo-code shown in section [Montgomery based RSA encryption](#montgomery-based-rsa-encryption), adapted to compute at the same time an estimate.
 
-Additionally, it is possible to guess multiple bits at a time, in order to better recognize wrong choices (which will immediately give uncorrelated results in the following iterations). Finally it is implemented a way to make accumulated estimates on `B_CONSIDERED` number of bits, and guess only the first `B_GUESSED`.  
+Additionally, it is possible to guess multiple bits at a time, in order to better recognize wrong choices (which will immediately give uncorrelated results in the following iterations). Finally it is implemented a way to make accumulated estimates on `B_CONSIDERED` number of bits, but guess only the first `B_GUESSED`.  
 
 In order to make multi-bit guessing, the PCC is accumulated along each possible path in the window of choices.  
 For example, for `B_CONSIDERED = 2`:
@@ -527,30 +533,40 @@ groups
 This is a step by step schematic pseudo-code interpretation of the attack algorithm:
 
 ```text
-for step = 0 to NB-1 do
+for step = 0 to nb-1 do
   for i = 0 to samples-1 do
     pcc_insert_x(T_sample);
-    for branch = 0 to bits_considered-1 do
-      ME_estimate(bits_considered);  // advance ME of bits_considered steps
+    for branch = 0 to 2^(B_CONSIDERED)-1 do
+      ME_estimate(window[branch], B_CONSIDERED);  // advance each branch of ME of B_CONSIDERED steps
       pcc_insert_y(estimate);
     end for;
   end for;
   pcc_consolidate();
-  for i = 0 to bits_considered do
-    sum pcc grouping branches for common bitss_guessed
+  for i = 0 to (2^B_CONSIDERED) do
+    sum pcc, grouping branches with B_GUESSED least significant bits in common
   end for;
-  index = max(pccs);
+  guess = max(pcc_arr);
   for i = 0 in samples-1 do
-    ME_estimate(bits_guessed);   // advance ME of bits_guessed steps
+    ME_estimate(window[guess], B_GUESSED);   // advance ME of bits_guessed steps
   end for;
-  for i = 0 in bits_guessed & step + 1 < NB do
-    select bits guessed;
+  for i = 0 in B_GUESSED & (step + 1 < nb) do
+    keyi = guessi
   end for;
-step = step + nb_guessed;
+step = step + B_GUESSED;
 end for;
 ```
 
-Once the Python implementation was working correctly and consistently on different data set, the the attack was ported to C to increase the performances.
+where:
+* `nb` is the number of bit of the secret keys;
+* `branch` is an index used to enumerate all the possible guesses in the window of dimension defined by `B_CONSIDERED`;
+* `window` is a structure used to store the different paths taken by the exponentiation depending on the guess (`branch`), by which they are indexed;
+* `pcc_insert_x`, `pcc_insert_y`, `pcc_consolidate` are functions used to manage realization of two independent variable X and Y, and calculate their correlation;
+* `pcc_arr` is storing the accumulated PCCs related to each group with the B_GUESSED least significant bit in common
+* `key` is the currently known private key (`keyi` is the i-th bit of `key`)
+* `guess` is the most probable guess (`guessi` is the i-th bit of `guess`)
+
+
+Once the Python implementation was working correctly and consistently on different data set, the attack was ported to C to increase the performances.
 
 #### Codes
 
@@ -589,11 +605,11 @@ The only difference is that this version has the necessary function to implement
 
 The C attack code is composed by:
 * header file [panda4x4.h]: it's where the main attack parameters are set (see [Launch the attack](#launch-the-attack) section);
-* source file [panda4x4.c]: include the attack algorithm is the `main()`, but nothing has to be modified.
+* source file [panda4x4.c]: include the attack algorithm in `main()`, but nothing has to be modified.
 
 The C code has the following characteristics:
 * reads the time and the plaintext files;
-* applies a filter on the read data (if set, only for OS samples);
+* applies a filter on the read data (if set, to be used only for OS samples);
 * goes through the attack algorithm explained before;
 * prints to screen live updates on the status of the attack, step by step;
 * does not implement backtracking. If the attack is unsuccessful, just notifies it at the end.
@@ -608,14 +624,14 @@ We highly suggest to run the attack Using the C file, since it provides the same
 
 * choose the number of bits `INT_SIZE` in [bigint.h];
 * select the corresponding key setting `VERSION` in [cipher.h];
-* set if attacking only the conditional Montgomery multiplication, the squaring one of both setting the parameters `ATTACK_MUL` and `ATTACK_SQUARE` in [panda4x4.h]: it is highly suggested to attack both to be sure to have a successful attack, setting thus only`ATTACK_MUL` to 1;
-* set the values for `B_CONSIDERED` and `B_GUESSED` in [panda4x4.h]: the most performing combination we have found is `B_CONSIDERED = 2` and `B_GUESSED = 1`, but other combinations could be explored, always choosing `B_CONSIDERED` > `B_GUESSED`.
+* set if attacking only the conditional Montgomery multiplication, the squaring one or both, by setting the parameters `ATTACK_MUL` and `ATTACK_SQUARE` in [panda4x4.h]: it is highly suggested to attack both to be sure to have a successful attack;
+* set the values for `B_CONSIDERED` and `B_GUESSED` in [panda4x4.h]: the most performing combination we have found is `B_CONSIDERED = 2` and `B_GUESSED = 1`, but other combinations could be explored, always choosing `B_CONSIDERED` >= `B_GUESSED`.
 
 The attack receives, as parameters from command line:
 * optional argument `-f` to apply filtering of samples far from the expected value (see later in this chapter);
-* the plaintext `BIN` file name with the path from the tsca root folder (i.e. `./data/P..`);
-* the timing `BIN` file name with the path from the tsca root folder (i.e. `./data/T..`);
-* the number of samples to use, which has to be less or equal to the number of samples in the files used above.
+* the plaintext `BIN` filename with the path from the tsca root folder (i.e. `./data/P..`);
+* the timing `BIN` filename with the path from the tsca root folder (i.e. `./data/T..`);
+* the number of samples to use, which has to be less or equal to the number of samples in the specified files .
 
 To run the attack, type:
 ```bash
@@ -646,7 +662,7 @@ Step: 30
 
 This is obtained for `B_CONSIDERED = 2` and `B_GUESSED = 1`. On the right the working bits are printed, with the respective correlation. The lines will be grouped according to the algorithm previously explained and the chosen bit(s) is(are) printed as `Guess:`. The value `PCC` is the cumulative Pearson correlation coefficient for the guessed grouped bit(s). The current step is `Step:`, while the live update of the guessed key is printed in the first line and the correct expected bit of the secret key in the second one.
 
-If the attack has to be run on the samples acquired on the OS, it is very important to filter all the sample far from the mean value, since they correspond to situations in which most likely the operating system preempted the executable. Thus, run the attack with the optional `-f` parameter. It will filter all the sample whose time value is far from the mean value of a value grater than the standard deviation multiplied for a coefficient `COEFF`. This coefficient can be set in [panda4x4.h]; a suggested value is 3: in this way, only the samples really far will be removed.
+If the attack has to be run on the samples acquired on the OS, it is very important to filter all the sample far from the mean value, since they correspond to situations in which most likely the operating system preempted the executable. Thus, run the attack with the optional `-f` parameter. It will filter all the sample whose time value is far from the mean value of a value greater than the standard deviation multiplied for a coefficient `COEFF`. This coefficient can be set in [panda4x4.h]; a suggested value is 3: in this way, only the samples really far will be removed.
 
 If the filtering is active, the program will print, at the beginning, the number of samples maintained for the attack:
 
@@ -667,19 +683,19 @@ Talking about pure performances, the following results have been obtained (singl
 
 The time is not simply doubled because, when switching from 128 to 256 bits, we have to take into account the following factors:
 
-* The attack estimates the internal Montgomery multiplication (the one executed when `ei = 1`), which is executed, on average, one every two iterations (assuming the hamming weight of the key around half of its digits). Thus, time is increased by 50%;
+* The attack estimates the internal Montgomery multiplication (the one executed when `ei = 1`), which is executed, on average, once every two iterations (assuming the hamming weight of the key around half of its digits). Thus, time is increased by 50%;
 
 * The attack always estimates the squaring Montgomery multiplication, which doubles the total time;
 
 * Finally, the previous number of computation is again doubled since the code has to loop over twice as much bits.
 
-Thus, the total time is increased by $`(1+2)*3 = 6`$ times. Following the same reasoning, every time we switch to the next higher number of key bits (512, 1024, ..), the times is increased by a factor 6.
+Thus, the total time is increased by $`(1+2)*2 = 6`$ times. Following the same reasoning, every time we switch to the next higher number of key bits (512, 1024, ..), the times is increased by a factor 6.
 
 ## Countermeasures
 
 ### Theory
 
-One of the possible countermeasures applicable on the RSA algorithm is `blinding`. We implemented the very same one proposed by Paul Cocher in his [paper]: the main purpose is to remove the data dependencies of the algorithm modifying the input plaintext, such that the data used by the RSA algorithm are different than the one expected by the attacker. Thus, the timing measurements on the exponentiation will be completely uncorrelated with respect to the real data used in the algorithm as well as with respect to the timing estimates performed by the attacker's model. The mathematical footprint of the RSA makes easy to modify the input data, perform the exponentiation and re-modify the output chiphertext to obtain the real expected chiphertext, using just a couple of Montgomery multiplication at the beginning and at the end of the algorithm.
+One of the possible countermeasures applicable on the RSA algorithm is `blinding`. We implemented the very same one proposed by Paul Kocher in his [paper]: the main purpose is to remove the data dependencies of the algorithm modifying the input plaintext, such that the data used by the RSA algorithm are different than the one expected by the attacker. Thus, the timing measurements on the exponentiation will be completely uncorrelated with respect to the real data used in the algorithm as well as to the timing estimates performed by the attacker's model. The mathematical footprint of RSA makes easy to modify the input data, perform the exponentiation and re-modify the output chiphertext to obtain the real expected chiphertext, using just a couple of Montgomery multiplications at the beginning and at the end of the algorithm.
 
 The proposed blinding technique works in the following way:
 * For each public, secret key pair we choose a random pair
@@ -690,7 +706,7 @@ The proposed blinding technique works in the following way:
 
   $`(v_f)^{-1} = v_i^{x} \; mod \; n`$.
 
-  Cocher suggests that "for RSA it is faster to choose a random $`v_f`$ relatively prime to `n` then compute $`v_i \; = \; (v_f^{-1})^{e} \; mod \; n`$ where `e` is the private exponent", but as we will see later all these operation can be done 'offline', i.e. at the creation of the keypair.
+  Kocher suggests that "for RSA it is faster to choose a random $`v_f`$ relatively prime to `n` then compute $`v_i \; = \; (v_f^{-1})^{e} \; mod \; n`$ where `e` is the private exponent", but as we will see later all these operation can be done 'offline', i.e. at the creation of the keypair.
 
 * Before computing the modular exponentiation, we obtain the blinded version of the message with the following operation
 
@@ -700,11 +716,11 @@ The proposed blinding technique works in the following way:
 
   $`v_f*c \; mod \; n`$
 
-Moreover Cocher suggested that
+Moreover Kocher suggested that
 
 "computing inverses $`mod \; n`$ is slow, so it is often not practical to generate a new random $`(v_i,v_f)`$ pair for each new exponentiation. The $`v_f = (v_i^{-1})^{x} \; mod \; n`$ calculation itself might even be subject to timing attacks. However $`(v_i,v_f)`$ pairs should not be reused, since they themselves might be compromised by timing attacks, leaving the secret exponent vulnerable."
 
-An efficient solution to this problem is update $`v_i`$ and $`v_f`$ before each modular exponentiation, by simply squaring them both we can maintain the same property and thus we have only four modular multiplication with respect of a normal case.
+An efficient solution to this problem is to update $`v_i`$ and $`v_f`$ before each modular exponentiation. By simply squaring both of them we can maintain the same property and thus we have only four modular multiplications with respect to a normal case.
 
 In our case since we need to pass into the Montgomery domain before any computation we can incorporate the blinding into this step by multiplying
 
@@ -714,9 +730,9 @@ the same process can be repeated at the end since we need to return to the norma
 
   $`\; c \; = \; c*v_f*R^{-1} \; mod \; n`$
 
-the only price we pay in this case is the squaring since the blinding can be easly integrated.
+the only price we pay in this case is the squaring since the blinding can be easily integrated.
 
-Due to the limit of our library we could not go with the following solution. Since the only tool available was the Montgomery multiplication we had to separate the steps for blinding and going back and forth in the Montgomery domain. Moreover we do not use directly the pair $`(v_i,v_f)`$ but a Montgomery version of it, i.e. $`(v_i*R,v_f*R) \; mod \; n`$, in this way we can just rely on the multiplication that we developed.
+Due to the limits of our library we could not go with the following solution. Since the only tool available was the Montgomery multiplication we had to separate the steps for blinding and going back and forth in the Montgomery domain. Moreover we do not use directly the pair $`(v_i,v_f)`$ but a Montgomery version of it, i.e. $`(v_i*R,v_f*R) \; mod \; n`$, in this way we can just rely on the multiplication that we developed.
 
 ### Results
 
@@ -736,14 +752,14 @@ With the available C code for the attack and the samples pair `T100k_Ofast_key0_
 
 Some future improvements could be implemented to improve both the attack code and the attack algorithm efficiency:
 
-* Use C++ instead of C and implement a class-like backtracking as in the Python version: implementing backtracking may help in case of a series of wrong guessing, being able to go back to where the guesses started to be wrong and changing them;
-* Implement some standard filtering techniques to filter the most useful timing samples, to extract more information using less samples in the real computation and thus less time;
+* Use C++ instead of C and implement a class-like backtracking as in the Python version: implementing backtracking may help in case of a series of wrong guesses, being able to go back to where the guesses started to be wrong and changing them;
+* Implement some standard filtering techniques to filter the most useful timing samples: extracting more information using less samples makes the attack faster;
 * Implement the path considered exploration (2 to the power of the number of bit considered) as parallel thread, since each estimation is completely independent from the others;
 * Employ a better estimator, to reduce more the number of samples needed for a successful attack, dealing with better correlation during the choice phase.
 
 ## Conclusions
 
-We showed that it is actually possible to attack an RSA implementation, with the needed hypothesis, using timing information and mounting an attack based on correlation using the Pearson correlation coefficient tool. It is possible to retrieve the entire key on 128 and 256 bits in a reasonable amount of time and with a reasonable number of timing samples. With a faster code implementation and more refined timing models, also higher ranged keys could be retrieved in a reasonable amount of time. What's more, the attack capabilities are not restricted on samples on bare metal systems, but the attack works also on systems running an operating system.
+We showed that it is actually possible to attack an RSA implementation, with the needed hypothesis, using timing information and mounting an attack based on correlation using the Pearson correlation coefficient tool. It is possible to retrieve the entire key on 128 and 256 bits in a reasonable amount of time and with a reasonable number of timing samples. With a faster code implementation and more refined timing models, also higher range keys could be retrieved in a reasonable amount of time. Furthermore, the attack capabilities are not restricted on samples on bare metal systems, but the attack works also on machines running an operating system.
 
 
 [Colin D. Walter paper]: ./docs/CDW_ELL_99.pdf
