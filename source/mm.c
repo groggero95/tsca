@@ -20,7 +20,7 @@
 #include "mm.h"
 
 
-int MM(int a, int b, int n, int nb) {
+int mm(unsigned int a, unsigned int b, unsigned int n, unsigned int nb) {
 
 	int res = 0;
 	for ( int i = 0, mask = 1, ai, qi; i < nb; i++, mask =  mask << 1) {
