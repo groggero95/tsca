@@ -550,7 +550,7 @@ for step = 0 to nb-1 do
     ME_estimate(window[guess], B_GUESSED);   // advance ME of bits_guessed steps
   end for;
   for i = 0 in B_GUESSED & (step + 1 < nb) do
-    keyi = guessi
+    update currently known key according to guess
   end for;
 step = step + B_GUESSED;
 end for;
@@ -562,8 +562,7 @@ where:
 * `window` is a structure used to store the different paths taken by the exponentiation depending on the guess (`branch`), by which they are indexed;
 * `pcc_insert_x`, `pcc_insert_y`, `pcc_consolidate` are functions used to manage realization of two independent variable X and Y, and calculate their correlation;
 * `pcc_arr` is storing the accumulated PCCs related to each group with the B_GUESSED least significant bit in common
-* `key` is the currently known private key (`keyi` is the i-th bit of `key`)
-* `guess` is the most probable guess (`guessi` is the i-th bit of `guess`)
+* `guess` is the most probable guess
 
 
 Once the Python implementation was working correctly and consistently on different data set, the attack was ported to C to increase the performances.
