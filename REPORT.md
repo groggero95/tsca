@@ -88,21 +88,21 @@ return s;
 
 where:
 * `s` is the multiplication result (`s0` is LSB of `s`);
-* `nb` is the total number of bits of the secret key (more precisely, it should be "an upper bound on the number of digits needed for any number encountered": as underlined later, we discovered that nb+2 is a reliable upper bound);
+* `nb` is the total number of bits of the secret key (more precisely, it should be "an upper bound on the number of digits needed for any number encountered": as underlined later, we found that nb+2 is a reliable upper bound);
 * `n` is the modulus (`n0` is LSB of `n`);
 * `r` is the radix (power of 2);
-* `a` and `a` are the two exponentiation operands (`ai` is the i-th bit of `a` and `b0` is the LSB of `a`) which are passed by the Montgomery exponentiation function, where they are used:
+* `a` and `b` are the two operands of the multiplication (`ai` is the i-th bit of `a` and `b0` is the LSB of `b`), passed by the Montgomery exponentiation function:
 
   ```text
   c = MM(k0,1,n);
   s = MM(k0,m,n);
   for i = 0 to nb-1 do
-    if (ei = 1) then
+    if (e0 = 1) then
       c = MM(c,s,n);
     end if;
     s = MM(s,s,n);
-  end if;
-  e = lsr(e,1);
+    lsr(e,1);
+  end for;
   c = MM(c,1,n);
   return c;
   ```
@@ -113,7 +113,7 @@ where:
   * `c` is the chiphertext;
   * `s` is squaring variable, updated at each iteration;
   * `m` is the message;
-  * `e` is the public exponent (`ei` is bit i-th of `e`);
+  * `e` is the public exponent (`ei` is the i-th bit of `e`);
   * `k0` is
 
     $`k_0 = 2^n`$
@@ -238,7 +238,7 @@ It will generate a file called `test_main` in the same folder. Enter then the fo
 $ cd test
 ```
 
-It contains a set of python test programs which implement reliable versions of the very same C functions listed in C (section [Operations](#operations)). To run the tests on the `bigint` library, type first the command with the `-h` flag, to access the help window:
+It contains a set of python test programs which implement reliable versions of the very same C functions listed above (section [Operations](#operations)). To run the tests on the `bigint` library, type first the command with the `-h` flag, to access the help window:
 
 ```bash
 # Comparisons:
@@ -420,30 +420,30 @@ As before, a Gaussian distribution is obtained, plus some spare samples with rea
 
 ## Attack
 
-The basic starting point for a time side channel attack is to create statistics on a set of acquired data. At this stage, we have both bare-metal data and OS-dependent data, on which we can statistically work. Now we need an algorithm able to guess bit-a-bit the secret key exploiting the timing dependencies between the total time we measured and the single RSA stage operation time, which we don't know but we have to estimate in some way. The hypothesis to carry on such an attack are:
-* timing for a sufficiently large number of plaintexts is known: we have an almost infinite number of samples we can obtain on our local software implementations; in the folder [data] we collected a set of file pairs `PLAIN.BIN` and `TIME.BIN` in the format:
+The basic starting point for a time side channel attack is to create statistics on a set of acquired data. At this stage, we have both bare-metal data and OS-dependent data, on which we can statistically work. Now we need an algorithm able to guess bit-a-bit the secret key, exploiting the timing dependencies between the total time measured before and the time of a single iteration of RSA, which is not known and has to be estimated in some way. The hypothesis to carry on such an attack are:
+* a sufficiently large number of timing samples can be recorded using different plaintexts and the same secret key: we have an almost infinite number of samples we can obtain on our local software implementations; in the folder [data] we collected a set of file pairs `PLAIN.BIN` and `TIME.BIN` in the format:
 
   `P<NumberOfSamples>_<OptimizationFlag>_<Key>_<NumberOfBits>.BIN`
   `T<NumberOfSamples>_<OptimizationFlag>_<Key>_<NumberOfBits>.BIN`
-* plaintexts used for measurements are known: the set of files pairs just shown includes a timing file and a plaintext file, containing all the plaintext provided to the algorithm;
+* plaintexts used for the measurements are known: the set of files pairs just shown includes a timing file and a plaintext file, containing all the plaintext provided to the algorithm;
 
 * the secret key is always the same for all the encryptions under the same acquisition campaign: each files pair in [data] is obtained for one and the very same key;
 
-* the time taken by the operations in the algorithm is data-depended (i.e. we have a way to correlate the total time and the time taken by each iteration): since our library is optimization-free, data dependencies should be ensured;
+* the time taken by the operations in the algorithm is data-depended (i.e. we have a way to correlate the total time and the time taken by each iteration): since our library is optimization-free, data dependencies should be ensured, as it can be seen in the [Data acquisition](#data-acquisition) section;
 
-* knowledge of the algorithm to be able to emulate it: since we are attacking a working RSA implementation customized by ourselves, we have access to the implementation.
+* knowledge of the algorithm's implementation to be able to emulate it and make estimates: since we are attacking our customized RSA algorithm, we have access to the implementation.
 
 Since all the main hypothesis are fulfilled, we can go on and start the attack.
 
 ### Attack algorithm
 
-The attack algorithm went under different stages of implementation ideas and improvements, to get to the [Final implementation](#final-implementation). In the following we reported the two main ideas we found, around which we worked on some enhancements; the first solution was dropped halfway to make room to the final, more reliable and powerful one. They are described in the following sections.
+The attack algorithm went through different stages of maturity, thanks to new ideas and improvements that arose during development, to finally get to the [Final implementation](#final-implementation). In the following sections we report the two main stages of development. The first solution was dropped halfway through to make room for the final, more reliable and powerful, one.
 
-In any case, the main ideas around which the algorithm wraps around are:
-* work guessing one or more bit looping on each bit in the key length;
+The main ideas around which the algorithm wraps around are:
+* guess one or more bit looping on each bit in the key length;
 * for each plaintext (and thus total time sample) get a time estimate through the function `MM_big_estimate()` (refer to [Final implementation](#final-implementation) for details);
-* correlate through the Pearson Correlation Coefficient (called PCC from now on) the to total execution time for an encryption to the estimate itself;
-* choose the best correlating guess and move to the following bit(s);
+* correlate through the Pearson Correlation Coefficient (called PCC from now on) the total execution time for an encryption to the estimate itself;
+* choose the guess that correlates better and move to the following bit(s);
 
 Accurate details are given in the following sections.
 
@@ -463,11 +463,11 @@ Some changes had to be made to make the attack more reliable.
 
 To start, the conditional Montgomery multiplication is used together with the subsequent "squaring" when computing estimates, giving statistical relevance even to 0-guesses.
 
-The estimate is performed in the functions `ME_big_estimate()` and `MM_big_estimate()`. The first one attack the entire multiplication in the following way:
+The full estimate is performed through the functions `ME_big_estimate()` and `MM_big_estimate()`. The first one attacks the entire iteration(s) of the exponentiation in the following way:
 
 ```text
 for i = 0 to bits_guessed do
-  if bit is set then  // bit set of the index of the maximum pcc
+  if bit_i is set then  // bit_i is the i-th bit of the guess on the secret key
     if ATTACK_MUL is set then
       MM_estimate(c,s,n);
     else
@@ -482,18 +482,18 @@ for i = 0 to bits_guessed do
 end for;    
 ```
 
-thus, it makes use of the Montgomery multiplication estimates, which works in the following way:
+It makes use of the Montgomery multiplication estimate `MM_big_estimate()`, which works in the following way:
 
 ```text
 for i = 0 in nb+2 do
   qi = s0 + aib0;
   if ai is set then
     S = S + b0;
-    increase estimate;
+    increment estimate;
   end if;
   if qi is set then
     S = S + n;
-    increase estimate;
+    increment estimate;
   end if;
   shift S;
   shift a;
