@@ -120,7 +120,6 @@ where:
 
     where `n` is the modulus computed before.
 
-
 ## Code development
 
 The starting point to get a working implementation for the Montgomery based RSA encryption is having a library capable of managing integers on a large number of bits (such as 1024 or 2048), since this will be most likely the size that will be used by most of the main core variables (private and public key, for instance). Usually, standard C libraries support numbers up to 128 bits (long double), which is the minimum key size for an admissible time side channel attack on RSA encryption. Thus, an extra library is needed.
@@ -145,8 +144,8 @@ The custom library is implemented through the files [bigint.h] and [bigint.c], w
 
 In the file [bigint.h] the following parameter are free to be set:
 
-  * `VAR_SIZE`: it determines the basic unit to build the larger integer among 8 (uint8_t), 16 (uint16_t), 32 (uint32_t) and 64 (uint64_t) bits. Recommended size is 32.
-  * `INT_SIZE`: it determines the actual length of the data the system is working on (for instance, public and private key dimensions). Possible sizes are 64, 128, 256, 512, 1024 and 2048 bits.
+  * `VAR_SIZE`: it determines the basic unit to build the larger integer among 8 (uint8_t), 16 (uint16_t), 32 (uint32_t) and 64 (uint64_t) bits. Recommended size is 32 bits when working with the zybo board, while 64 bits when working on a pc which has a 64-bits architecture.
+  * `INT_SIZE`: it determines the actual length of the data the system is working on (for instance, public and private key dimensions, as well as, for simplicity, the message dimensions). Possible sizes are 64, 128, 256, 512, 1024 and 2048 bits.
 
 As a consequence of these two parameter, the code defines the `bigint_t` data type as a struct containing a vector of `NUMB_SIZE` elements of size `VAR_SIZE`, where `NUMB_SIZE` is equal to
 
@@ -220,7 +219,7 @@ To check the actual implementations of those functions, refer to the file [bigin
 
 The Montgomery multiplication and exponentiation pseudo-codes (section [Montgomery based RSA encryption](#montgomery-based-rsa-encryption)) are ported instruction by instruction in C with the implementations reported in the files pair [mm.h], [mm.c] and [me.h], [me.c]. More specifically, refer to the functions `MM_big` and `ME_big`.
 
-During the implementation, one main flaw was discovered in the Montgomery exponentiation function: calling a Montgomery multiplication multiple times may generate results which doesn't fit in the same number of bits of the operands (i.e. a Montgomery multiplication on 128 bits doesn't necessary produce a result on 128 bits). This is due to the implementation of the multiplication itself. As a countermeasure, since we have the possibility to add, as explained in the section [Data type](#data-type), one additional chunk of data (i.e 8, 16, etc.. bits), every time a `MM_big` or a `ME_big` is referenced, it is forced to work on `INT_SIZE` bits plus 2. Those 2 bits are the first taken from the extra data chunk. In this way, the critical overflow flaw should be prevented.
+During the implementation, one main flaw was discovered in the original C version of the Montgomery exponentiation function: calling a Montgomery multiplication multiple times may generate results which doesn't fit in the same number of bits of the operands (i.e. a Montgomery multiplication on 128 bits doesn't necessary produce a result on 128 bits). This is due to the implementation of the multiplication itself. As a countermeasure, since we have the possibility to add, as explained in the section [Data type](#data-type), one additional chunk of data (i.e 8, 16, etc.. bits), every time a `MM_big` or a `ME_big` is referenced, it is forced to work on `INT_SIZE` bits plus 2. Those 2 bits are the first two taken from the extra data chunk. In this way, the critical overflow flaw should be prevented and many pointless operations are avoided, working only with `2` additional bits instead of `INT_SIZE` bits.
 
 In the acquisition file [helloworld.c] (mentioned and explained later in [Data acquisition](#data-acquisition)), you can find an example of `ME_big` functions which receive, as one of the parameters, `INT_SIZE + 2`. As a consequence, also the internal `MM_big` multiplication used to complete the exponentiation receive as number of bits `INT_SIZE + 2`.
 
@@ -232,7 +231,7 @@ $ cd tsca
 $ make test
 ```
 
-It will generate a file called `test_main` in the same folder. Enter then the folder `test`:
+It will generate an executable file called `test_main` in the same folder, which constitutes the interface between the `bigint` library and the Python test environment. The `bigint` library is also compiled in the process. Enter then the folder `test`:
 
 ```bash
 $ cd test
@@ -280,7 +279,7 @@ Total tested: 1000
 Total errors: 0
 ```
 
-The chosen python script will check the custom implementation launching the executable `test_main` against its internal implementation.
+The chosen python script will check the custom in-library function implementation (launching the executable `test_main`) against its internal infinite-precision implementation.
 
 To run instead the tests on the Montgomery operations type:
 
@@ -302,13 +301,15 @@ Total tested: 1000
 Total errors: 0
 ```
 
-All the functions have been tested with the approach just shown for a number of tests between 10 millions and 100 millions each. Each iteration of any of the Python scripts uses random numbers generated runtime. Since at the time this report is written no error is detected, the library are supposed to be reliable from now on.
+The python script behaves analogously with respect to before.
+
+All the functions have been tested with the approach just shown for a number of tests between 10 millions and 100 millions each. Each iteration of any of the Python scripts uses random numbers generated runtime.
 
 ## Data acquisition
 
 It's time now to intensively run many Montgomery exponentiation encryption on a bunch of messages using different sets of private exponent `e`, modulus `m` and `k0` and obtain the timing measurements associated to each set, to be able afterwards to mount an attack on them.
 
-The different predefined sets are declared in the file [cipher.c]:  the values for `VERSION` in [cipher.h] and having a predefined value for the key width (set in [bigint.h] with the parameter `INT_SIZE`) picks up a different set. The number of sets is limited since we don't have a code capable of generating them autonomously. Have a look at them and select one.
+The different predefined sets are declared in the file [cipher.c]:  the values for `VERSION` in [cipher.h] and having a predefined value for the key width (set in [bigint.h] with the parameter `INT_SIZE`) picks up a different set (for example, for `INT_SIZE = 128` we have three possible versions, 0, 1, 2). The number of sets is limited since we don't have a code capable of generating them autonomously. Have a look at them and select one.
 
 Two different codes are available to obtain timing measurements:
 
@@ -320,7 +321,6 @@ Two different codes are available to obtain timing measurements:
 ### Bare metal Zybo Board acquisition
 
 The folder [zybo] contains all the necessary files to define an hardware platform which is capable of running a custom code. Inside, the folder [ZC010_wrapper_hw_platform_0] specifies a set of information useful to the first stage boot loader to initialize the hardware platform on which our code will run. The folder [Test_sd_bsp] contains the Xilinx libraries with a set of built-in functions for the board. Finally, the folder [Test_sd] contains the actual acquisition code ([helloworld.c]), together with the [boot.bin] and a set of other configuration files.
-The folder [zybo] contains all the necessary files to define an hardware platform which is capable of running a custom code. Inside, the folder [ZC010_wrapper_hw_platform_0] specifies a set of information useful to the first stage boot loader to initialize the hardware platform on which our code will run. The folder [Test_sd_bsp] contains the Xilinx libraries with a set of built-in functions for the board. Finally, the folder [Test_sd] contains the actual acquisition code [helloworld.c], together with the [boot.bin] and a set of other configuration files.
 
 To run acquisitions on a OS-less system, in our case the Zybo board, two preliminary steps are necessary:
 
@@ -338,10 +338,10 @@ $ vim ./zybo/Test_sd/src/helloword.c
 ```
 
 The `main()` function performs the following:
-* Creates two data file (`PLAIN.BIN` and `TIME.BIN`) that will be written on the same SD card we will plug in the zybo; the first contains the actual value of the message it has been encrypted, the second one the timing measurement related to that encryption;
+* Creates two data file (`PLAIN.BIN` and `TIME.BIN`) that will be written on the same SD card we will plug in the zybo on which the code is loaded; the first contains the actual value of the message it has been encrypted, the second one the timing measurement related to that encryption;
 * Initializes the data structure `pair`, which contains the set of private key, public key and modulus;
 * Initialize the configuration of one led (`MIO7` on the zybo board) that will be turned on when the acquisition is concluded;
-* Starts the acquisition loop a number of times equal to `TESTNUM`: the message to be encrypted is randomly generated run-time and feeds one Montomery exponentiation, whose execution time in terms of clock cycles is recorded thanks to the Xilinx built in function `XTime_GetTime`, included in the library `xtime_l.h`; finally, write the two data files;
+* Starts the acquisition loop a number of times equal to `TESTNUM`: the message to be encrypted is randomly generated run-time and feeds one Montomery exponentiation, whose execution time in terms of clock cycles is recorded thanks to the Xilinx built in function `XTime_GetTime`, included in the library `xtime_l.h`; finally, it writes the two data files;
 * When the acquisition loop is over, the led is turned on and the `main()` returns.
 
 To run an acquisition campaign, plug and SD card in the laptop/pc and type the following commands:
@@ -362,7 +362,7 @@ $ cd data
 $ ./graph.py TIME_your_name.BIN
 ```
 It will appear the resulting distribution of samples versus the number of clock cycles.
-The following figure is most likely what you should obtain:
+The following figure represents more of less what you should obtain:
 
 <div align="center">
   <img style="padding:20px" src="./figures/100k_zybo.png" width="500"/>
@@ -378,23 +378,23 @@ In the folder [source] we made also available a version capable of obtaining the
 
 Have a look at the file:
 ```bash
+$ cd ..
 $ vim ./source/timing.c
 ```
 The `main()`function performs the following:
 * Initialize the data structure `pair`;
-* Creates/opens two data files (PLAIN.BIN and TIME.BIN) in the folder [data], which will be populated with a number of samples (plaintext encrypted) according to the parameter passed by command line;
-* For each plaintext, the timing measurements are taken `REPETITIONS` times (set to 10 by default in [timing.c]) and the minimum timing is chosen. In this way we try to reduce possible weird measurements due to OS schedulinvg policies, which may lead to clearly out-of-bound results. The functions on which the timings are taken (`ME_big()` and `MM_big()`) are the very same used in the zybo case.
+* Creates/opens two data files (PLAIN.BIN and TIME.BIN) in the folder [data], which will be populated with a number of samples (plaintext encrypted) according to the parameter passed by command line (see below);
+* For each plaintext, the timing measurements are taken `REPETITIONS` times (set to 10 by default in [timing.c], but user-adjustable) and the minimum timing is chosen. In this way we try to reduce possible weird measurements due to OS scheduling policies, which may lead to clearly unreasonable measurements. The functions on which the timings are taken (`ME_big()` and `MM_big()`) are the very same used in the zybo case.
 * The functions used for timing measurements are reported in [time_meas.h];
 * A live progress status is printed to screen (it doesn't influence the timing measurements): when the execution is done, the two files are ready to be attacked.
 
 To run the acquisition, type:
 ```bash
-$ cd ..
 $ make time
 $ ./timing [NumberOfAcquisitions] [-e/-m]
 ```
 
-Where `NumberOfAcquisitions` is the number of timing samples acquired and is set to 1000 if not specified. `-e/-m` defines if the acquisition is performed on the whole modular exponentiation (`-e`) or only on the final squaring (`-m`) (whole modular exponentiation is chosen if not specified).
+Where `NumberOfAcquisitions` is the number of timing samples acquired and is set to 1000 if not specified. `-e/-m` defines if the acquisition is performed on the whole modular exponentiation (`-e`) or only on the final squaring (`-m`) (whole modular exponentiation is chosen if not specified). Using `-e` option is highly suggested for a successful attack phase.
 
 For example:
 ```bash
@@ -403,7 +403,7 @@ $ ./timing 100000
 $ ./timing 100000 -m
 ```
 
-As for the zybo case, the time taken by this operation strongly depends on the width of the key chosen and the number of samples required. As a reference, on a single core running at 3.1 GHz, the time needed for 10000 measurements on a 128 bit key is around 4 minutes. The overhead with respect to the zybo is due to the factor 10 added when we look for the minimum.
+As for the zybo case, the time taken by this operation strongly depends on the width of the key chosen and the number of samples required. As a reference, on a single core running at 3.1 GHz, the time needed for 10000 measurements on a 128 bit key is around 4 minutes. The small overhead with respect to the zybo is due to the factor 10 added when we look for the minimum, even if the PC runs at a much higher frequency.
 
 As before, visualize the results:
 ```bash
@@ -604,11 +604,12 @@ To run the C attack, refer to the following section.
 
 #### Launch the attack
 
-We highly suggest to run the attack Using the C file, since it provides the same accuracy as the Python code but with at least a time reduction factor of 10 (Python attack in section [Python](#python)). Before running the attack:
+We highly suggest to run the attack Using the C file, since it provides the same accuracy as the Python code but with at least a time reduction factor of 10 (how to launch a Python attack in section [Python](#python)). Before running the attack:
 
 * choose the number of bits `INT_SIZE` in [bigint.h];
 * select the corresponding key setting `VERSION` in [cipher.h];
 * set if attacking only the conditional Montgomery multiplication, the squaring one of both setting the parameters `ATTACK_MUL` and `ATTACK_SQUARE` in [panda4x4.h]: it is highly suggested to attack both to be sure to have a successful attack, setting thus only`ATTACK_MUL` to 1;
+* set the values for `B_CONSIDERED` and `B_GUESSED` in [panda4x4.h]: the most performing combination we have found is `B_CONSIDERED = 2` and `B_GUESSED = 1`, but other combinations could be explored, always choosing `B_CONSIDERED` > `B_GUESSED`.
 
 The attack receives, as parameters from command line:
 * optional argument `-f` to apply filtering of samples far from the expected value (see later in this chapter);
@@ -643,7 +644,7 @@ Step: 30
 101010111110101101110011010001
 ```
 
-This is obtained for `B_CONSIDERED = 2` and `B_GUESSED = 1`. On the right the working bits are printed, with the respective correlation. The lines will be grouped according to the algorithm previously explained and the chosen bit(s) is(are) printed as `Guess:`. The value `PCC` is the cumulative Pearson correlation coefficient for the guessed bit(s). The current step is `Step:`, while the live update of the guessed key is printed in the first line and the correct expected bit of the secret key in the second one.
+This is obtained for `B_CONSIDERED = 2` and `B_GUESSED = 1`. On the right the working bits are printed, with the respective correlation. The lines will be grouped according to the algorithm previously explained and the chosen bit(s) is(are) printed as `Guess:`. The value `PCC` is the cumulative Pearson correlation coefficient for the guessed grouped bit(s). The current step is `Step:`, while the live update of the guessed key is printed in the first line and the correct expected bit of the secret key in the second one.
 
 If the attack has to be run on the samples acquired on the OS, it is very important to filter all the sample far from the mean value, since they correspond to situations in which most likely the operating system preempted the executable. Thus, run the attack with the optional `-f` parameter. It will filter all the sample whose time value is far from the mean value of a value grater than the standard deviation multiplied for a coefficient `COEFF`. This coefficient can be set in [panda4x4.h]; a suggested value is 3: in this way, only the samples really far will be removed.
 
@@ -655,9 +656,9 @@ Prefilter 13000 messages, post-filter 12906 messages
 
 #### Results
 
-Nominally, attacking 10000 samples is more than sufficient to successfully retrieve keys both on 128 and 256 bits. If attacking samples from the OS, 15000 samples could be needed (before filtering). We don't have samples for 512 or more bits, since a reasonable number of samples, i.e. 20000 or more (for more bits we need more samples to find the key), may take days. Theoretically, with the right number of samples, it should work also for larger keys.
+Nominally, attacking 10000 samples is more than sufficient to successfully retrieve keys both on 128 and 256 bits. If attacking samples from the OS, 15000 samples could be needed (before filtering). We don't have samples for 512 or more bits, since a reasonable number of samples, i.e. 20000 or more (for more bits we need more samples to find the key), may take days to be collected. Theoretically, with the right number of samples, it should work also for larger keys.
 
-Talking about pure performances, the following results have been obtained (single core, 3.1 GHz):
+Talking about pure performances, the following results have been obtained (single core, 3.1 GHz, using 10000 samples and considering both the squaring and the exponentiation):
 
 | Number of bits | Time [mm:ss] |
 |:--------------:|:------------:|
@@ -672,13 +673,13 @@ The time is not simply doubled because, when switching from 128 to 256 bits, we 
 
 * Finally, the previous number of computation is again doubled since the code has to loop over twice as much bits.
 
-Thus, the total time is increased by $`(1+2)*3 = 6`$ times. Following the same reasoning, every time we swap to the next highest number of key bits, the times is increased by a factor 6.
+Thus, the total time is increased by $`(1+2)*3 = 6`$ times. Following the same reasoning, every time we switch to the next higher number of key bits (512, 1024, ..), the times is increased by a factor 6.
 
 ## Countermeasures
 
 ### Theory
 
-One of the possible countermeasures applicable on the RSA algorithm is `blinding`. We implemented the very same one proposed by Paul Cocher in his [paper]: the main purpose is to remove the data dependencies of the algorithm modifying the input plaintext, such that the data used by the RSA algorithm are different than the one expected by the attacker. Thus, the timing measurements on the exponentiation will be completely uncorrelated with respect to the real data used in the algorithm as well as with respect to the timing estimates performed by the attacker. The mathematical footprint of the RSA makes easy to modify the input data, perform the exponentiation and re-modify the output chiphertext to obtain the real expected chiphertext, using just a couple of Montgomery multiplication at the beginning and at the end of the algorithm.
+One of the possible countermeasures applicable on the RSA algorithm is `blinding`. We implemented the very same one proposed by Paul Cocher in his [paper]: the main purpose is to remove the data dependencies of the algorithm modifying the input plaintext, such that the data used by the RSA algorithm are different than the one expected by the attacker. Thus, the timing measurements on the exponentiation will be completely uncorrelated with respect to the real data used in the algorithm as well as with respect to the timing estimates performed by the attacker's model. The mathematical footprint of the RSA makes easy to modify the input data, perform the exponentiation and re-modify the output chiphertext to obtain the real expected chiphertext, using just a couple of Montgomery multiplication at the beginning and at the end of the algorithm.
 
 The proposed blinding technique works in the following way:
 * For each public, secret key pair we choose a random pair
@@ -699,8 +700,11 @@ The proposed blinding technique works in the following way:
 
   $`v_f*c \; mod \; n`$
 
-Moreover Cocher suggested that "computing inverses $`mod \; n`$ is slow, so it is often not practical to generate a new random $`(v_i,v_f)`$ pair for each new exponentiation.\
-The $`v_f = (v_i^{-1})^{x} \; mod \; n`$ calculation itself might even be subject to timing attacks. However $`(v_i,v_f)`$ pairs should not be reused, since they themselves might be compromised by timing attacks, leaving the secret exponent vulnerable. An efficient solution to this problem is update $`v_i`$ and $`v_f`$ before each modular exponentiation, by simply squaring them both we can maintain the same property and thus we have only four modular multiplication with respect of a normal case.
+Moreover Cocher suggested that
+
+"computing inverses $`mod \; n`$ is slow, so it is often not practical to generate a new random $`(v_i,v_f)`$ pair for each new exponentiation. The $`v_f = (v_i^{-1})^{x} \; mod \; n`$ calculation itself might even be subject to timing attacks. However $`(v_i,v_f)`$ pairs should not be reused, since they themselves might be compromised by timing attacks, leaving the secret exponent vulnerable."
+
+An efficient solution to this problem is update $`v_i`$ and $`v_f`$ before each modular exponentiation, by simply squaring them both we can maintain the same property and thus we have only four modular multiplication with respect of a normal case.
 
 In our case since we need to pass into the Montgomery domain before any computation we can incorporate the blinding into this step by multiplying
 
@@ -739,7 +743,7 @@ Some future improvements could be implemented to improve both the attack code an
 
 ## Conclusions
 
-We showed that it is actually possible to attack an RSA implementation, with the needed hypothesis, using timing information and mounting an attack based on correlation using the Pearson correlation coefficient tool. It is possible to retrieve the entire key on 128 and 256 bits in a reasonable amount of time and with a reasonable number of timing samples. With a faster code implementation and more refined timing models, also higher ranged keys could be retrieved in a reasonable amount of time. What's more, the attack capabilities are not restricted on samples on bare metal systems, but it works also on systems running an operating system.
+We showed that it is actually possible to attack an RSA implementation, with the needed hypothesis, using timing information and mounting an attack based on correlation using the Pearson correlation coefficient tool. It is possible to retrieve the entire key on 128 and 256 bits in a reasonable amount of time and with a reasonable number of timing samples. With a faster code implementation and more refined timing models, also higher ranged keys could be retrieved in a reasonable amount of time. What's more, the attack capabilities are not restricted on samples on bare metal systems, but the attack works also on systems running an operating system.
 
 
 [Colin D. Walter paper]: ./docs/CDW_ELL_99.pdf
