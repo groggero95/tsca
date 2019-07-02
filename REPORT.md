@@ -628,7 +628,9 @@ Once the Python implementation was working correctly and consistently on differe
 #### Codes
 
 Two similar code versions are provided:
+
 * Python
+
 * C
 
 ##### Python
