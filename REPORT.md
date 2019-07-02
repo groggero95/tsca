@@ -117,7 +117,7 @@ where:
 * `r` is the radix in which we are representing our number;
 * `a` and `b` are the two operands of the multiplication (`ai` is the i-th bit of `a` and `b0` is the LSB of `b`)
 
-This algorithm can be efficiently implemented in software by conveniently choosing the factor `r` as a power of two. In this way the division by `r` can be substituted by a shift and the modulus `r` can be substituted by the masking of some bits (if the base is $2^n$ we need to mask `n` LSB for the modulus). The last part affected by this choice constant is `R` which in this algorithm becomes $`R = r^{nb}`$.
+This algorithm can be efficiently implemented in software by conveniently choosing the factor `r` as a power of two. In this way the division by `r` can be substituted by a shift and the modulus `r` can be substituted by the masking of some bits (if the base is $`2^n`$ we need to mask `n` LSB for the modulus). The last part affected by this choice constant is `R` which in this algorithm becomes $`R = r^{nb}`$.
 For proper functioning there are also some constraints which must be met:
 * As previously said $`gcd(n,R) = 1`$, which is a non issue un case of RSA since `n` is the product of two prime number it is odd assuring the fulfillment of this condition
 * Both input `a` and `b` must be strictly less than double the value of the modulus `n`
