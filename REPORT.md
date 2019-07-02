@@ -69,7 +69,7 @@ The pair `(n,e)` constitutes the public key, while the pair `(n,d)` the secret o
 
 To perform the encryption of a message `m` to obtain the chiphertext `c`, the following computation is performed:
 
-$`c = m^e \bmod n`$ 
+$`c = m^e \bmod n`$
 
 and the same operation is repeted when deciphering, using in this case the secret exponent `d`.
 
@@ -172,7 +172,7 @@ we can use its property and compute each multiplication alrady modulo `n` and th
 
   which means that `s` is the Montgomery form of the message `m`.
 
-In order to use the result of the exponentiation at the end we need to do the opposite and return to the normal domain, again a simple Montgomery multiplication can be used to do the trick 
+In order to use the result of the exponentiation at the end we need to do the opposite and return to the normal domain, again a simple Montgomery multiplication can be used to do the trick
 
   $`c = c \cdot R^{-1} \bmod n`$
 
@@ -834,7 +834,7 @@ We showed that it is actually possible to attack an RSA implementation, with the
 [mm.c]: ./source/mm.c
 [me.c]: ./source/me.c
 [cipher.c]: ./source/cipher.c
-[helloworld.c]: ./zybo/Test_sd/Debug
+[helloworld.c]: ./zybo/Test_sd/src/helloworld.c
 [timing.c]: ./source/timing.c
 [panda4x4.c]: ./source/panda4x4.c
 
@@ -851,4 +851,4 @@ We showed that it is actually possible to attack an RSA implementation, with the
 [include]: ./include/
 [attack]: ./attack/
 
-[boot.bin]: ./zybo/Test_sd/src/helloworld.c
+[boot.bin]: ./zybo/Test_sd/Debug/src/boot.bin
