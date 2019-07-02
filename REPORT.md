@@ -67,7 +67,7 @@ $`gcd(e,t) = 1`$ .
 
 Finally, the secret exponent `d` is chosen such that
 
-$`d \cdot e = 1 \; mod \; t`$ .
+$`d \cdot e = 1 \bmod t`$ .
 
 The pair `(n,e)` constitutes the public key, while the pair `(n,d)` the secret one.
 
