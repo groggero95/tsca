@@ -24,8 +24,6 @@
 #include "cipher.h"
 
 #define REPETITIONS 10
-#define MODE 0
-#define TESTNUM 10000
 
 const key_p pair = { .public 	= { .numb = PUBLIC_INIT},
 					 .modulus 	= { .numb = MODULUS_INIT},
@@ -37,7 +35,7 @@ const key_p pair = { .public 	= { .numb = PUBLIC_INIT},
 
 int main(int argc, char **argv){
 
-	int nb, n_rnd, n_rep;
+	int nb, n_rnd, n_rep, n_test, mode;
 	bigint_t a, b, n, res, k0;
 	time_stats_t *timer = (time_stats_t*) malloc(sizeof(time_stats_t));
 	FILE *f_time, *f_plain;
@@ -47,12 +45,33 @@ int main(int argc, char **argv){
 	f_time = fopen("data/TIME.BIN","w");
 	f_plain = fopen("data/PLAIN.BIN","w");
 
+	if (argc == 1){
+		n_test = 1000;
+		mode = 0;
+	} else if (argc == 2){
+		n_test = atoi(argv[1]);
+		mode = 0;
+	} else if (argc == 3){
+		n_test = atoi(argv[1]);
+		if (strcmp(argv[2],"-e")==0){
+			mode = 0;
+		} else if (strcmp(argv[2],"-m")==0){
+			mode = 1;
+		} else {
+			printf("Usage: ./timing [N_TEST] [-e/-m]\n");
+			return -1;
+		}
+	} else {
+		printf("Usage: ./timing [N_TEST] [-m]\n");
+		return -1;
+	}
+
 	nb = INT_SIZE;
 	reset_meas(timer);
 
 	printf("Starting sample acquisitions\n");
-	if (MODE == 0){
-		for (int j = 0; j < TESTNUM; ++j)
+	if (mode == 0){
+		for (int j = 0; j < n_test; ++j)
 		{
 			b = rand_b();
 			for (int i = 0; i < REPETITIONS; ++i)
@@ -71,8 +90,8 @@ int main(int argc, char **argv){
 			fflush(stdout);
 			reset_meas(timer);
 		}
-	} else if(MODE == 1){
-  	for(int j = 0; j < TESTNUM; j++)
+	} else if(mode == 1){
+  	for(int j = 0; j < n_test; j++)
 	  	{
 				b = rand_b();
 		    	for (int i = 0; i < REPETITIONS; ++i)
