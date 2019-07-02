@@ -53,7 +53,7 @@ The RSA ecryption algorithm involves two steps:
 
 * modular exponentiation and multiplication based encryption
 
-For the key pair generation, first two distinct large prime number (`p`,`q`) have to be found. Then, the modulus `n` is computed as the product of the two prime numbers. The Eulero's totient `t` is successively computed as the product
+For the key pair generation, first two distinct large prime number (`p`,`q`) have to be found. Then, the modulus `n` is computed as the product of the two prime numbers $`t = p \cdot q`$. The Eulero's totient `t` is successively computed as the product
 
 $`t = (p-1) \cdot (q-1)`$
 
@@ -73,7 +73,7 @@ The pair `(n,e)` constitutes the public key, while the pair `(n,d)` the secret o
 
 To perform the encryption of a message `m` to obtain the chiphertext `c`, the following operation is performed:
 
-$`c = m^e \; mod \; n`$ .
+$`c = m^e \bmod n`$ .
 
 This computation consists of two main operations: modular multiplication and exponentiation. The implementation we adopted takes advantage instead of the Montgomery multiplication: the multiplier digits are consumed in the reverse order and no full length comparisons are required for the modular reductions (refer to [Colin D. Walter paper] on the topic). The basic pseudo-code it defines for the Montgomery modular multiplication is:
 
@@ -703,35 +703,35 @@ The proposed blinding technique works in the following way:
 
   before the exponentiation, such that
 
-  $`(v_f)^{-1} = v_i^{x} \; mod \; n`$.
+  $`(v_f)^{-1} = v_i^{x} \bmod n`$.
 
-  Kocher suggests that "for RSA it is faster to choose a random $`v_f`$ relatively prime to `n` then compute $`v_i \; = \; (v_f^{-1})^{e} \; mod \; n`$ where `e` is the private exponent", but as we will see later all these operation can be done 'offline', i.e. at the creation of the keypair.
+  Kocher suggests that "for RSA it is faster to choose a random $`v_f`$ relatively prime to `n` then compute $`v_i \; = \; (v_f^{-1})^{e} \bmod n`$ where `e` is the private exponent", but as we will see later all these operation can be done 'offline', i.e. at the creation of the keypair.
 
 * Before computing the modular exponentiation, we obtain the blinded version of the message with the following operation
 
-  $`v_i*m\; mod \; n `$
+  $`v_i*m\bmod n `$
 
 * After the modular exponentiation, we can recover the chiphertext using the other factor $`v_f`$:
 
-  $`v_f*c \; mod \; n`$
+  $`v_f*c \bmod n`$
 
 Moreover Kocher suggested that
 
-"computing inverses $`mod \; n`$ is slow, so it is often not practical to generate a new random $`(v_i,v_f)`$ pair for each new exponentiation. The $`v_f = (v_i^{-1})^{x} \; mod \; n`$ calculation itself might even be subject to timing attacks. However $`(v_i,v_f)`$ pairs should not be reused, since they themselves might be compromised by timing attacks, leaving the secret exponent vulnerable."
+"computing inverses $`mod \; n`$ is slow, so it is often not practical to generate a new random $`(v_i,v_f)`$ pair for each new exponentiation. The $`v_f = (v_i^{-1})^{x} \bmod n`$ calculation itself might even be subject to timing attacks. However $`(v_i,v_f)`$ pairs should not be reused, since they themselves might be compromised by timing attacks, leaving the secret exponent vulnerable."
 
 An efficient solution to this problem is to update $`v_i`$ and $`v_f`$ before each modular exponentiation. By simply squaring both of them we can maintain the same property and thus we have only four modular multiplications with respect to a normal case.
 
 In our case since we need to pass into the Montgomery domain before any computation we can incorporate the blinding into this step by multiplying
 
-  $`\; s \; = \; m*v_i*R \; mod \; n`$
+  $`\; s \; = \; m*v_i*R \bmod n`$
 
 the same process can be repeated at the end since we need to return to the normal domain, thus we can compute
 
-  $`\; c \; = \; c*v_f*R^{-1} \; mod \; n`$
+  $`\; c \; = \; c*v_f*R^{-1} \bmod n`$
 
 the only price we pay in this case is the squaring since the blinding can be easily integrated.
 
-Due to the limits of our library we could not go with the following solution. Since the only tool available was the Montgomery multiplication we had to separate the steps for blinding and going back and forth in the Montgomery domain. Moreover we do not use directly the pair $`(v_i,v_f)`$ but a Montgomery version of it, i.e. $`(v_i*R,v_f*R) \; mod \; n`$, in this way we can just rely on the multiplication that we developed.
+Due to the limits of our library we could not go with the following solution. Since the only tool available was the Montgomery multiplication we had to separate the steps for blinding and going back and forth in the Montgomery domain. Moreover we do not use directly the pair $`(v_i,v_f)`$ but a Montgomery version of it, i.e. $`(v_i*R,v_f*R) \bmod n`$, in this way we can just rely on the multiplication that we developed.
 
 ### Results
 
