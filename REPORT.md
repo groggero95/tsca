@@ -51,19 +51,15 @@ The RSA ecryption algorithm involves two steps:
 
 * key pair generation
 
-* modular exponentiation and multiplication based encryption
+* modular exponentiation based encryption
 
-For the key pair generation, first two distinct large prime number (`p`,`q`) have to be found. Then, the modulus `n` is computed as the product of the two prime numbers $`t = p \cdot q`$. The Eulero's totient `t` is successively computed as the product
+For the key pair generation, first two distinct large prime number (`p`,`q`) have to be found. Then, the modulus `n` is computed as the product of the two prime numbers  $`t = p \cdot q`$. The Eulero's totient `t` is successively computed as the product
 
 $`t = (p-1) \cdot (q-1)`$
 
-and the public exponent `e` is chosen such that
+and the public exponent `e` is chosen such that it fulfills the following conditions
 
-$`1 < e < t`$
-
-and
-
-$`gcd(e,t) = 1`$ .
+$`1 < e < t`$, $`gcd(e,t) = 1`$
 
 Finally, the secret exponent `d` is chosen such that
 
@@ -71,16 +67,44 @@ $`d \cdot e \equiv 1 \pmod{t}`$ .
 
 The pair `(n,e)` constitutes the public key, while the pair `(n,d)` the secret one.
 
-To perform the encryption of a message `m` to obtain the chiphertext `c`, the following operation is performed:
+To perform the encryption of a message `m` to obtain the chiphertext `c`, the following computation is performed:
 
-$`c = m^e \bmod n`$ .
+$`c = m^e \bmod n`$ 
 
-This computation consists of two main operations: modular multiplication and exponentiation. The implementation we adopted takes advantage instead of the Montgomery multiplication: the multiplier digits are consumed in the reverse order and no full length comparisons are required for the modular reductions (refer to [Colin D. Walter paper] on the topic). The basic pseudo-code it defines for the Montgomery modular multiplication is:
+and the same operation is repeted when deciphering, using in this case the secret exponent `d`.
+
+This computation, called modular exponentiation is quite expensive to performe as is. In particular if we were to pwerform the power $`m^e`$ we would need a lot of processing power and the possibility to handle very large number. Fortunately this operation can be computed in an iterative way by exploiting the property of modular aritmethic and powers. The only tool that we need to achieve this result is called modular multiplication. This operation simply consists in the following:
+
+$`a \cdot b \bmod n`$ .
+
+Although passing from computing a power to many multiplication is alrady an improvement, especially in term of size of the number used, (we would need in the worst case double the maximum size between the two number `a` and `b`) we can still do better by using a paricular version called Montgomery multiplication.
+To understand what it is and how it works we first need to clarify a few concepts.\
+Given a number $`a`$ and a modulus $`n`$ we denote
+
+$`a' = a \cdot R \bmod n`$
+
+where $`a'`$ is defined as the Montgomery form of $`a \pmod{n}`$. The factor $`R`$ instead can be choosen in such a way that
+
+$`gcd(n,R) = 1`$ and $`R > 0`$
+
+and we will see later that this freedom on the choice of $`R`$ is the key to reduce the complexity of the operation executed.
+
+The last step is now to understand how multiplication works between number in this particular domain. Let's consider $`a' = a \cdot R \pmod{n}`$ and $`b' = b \cdot R \pmod{n}`$, their product is
+
+$`(a' \bmod n) \cdot (b' \bmod n) \bmod n = a' \cdot b' \bmod n =  (abR) \cdot R \bmod n`$
+
+we can notice that the outcome of this product is no longer a number in Montgomery domain due to the extra factor $`R`$. In order to mantain the outcome of a product in the correct form we need to include every time a factor $`R^{-1}`$ which is the modular inverses of $`R \pmod{n}`$, i.e. $`R \cdot  R^{-1} \bmod n = 1`$.
+We thus define the Montgomery multiplication as the operation taking four inputs $`a`$,$`b`$, $`R`$ and $`n`$ and performing
+
+$`a \cdot b \cdot R^{-1} \bmod n`$
+
+This operation can be performed in an iterative way and this is the basic pseudo-code to do it:
 
 ```text
+input: a, b, n, nb
 s = 0;
 for i = 0 to nb-1 do
-  qi = (s0 + aib0) x (-n0^-1) mod r;
+  qi = (s0 + ai*b0) x (-n0^-1) mod r;
   s = (s + ai x b + qi x n) div r;
 end for;
 return s;
@@ -88,37 +112,71 @@ return s;
 
 where:
 * `s` is the multiplication result (`s0` is LSB of `s`);
-* `nb` is the total number of bits of the secret key (more precisely, it should be "an upper bound on the number of digits needed for any number encountered": as underlined later, we found that nb+2 is a reliable upper bound);
+* `nb` is at least the number of bits of the modulus;
 * `n` is the modulus (`n0` is LSB of `n`);
-* `r` is the radix (power of 2);
-* `a` and `b` are the two operands of the multiplication (`ai` is the i-th bit of `a` and `b0` is the LSB of `b`), passed by the Montgomery exponentiation function:
+* `r` is the radix in which we are representing our number;
+* `a` and `b` are the two operands of the multiplication (`ai` is the i-th bit of `a` and `b0` is the LSB of `b`)
+
+This algorithm can be efficiently implemented in software by conveniently choosing the factor `r` as a power of two. In this way the division by `r` can be substituted by a shift and the modulus `r` can be substituted by the masking of some bits (if the base is $2^n$ we need to mask `n` LSB for the modulus). The last part affected by this choice constant is `R` which in this algorithm becomes $`R = r^{nb}`$.
+For proper functioning there are also some constraints which must be met:
+* As previously said $`gcd(n,R) = 1`$, which is a non issue un case of RSA since `n` is the product of two prime number it is odd assuring the fulfillment of this condition
+* Both input `a` and `b` must be strictly less than double the value of the modulus `n`
+
+Since we need this algorithm in the modular exponentiation and we will use very large numbers an important step is to analise the boundaries of the operations executed in it. \
+The only variable to check is `s` as `qi` just need one bit. Assumig now that the modulus `n` has a size of `nb` bit then both `a` and `b` will have at most `nb+1` bit, thanks to the aformentioned constraints. At the end of each iteration we are sure that $`s < n + b`$ due to the division by `r` so at most `s` will have a size of `nb+2`. This in turns means that when computing `s` the intermediate value originated from the addition may need `nb+3` bits. As last observation we need to point out that the above inequality also suggest that `s`, which is the result, may be larger then `n`, the modulus. In order to overcome this problem it is possible to insert an `if` statement and check the value of `s` but a more simple solution is just to perform two additional iteration assuming that the operand `a` is padded with some zero bit. The latter solution is the one we have opted for as by not using a condition statement we provide less possibilities to attack this operation.
+
+With all the previous knowledge we present now the pseudo-code of the modified exponentiation:
 
   ```text
-  c = MM(k0,1,n);
-  s = MM(k0,m,n);
+  input: e, m, n, k0, nb
+  c = MM(k0,1,n,nb);
+  s = MM(k0,m,n,nb);
   for i = 0 to nb-1 do
     if (e0 = 1) then
-      c = MM(c,s,n);
+      c = MM(c,s,n,nb);
     end if;
-    s = MM(s,s,n);
+    s = MM(s,s,n,nb);
     lsr(e,1);
   end for;
-  c = MM(c,1,n);
+  c = MM(c,1,n,nb);
   return c;
   ```
 
   where:
 
-  * `MM(a,b,n)` is the Montgomery multiplication defined by the previous algorithm;
-  * `c` is the chiphertext;
-  * `s` is squaring variable, updated at each iteration;
+  * `MM(a,b,n,nb)` is the Montgomery multiplication defined by the previous algorithm;
+  * `c` is the result of the modular exponentiation, it can be both chiphertext or plaintext depending on operation I am performing (encryption or decryption);
+  * `s` is the squaring variable, updated at each iteration;
   * `m` is the message;
-  * `e` is the public exponent (`ei` is the i-th bit of `e`);
-  * `k0` is
+  * `e` is the exponent (`ei` is the i-th bit of `e`), it can be both the public or private key depending on operation I am performing (encryption or decryption);
+  * `n` is the modulus corresponding to the keypair
+  * `nb` is the number of bit of the modulus `n`
+  * `k0` is $`k_0 = R^2 \bmod n = r^{2\cdot (nb+2)} \bmod n`$, the plus two factor derive on the previous observation on the Montgomery multiplication. This constant can be computed once at creation of the keypair
 
-    $`k_0 = 2^n`$
+This algorithm is of the RL type since it consumes the exponent bit from the least significant to the most significant (i.e. from right to left). It also uses a square and multiply approach, which can be derived by considering the exponent in its binary rapresentation
 
-    where `n` is the modulus computed before.
+  $`e = \sum_{n=0}^{nb-1} e_i \cdot 2^i`$
+
+using now the property of powers we can split the power in many multiplication
+
+  $`m^e = \prod_{i=0}^{nb-1} m^{e_i \cdot 2^i} = \prod_{i=0}^{nb-1} e_i \cmod m^{2^i}`$
+
+as we can see what we need is to compute the message `m` to a power of two (squaring) and to incorporate this factor into `c`, which will start as a one, only when the i-th bit of `e` is set (multiply). Since we are computing the modulus of $`m^e`$
+we can use its property and compute each multiplication alrady modulo `n` and thus in our case use the Montgomery multiplication. Still before actually using it we need that both `c` and `m` are in the Montgomery domain, operation which is achieved at the beginning
+
+  $`c = 1 \cdot k0 \cdot R^{-1} \bmod n = 1 \cdot R^2 \cdot R^{-1} \bmod n = 1 \cdot R \bmod n`$
+
+  and in the same way
+
+  $`s = m \cdot k0 \cdot R^{-1} \bmod n = m \cdot R^2 \cdot R^{-1} \bmod n = m \cdot R \bmod n`$
+
+  which means that `s` is the Montgomery form of the message `m`.
+
+In order to use the result of the exponentiation at the end we need to do the opposite and return to the normal domain, again a simple Montgomery multiplication can be used to do the trick 
+
+  $`c = c \cdot R^{-1} \bmod n`$
+
+since `c` is already in Montgomery form multiplying by one will just consume the `R` factor which is embedded in it.
 
 ## Code development
 
