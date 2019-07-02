@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 #
 # Copyright (C) EURECOM, Telecom Paris
 #
@@ -14,7 +16,6 @@
 # http://www.cecill.info/licences/Licence_CeCILL_V1.1-US.txt 
 #
 
-#!/usr/bin/python
 
 # This is right, even if we are doing modulus
 # operation the output res is not strictly less than
