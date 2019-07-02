@@ -155,11 +155,11 @@ With all the previous knowledge we present now the pseudo-code of the modified e
 
 This algorithm is of the RL type since it consumes the exponent bit from the least significant to the most significant (i.e. from right to left). It also uses a square and multiply approach, which can be derived by considering the exponent in its binary rapresentation
 
-  $`e = \sum_{n=0}^{nb-1} e_i \cdot 2^i`$
+  $`e = \sum\limits_{n=0}^{nb-1} e_i \cdot 2^i`$
 
 using now the property of powers we can split the power in many multiplication
 
-  $`m^e = \prod_{i=0}^{nb-1} m^{e_i \cdot 2^i} = \prod_{i=0}^{nb-1} e_i \cmod m^{2^i}`$
+  $`m^e = \prod\limits_{i=0}^{nb-1} m^{e_i \cdot 2^i} = \prod\limits_{i=0}^{nb-1} e_i \bmod m^{2^i}`$
 
 as we can see what we need is to compute the message `m` to a power of two (squaring) and to incorporate this factor into `c`, which will start as a one, only when the i-th bit of `e` is set (multiply). Since we are computing the modulus of $`m^e`$
 we can use its property and compute each multiplication alrady modulo `n` and thus in our case use the Montgomery multiplication. Still before actually using it we need that both `c` and `m` are in the Montgomery domain, operation which is achieved at the beginning
