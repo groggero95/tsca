@@ -20,40 +20,41 @@
 #include "panda4x4.h"
 
 /**
- *  @brief Modular Exponentiation using integers
+ *  \brief Modular Exponentiation using integers
  *
- *  @details
- *   Performs @f$ m^e \cmod n @f$, this operation is called modular exponentiation.
- *	 Instead of computing directly such operation we exploit the propery of modular
- * 	 arithmetic to iteratively compute the outcome of this operation without the need
+ *  \details
+ *   Performs \f$ m^e \bmod n \f$, this operation is called modular exponentiation.
+ *	 Instead of computing directly such operation we exploit the property of modular
+ * 	 arithmetic an power to iteratively compute the outcome of this operation without the need
  *   of a very large amount of bit in order to represent the result of the power.
  *   The algorithm is based on square and multiply operation which are both performed
  *   using the Montgomery multiplication.
  *  
- *   For the correct functioning of the function the base must be at maximum 30 bit 
+ *   For the correct functioning of the function the base must be at maximum 29 bit 
  *   in order to avoid overflow in the intermediate operation performed inside the function. 
  *    
  *   This function was used for testing the validity of the algorithm on a manageble
  *	 number of bits. It does not have any other pourpose. Moreover the inputs are different
  *   than the standard one used later
  *
- *  @param e   Secret or public key, used as exponent for the power
- *  @param n   Modulus, must be an odd number for the correctness of the function
- *  @param c0  Number one in Montgomery domain, i.e. @f$ 1 \cdot R \cmod n @f$, it is 
+ *  \param e   Secret or public key, used as exponent for the power
+ *  \param n   Modulus, must be an odd number for the correctness of the function
+ *  \param c0  Number one in Montgomery domain, i.e. \f$ 1 \cdot R \bmod n \f$, it is 
  *    used as starting point to compute the output of the function 
- *  @param s0  Message @a m in Montgomery domain, i.e. @f$ m \cdot R \cmod n @f$, it 
- *    is this @a m which should be less than 30 bit
- *  @return   The result of the modular exponentiation
+ *  \param s0  Message \a m in Montgomery domain, i.e. \f$ m \cdot R \bmod n \f$, it 
+ *    is this \a m which should be less than 30 bit
+ *  \param nb  Number of bit of the exponent
+ *  \return    The result of the modular exponentiation
  */
 int me(unsigned int e, unsigned int n, unsigned int c0, unsigned int s0, unsigned int nb);
 
 /**
- *  @brief Modular Exponentiation using bigint
+ *  \brief Modular Exponentiation using \ref bigint_t
  *
- *  @details
- *   Performs @f$ m^e \cmod n @f$, this operation is called modular exponentiation.
+ *  \details
+ *   Performs \f$ m^e \bmod n \f$, this operation is called modular exponentiation.
  *	 Instead of computing directly such operation we exploit the propery of modular
- * 	 arithmetic to iteratively compute the outcome of this operation without the need
+ * 	 arithmetic and power to iteratively compute the outcome of this operation without the need
  *   of a very large amount of bit in order to represent the result of the power.
  *   The algorithm is based on square and multiply operation which are both performed
  *   using the Montgomery multiplication. Moreover it belongs to the class denoted as 
@@ -61,19 +62,23 @@ int me(unsigned int e, unsigned int n, unsigned int c0, unsigned int s0, unsigne
  * 	 least significant to the most significant bit.
  *  
  *
- *  @param e   Secret or public key, used as exponent for the power
- *  @param n   Modulus, must be an odd number for the correctness of the function
- *  @param k0  Constant related to the modulus @a n. It is used to convert a number
+ *  \param e   Secret or public key, used as exponent for the power
+ *  \param m   Plaintext or ciphertext, used as base for the power
+ *  \param n   Modulus, must be an odd number for the correctness of the function
+ *  \param k0  Constant related to the modulus \a \p n. It is used to convert a number
  *    into its Montgomery representation by means of a Montgomery multiplication.
- *    This parameter is computed as follow: @f$ R^2 \cmod n @f$
- *  @return   The result of the modular exponentiation
+ *    This parameter is computed as follow: \f$ R^2 \bmod n \f$
+ *  \param nb  Number of bit of the exponent
+ *  \return    The result of the modular exponentiation
+ *  
+ *  \sa MM_big, bigint_t
  */
 bigint_t ME_big(bigint_t e, bigint_t m, bigint_t n, bigint_t k0, int nb);
 
 /**
- *  @brief Modular Exponentiation with blinding countermeasure
+ *  \brief Modular Exponentiation with blinding countermeasure
  *
- *  @details
+ *  \details
  *   Performs a modular exponentiation but it implenets blinding
  *   in it to prevent timing side channel attack.
  *   Internally the function modify the input to the algorithm
@@ -83,33 +88,39 @@ bigint_t ME_big(bigint_t e, bigint_t m, bigint_t n, bigint_t k0, int nb);
  *   making thus the function less prone to leak information.
  *  
  *
- *  @param e   Secret or public key, used as exponent for the power
- *  @param n   Modulus, must be an odd number for the correctness of the function
- *  @param k0  Constant related to the modulus @a n. It is used to convert a number
+ *  \param e   Secret or public key, used as exponent for the power
+ *  \param m   Plaintext or ciphertext, used as base for the power
+ *  \param n   Modulus, must be an odd number for the correctness of the function
+ *  \param k0  Constant related to the modulus \a \p n. It is used to convert a number
  *    into its Montgomery representation by means of a Montgomery multiplication.
- *    This parameter is computed as follow: @f$ R^2 \cmod n @f$
- *  @return   The result of the modular exponentiation
+ *    This parameter is computed as follow: \f$ R^2 \bmod n \f$
+ *  \param nb  Number of bit of the exponent
+ *  \return    The result of the modular exponentiation
+ *
+ *  \sa MM_big, bigint_t
  */
 bigint_t ME_big_blind(bigint_t e, bigint_t m, bigint_t n, bigint_t k0, int nb);
 
 /**
- *  @brief Estimate the time employed by part of the modular exponentiation 
+ *  \brief Estimate the time employed by part of the modular exponentiation 
  *
- *  @details
- *   Performs @a bits_step iteration of the modular exponentiation, estimate the
+ *  \details
+ *   Performs \a \p bits_step iteration of the modular exponentiation, estimate the
  *   time taken and accumulate this estimate with the estimate of the previous steps.
  *   The timing model employed by this function is simply the number of branch taken
  *   while performing the intermediate operations of square and multiply.
  *  
  *
- *  @param bits        Contains the bit sequence of the exponent for which I want to 
+ *  \param bits        Contains the bit sequence of the exponent for which I want to 
  *    execute the modular exponentiation algorithm
- *  @param m[in, out]  Struct containing the intermediate values resulted from the
+ *  \param m           Struct containing the intermediate values resulted from the
  *    previous cycles of the modular exponentiation algorithm and the time estimated
  *    for those step and all the previous one
- *  @param n           Modulus, must be an odd number for the correctness of the function
- *  @param bits_step   Number of cycle of the modular exponentiation algorithm which I want to perform
- *  @return            Always return @c NULL
+ *  \param n           Modulus, must be an odd number for the correctness of the function
+ *  \param bits_step   Number of cycle of the modular exponentiation algorithm which I want to perform
+ *  \return            Always return \c NULL
+ *
+ *  \sa bigint_t, msg_t, MM_big_estimate
  */
 void ME_big_estimate(uint32_t bits, msg_t *m, bigint_t n, int bits_step);
 

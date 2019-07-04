@@ -19,22 +19,137 @@
 
 #include "bigint.h"
 
+/**
+ *  \brief Copy of \ref INT_SIZE for internal use in this file
+ *
+ *  \sa INT_SIZE
+ */
 #define BITS INT_SIZE
+
+/**
+ *  \brief Select one of the predifined keypairs
+ *  
+ *  \details 
+ *  For each size of integer there are some predefined keypair
+ *  which can be used for time acquisition on the OS and for 
+ *  attacking their relative samples.
+ *
+ *  \remark Even if some keypair are available over the 256 bit mark no sample data is available for them 
+ */
 #define VERSION 0
+
+/**
+ *  \brief Enable blinding in the timing acquisition on the OS
+ *
+ *  \details
+ *  Used in the file \a timing.c to selct between normal modular exponentiation and 
+ *  a blinded version of it.
+ *  
+ *  - \b 1 Select the \ref ME_big_blind function as target for measurement
+ *  - \b 0 Select the \ref ME_big function as target for measurement
+ */
 #define BLINDING 0
 
-// Structure to be used for the operations
+/**
+ *  \brief Structure to hold keypair informations
+ *   
+ *  \details 
+ *  This structure is used to hold all necessary data regarding a keypair. \n
+ *  It includes also constants used for blinding and to enter Montgomery domain.
+ */
 typedef struct key_pair{
-  bigint_t public;
-  bigint_t modulus;
-  bigint_t private;
-  bigint_t k0;
-  bigint_t vi;
-  bigint_t vf;
+  bigint_t public; /**< Public exponent */
+  bigint_t modulus; /**< Modulus, is publicly available */
+  bigint_t private; /**< Private exponent, is kept secret and it is what we are trying to disclose*/
+  bigint_t k0; /**< Constant computed as \f$ R^2 \bmod n\f$, necessary to enter Montgomery domain \sa ME_big, MM_big*/
+  bigint_t vi; /**< Constant used to hide the real input of the modular exponentiation. \n It can be selected as a random number such that \f$gcd(vi,private) = 1 \f$*/
+  bigint_t vf; /**< Constant used to recover the real output of the modular exponentiation. \n It can be derived from \a vi as the modular inverse of \f$ vi^{private} \bmod n\f$, meaning that \f$vi^{private} \cdot vf \bmod n = 1\f$*/
 } key_p;
+
 
 extern const key_p pair;
 
+/**
+ *  \hideinitializer
+ *  \def PUBLIC_INIT
+ *  \brief Define a vector used to initialize the \ref key_p.public variable
+ *
+ *  \b Example:
+ *  \code
+ *  	key_p pair = { .public = {.numb = PUBLIC_INIT},
+						...
+					 }
+	\endcode
+ */
+
+/**
+ *  \hideinitializer
+ *  \def MODULUS_INIT
+ *  \brief Define a vector used to initialize the \ref key_p.modulus variable
+ *
+ *  \b Example:
+ *  \code
+ *  	key_p pair = {  ...
+ 						.modulus = {.numb = MODULUS_INIT},
+						...
+					 };
+	\endcode
+ */
+
+/**
+ *  \hideinitializer
+ *  \def PRIVATE_INIT
+ *  \brief Define a vector used to initialize the \ref key_p.private variable
+ *
+ *  \b Example:
+ *  \code
+ *  	key_p pair = {  ...
+ 						.private = {.numb = PRIVATE_INIT},
+						...
+					 };
+	\endcode
+ */
+
+/**
+ *  \hideinitializer
+ *  \def K0_INIT
+ *  \brief Define a vector used to initialize the \ref key_p.k0 variable
+ *
+ *  \b Example:
+ *  \code
+ *  	key_p pair = {  ...
+ 						.k0 = {.numb = K0_INIT},
+						...
+					 };
+	\endcode
+ */
+
+/**
+ *  \hideinitializer
+ *  \def VI_INIT
+ *  \brief Define a vector used to initialize the \ref key_p.vi variable
+ *
+ *  \b Example:
+ *  \code
+ *  	key_p pair = {  ...
+ 						.vi = {.numb = VI_INIT},
+						...
+					 };
+	\endcode
+ */
+
+/**
+ *  \hideinitializer
+ *  \def VF_INIT
+ *  \brief Define a vector used to initialize the \ref key_p.vf variable
+ *
+ *  \b Example:
+ *  \code
+ *  	key_p pair = {  .vf = {.numb = VF_INIT},
+						...
+					 };
+	\endcode
+ */
 #if VAR_SIZE == 32
 	#if BITS == 128
 		#if VERSION == 0
