@@ -1,0 +1,14 @@
+\form#0:$ R^2 \bmod n$
+\form#1:$gcd(vi,private) = 1 $
+\form#2:$ vi^{private} \bmod n$
+\form#3:$vi^{private} \cdot vf \bmod n = 1$
+\form#4:$ m^e \bmod n $
+\form#5:$ 1 \cdot R \bmod n $
+\form#6:$ m \cdot R \bmod n $
+\form#7:$ R^2 \bmod n $
+\form#8:$ a \cdot b \cdot R^{-1} \bmod n $
+\form#9:$ R^{-1} $
+\form#10:$ r^{nb} $
+\form#11:$ R \cdot R^{-1} \bmod n = 1 $
+\form#12:$ a \cdot b \cdor R^{-1} \bmod n $
+\form#13:$a,b < 2n$

@@ -53,7 +53,7 @@ int mm(unsigned int a, unsigned int b, unsigned int n, unsigned int nb);
  *  \brief Modular Exponentiation using integers
  *
  *  \details
- *   Performs \f$ a \cdot b \cdor R^{-1} \bmod n \f$, this operation is called 
+ *   Performs \f$ a \cdot b \cdot R^{-1} \bmod n \f$, this operation is called 
  *   Montgomery modular multiplication. \n This type of operation naturally add the
  *   factor \f$  R^{-1} \f$ in the modular multiplication between two number \a a and \a b. \n
  *   The constant \a R, in this algorithm, is equal to \f$ r^{nb} \f$ where \a r is the base in which we are 
