@@ -146,7 +146,7 @@ def main_attack(bits=128,version=0,plain='./data/P10k_Ofast_key0_128.BIN',time='
 
     for m in messages:
         m.me_estimate(1)
-        m.me_step(1)
+        # m.me_step(1)
 
     key_guessed = ['1']
     step = 1
@@ -163,7 +163,7 @@ def main_attack(bits=128,version=0,plain='./data/P10k_Ofast_key0_128.BIN',time='
             for i in range(bits_considered):
                 for msg in branch:
                     msg.me_estimate(numb_t & 1)
-                    msg.me_step(numb_t & 1)
+                    # msg.me_step(numb_t & 1)
 
                 # To shift and pass the next LSB
                 numb_t >>= 1
