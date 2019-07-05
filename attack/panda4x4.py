@@ -88,7 +88,7 @@ def get_tails(messages, times, percentage=0.1):
 
 def main_attack(bits=128,version=0,plain='./data/P10k_Ofast_key0_128.BIN',time='./data/T10k_Ofast_key0_128.BIN', N_msg=10000):
 
-    print(bits, version, plain, time, N_msg)
+    # print(bits, version, plain, time, N_msg)
 
     if not (bits in cipher.size) or bits > 256:
         print("Unsupported bit size")
@@ -229,5 +229,5 @@ if __name__ == '__main__':
     if len(sys.argv) == 6:
         main_attack(bits=int(sys.argv[1],10), version=int(sys.argv[2],10), plain=sys.argv[3], time=sys.argv[4], N_msg=int(sys.argv[5],10))
     else:
-        print("Wrong arguments, expected: ./panda4x4.py KeySize Version PlainFile TimeFile")
+        print("Wrong arguments, expected: ./panda4x4.py KeySize Version PlainFile TimeFile N-msg")
         print("KeySize above 256 is not currently available")

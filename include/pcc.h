@@ -51,7 +51,7 @@
 #ifndef PCC_H
 #define PCC_H
 
-/** The data structure used to compute and manage a set of Pearson correlation coefficients. */
+/** \brief The data structure used to compute and manage a set of Pearson correlation coefficients. */
 struct pcc_context_s
 {
   int ny;      /**< The number of Y random variables. */
