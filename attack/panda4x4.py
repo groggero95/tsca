@@ -58,6 +58,11 @@ def read_plain(n, k0, nb=130, file_msg='../data/PLAIN.BIN', file_time='../data/T
     f_time = open(file_time, "rb")
     T_arr = list()
     i = 0
+
+    guess_test.n = n
+    guess_test.nb = nb
+    guess_test.k0 = k0
+
     while i < max_messages:
         i = i + 1
         read_msg = f_msg.read((nb-2)//8)
@@ -66,7 +71,7 @@ def read_plain(n, k0, nb=130, file_msg='../data/PLAIN.BIN', file_time='../data/T
         if not ((read_msg) and (read_time)):
             break
         msg = guess_test(int.from_bytes(read_msg, byteorder='little', signed=False), int.from_bytes(
-            read_time, byteorder='little', signed=False), n, nb, k0)
+            read_time, byteorder='little', signed=False))
         T_arr.append(msg.T)
         messages.append(msg)
     f_time.close()

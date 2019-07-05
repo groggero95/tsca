@@ -29,15 +29,17 @@ class guess_test():
     - hist is a list that stores tuples with the previous values
     - hist_len limits the length of the above mentioned list"""
 
-    def __init__(self, plain, T, n, nb, k0):
+    n = 0
+    nb = 0
+    k0 = 0
+
+    def __init__(self, plain, T):
         self.plaintext = plain
-        self.n = n
-        self.nb = nb
         self.T = T
         self.t_me = 0
         self.t_mm = 0
-        self.c = self.mm_init(k0)
-        self.s = self.mm_init(k0,plain)
+        self.c = self.mm_init(guess_test.k0)
+        self.s = self.mm_init(guess_test.k0,plain)
         self.tot_est = 0
         self.hist = [(self.c, self.s, 1, self.t_mm, self.t_me, self.tot_est)]
         self.hist_len = 6
@@ -52,12 +54,12 @@ class guess_test():
             a, b = self.c, self.s
         else:
             a, b = self.s, self.s
-        for i in range(self.nb):
+        for i in range(guess_test.nb):
             ai = a & 1
             qi = (res + (ai & b)) & 1
 
             estimate += (lt[ai] & 1) + (lt[qi] & 1)
-            res = (res + (lt[ai] & b) + (lt[qi] & self.n))
+            res = (res + (lt[ai] & b) + (lt[qi] & guess_test.n))
 
             res = res >> 1
             a = a >> 1
@@ -85,10 +87,10 @@ class guess_test():
             a, b = self.c, self.s
         else:
             a, b = self.s, self.s
-        for i in range(self.nb):
+        for i in range(guess_test.nb):
             ai = a & 1
             qi = (res + (ai & b)) & 1
-            res = (res + (lt[ai] & b) + (lt[qi] & self.n))
+            res = (res + (lt[ai] & b) + (lt[qi] & guess_test.n))
             res = res >> 1
             a = a >> 1
         return res
@@ -96,9 +98,9 @@ class guess_test():
     def mm_init(self,a,b=1):
         lt = [0, ~0]
         res = 0
-        for i in range(self.nb):
+        for i in range(guess_test.nb):
             qi = (res + (a&b)) & 1
-            res = (res + (lt[a&1]&b) + (lt[qi]&self.n))
+            res = (res + (lt[a&1]&b) + (lt[qi]&guess_test.n))
             res = res >> 1
             a = a >> 1
         return res
